@@ -39,7 +39,10 @@ export default function Providers({
   authEnabled?: boolean;
   initialUser?: User | null;
 }) {
-  const [user, setUser] = useState<User | null>(initialUser);
+  // Auth being disabled is knowable during render, so the null user is derived
+  // rather than written back through an effect on every mount.
+  const [signedInUser, setSignedInUser] = useState<User | null>(initialUser);
+  const user = authEnabled ? signedInUser : null;
   const supabase = useMemo(() => {
     if (!authEnabled) {
       return null;
@@ -49,18 +52,17 @@ export default function Providers({
 
   useEffect(() => {
     if (!supabase) {
-      setUser(null);
       return;
     }
 
     supabase.auth.getUser().then(({ data: { user: currentUser } }) => {
-      setUser(currentUser);
+      setSignedInUser(currentUser);
     });
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+      setSignedInUser(session?.user ?? null);
     });
 
     return () => subscription.unsubscribe();

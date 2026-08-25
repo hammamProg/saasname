@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { Coins, LayoutDashboard, Loader2, Search, Settings } from "lucide-react";
 import { cn } from "@/libs/cn";
 
@@ -54,19 +54,21 @@ export default function AppSidebar({
   const pathname = usePathname();
   const router = useRouter();
   const [, startTransition] = useTransition();
-  const [pendingHref, setPendingHref] = useState<string | null>(null);
+  const [navigatingTo, setNavigatingTo] = useState<{ href: string; from: string } | null>(null);
   const isDark = theme === "dark";
 
-  useEffect(() => {
-    setPendingHref(null);
-  }, [pathname]);
+  // Derived, not stored-then-cleared in an effect. The spinner belongs to the
+  // route we left; once pathname changes we have arrived and it is stale, so
+  // there is nothing to reset and no extra render pass.
+  const pendingHref =
+    navigatingTo && navigatingTo.from === pathname ? navigatingTo.href : null;
 
   function handleNavigate(href: string) {
     if (href === pathname) {
       onNavigate?.();
       return;
     }
-    setPendingHref(href);
+    setNavigatingTo({ href, from: pathname });
     startTransition(() => {
       router.push(href);
       onNavigate?.();

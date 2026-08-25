@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { CheckCircle2, Loader2, Sparkles } from "lucide-react";
+import { CheckCircle2, Loader2 } from "lucide-react";
 import apiClient from "@/libs/api";
 import type { ProfileAccess } from "@/libs/access";
 import type { PriceRecord } from "@/libs/paddle/prices";
@@ -137,12 +137,16 @@ export default function DashboardAccess({
       return;
     }
 
-    if (initialHasAccess) {
-      goToPremium();
-      return;
-    }
+    // Both branches set state, so neither runs synchronously in the effect
+    // body; doing so triggers a cascading render before the first paint.
+    void (async () => {
+      if (initialHasAccess) {
+        goToPremium();
+        return;
+      }
 
-    void waitForWebhookAccess();
+      await waitForWebhookAccess();
+    })();
   }, [checkoutSuccess, goToPremium, initialHasAccess, waitForWebhookAccess]);
 
   if (phase === "success") {

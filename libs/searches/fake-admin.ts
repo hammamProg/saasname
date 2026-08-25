@@ -55,7 +55,7 @@ export function createFakeAdmin(db: FakeDb) {
           };
         },
 
-        select(_columns?: string) {
+        select() {
           const filters: Array<[string, unknown]> = [];
           const chain = {
             eq(column: string, value: unknown) {

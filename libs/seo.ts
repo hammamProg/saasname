@@ -9,6 +9,7 @@ type SEOTags = {
   keywords?: string[];
   canonicalUrlRelative?: string;
   openGraph?: import("next").Metadata["openGraph"];
+  robots?: import("next").Metadata["robots"];
 };
 
 /** Default and per-page SEO metadata — see docs/SEO.md */
@@ -18,8 +19,9 @@ export function getSEOTags({
   keywords,
   canonicalUrlRelative,
   openGraph,
+  robots,
 }: SEOTags = {}): import("next").Metadata {
-  const defaultTitle = `${config.appName} — Ship your startup in days, not weeks`;
+  const defaultTitle = `${config.appName} — find a SaaS name that is actually free`;
   const resolvedTitle = title ?? defaultTitle;
   const resolvedDescription = description ?? config.appDescription;
   const canonicalPath = canonicalUrlRelative ?? "/";
@@ -29,9 +31,9 @@ export function getSEOTags({
     description: resolvedDescription,
     keywords: keywords ?? [
       config.appName,
-      "Next.js boilerplate",
-      "Next.js starter",
-      "SaaS",
+      "SaaS name checker",
+      "business name availability",
+      "domain and trademark check",
     ],
     metadataBase: new URL(siteUrl),
     alternates: {
@@ -53,5 +55,6 @@ export function getSEOTags({
       title: resolvedTitle,
       description: resolvedDescription,
     },
+    ...(robots ? { robots } : {}),
   };
 }

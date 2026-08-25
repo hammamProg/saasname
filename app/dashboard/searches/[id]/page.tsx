@@ -7,6 +7,7 @@ import { getSEOTags } from "@/libs/seo";
 import CheckCard, { type CheckRow } from "@/components/dashboard/CheckCard";
 import VerdictBadge from "@/components/dashboard/VerdictBadge";
 import SearchProgress from "@/components/dashboard/SearchProgress";
+import ShareToggle from "@/components/dashboard/ShareToggle";
 import type { Verdict } from "@/libs/scoring/verdict";
 import { CORE_PROBES } from "@/libs/probes/registry";
 
@@ -49,7 +50,7 @@ export default async function SearchReportPage({
   // someone else simply returns nothing rather than needing an ownership check.
   const { data: search } = await supabase
     .from("searches")
-    .select("id, status, idea_text, target_platform, credits_spent, created_at")
+    .select("id, status, idea_text, target_platform, credits_spent, created_at, share_token, is_public")
     .eq("id", id)
     .maybeSingle();
 
@@ -131,6 +132,13 @@ export default async function SearchReportPage({
         read yourself. “Could not confirm” means a check did not complete — it
         never means a name is free. None of this is legal advice.
       </p>
+
+      {!isRunning && (
+        <ShareToggle
+          searchId={id}
+          initialToken={(search.is_public ? (search.share_token as string | null) : null) ?? null}
+        />
+      )}
 
       <div className="space-y-6">
         {rows.map((candidate) => (

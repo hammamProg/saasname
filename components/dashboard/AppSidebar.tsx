@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
-import { LayoutDashboard, Loader2, Settings } from "lucide-react";
+import { Coins, LayoutDashboard, Loader2, Settings } from "lucide-react";
 import { cn } from "@/libs/cn";
 
 type AppSidebarProps = {
@@ -18,6 +18,12 @@ const navItems = [
     label: "Dashboard",
     icon: LayoutDashboard,
     exact: true,
+  },
+  {
+    href: "/dashboard/credits",
+    label: "Credits",
+    icon: Coins,
+    exact: false,
   },
   {
     href: "/dashboard/settings",

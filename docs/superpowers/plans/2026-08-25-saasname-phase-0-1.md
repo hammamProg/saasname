@@ -909,7 +909,7 @@ Stage both migration files, commit with message: `feat: add append-only credit l
   - `spendCredits(args: { userId: string; amount: number; reason: string; searchId?: string }): Promise<number>` — returns the new balance
   - `class InsufficientCreditsError extends Error` with `name === "InsufficientCreditsError"`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `libs/credits/spend.test.ts`:
 
@@ -968,12 +968,12 @@ describe("spendCredits", () => {
 });
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `npm test -- libs/credits/spend.test.ts`
 Expected: FAIL — cannot resolve `@/libs/credits/spend`.
 
-- [ ] **Step 3: Write the error type**
+- [x] **Step 3: Write the error type**
 
 Create `libs/credits/errors.ts`:
 
@@ -986,7 +986,7 @@ export class InsufficientCreditsError extends Error {
 }
 ```
 
-- [ ] **Step 4: Write the implementation**
+- [x] **Step 4: Write the implementation**
 
 Create `libs/credits/spend.ts`:
 
@@ -1036,12 +1036,12 @@ export async function spendCredits({
 }
 ```
 
-- [ ] **Step 5: Run the test to verify it passes**
+- [x] **Step 5: Run the test to verify it passes**
 
 Run: `npm test -- libs/credits/spend.test.ts`
 Expected: PASS, 3 tests.
 
-- [ ] **Step 6: Write the balance reader**
+- [x] **Step 6: Write the balance reader**
 
 Create `libs/credits/balance.ts`:
 
@@ -1066,12 +1066,12 @@ export const getCreditBalance = cache(async function getCreditBalance(
 });
 ```
 
-- [ ] **Step 7: Run the full suite**
+- [x] **Step 7: Run the full suite**
 
 Run: `npm test`
 Expected: PASS.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 Stage `libs/credits`, commit with message: `feat: add credit balance and atomic spend helpers`
 

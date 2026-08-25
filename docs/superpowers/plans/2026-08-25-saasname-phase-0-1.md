@@ -602,7 +602,7 @@ Sign-in currently lands on `http://localhost:3000`, which is a *different projec
 - Consumes: nothing
 - Produces: a working end-to-end sign-in on a single, documented port. Later tasks assume `requireUser()` returns a real user.
 
-- [ ] **Step 1: Choose one port and free it**
+- [x] **Step 1: Choose one port and free it**
 
 SaaSNa.me uses port **3000**. Find whatever else holds it:
 
@@ -610,7 +610,7 @@ Run: `lsof -nP -iTCP:3000 -sTCP:LISTEN`
 
 Stop the listed process, or move that other project to a different port. Do not work around this by running SaaSNa.me on 3002 — every piece of auth configuration below assumes one canonical origin.
 
-- [ ] **Step 2: Confirm the env values match**
+- [x] **Step 2: Confirm the env values match**
 
 In `.env.local`, both must read:
 
@@ -619,7 +619,7 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 NEXTAUTH_URL=http://localhost:3000
 ```
 
-- [ ] **Step 3: Fix the Supabase URL configuration**
+- [x] **Step 3: Fix the Supabase URL configuration**
 
 Supabase dashboard → Authentication → URL Configuration:
 
@@ -628,7 +628,15 @@ Supabase dashboard → Authentication → URL Configuration:
 
 The wildcard entry is required — without it the `?next=` and `?token_hash=` parameters are stripped.
 
-- [ ] **Step 4: Switch magic links to the token_hash flow**
+- [ ] **Step 4: Switch magic links to the token_hash flow** — BLOCKED BY STEP 5
+
+> **Correction (2026-08-25):** this step cannot be done before Step 5. The Management API
+> rejects `mailer_templates_magic_link_content` with:
+> *"Email template modification is not available for free tier projects using the default
+> email provider. Please upgrade your plan or configure a custom SMTP provider."*
+> Configure custom SMTP first, then return here. Verified against
+> `PATCH /v1/projects/<ref>/config/auth`, which returned HTTP 400.
+
 
 Supabase dashboard → Authentication → Email Templates → Magic Link. Set the link to:
 
@@ -638,7 +646,12 @@ Supabase dashboard → Authentication → Email Templates → Magic Link. Set th
 
 This avoids PKCE entirely. `app/auth/callback/route.ts:56` already handles `token_hash` via `verifyOtp`, which needs no browser-stored code verifier and therefore works from any email client or device.
 
-- [ ] **Step 5: Configure custom SMTP**
+- [ ] **Step 5: Configure custom SMTP** — DO THIS BEFORE STEP 4
+
+> **Blocked (2026-08-25):** `RESEND_API_KEY` in `.env.local` is still the literal
+> placeholder `re_...` (6 characters). A real Resend key is needed before SMTP can be
+> configured, which in turn unblocks Step 4.
+
 
 The built-in Supabase email sender is capped at roughly 2 messages per hour, which you will hit immediately during development. Supabase dashboard → Project Settings → Authentication → SMTP Settings:
 

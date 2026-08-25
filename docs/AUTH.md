@@ -116,6 +116,8 @@ await supabase.auth.signInWithOAuth({
 | Issue | Fix |
 |-------|-----|
 | PKCE / code verifier error | Update Magic Link email template with `token_hash` (step 4 above) |
+| Magic link lands on "Invalid or expired sign-in link" | The Supabase Magic Link template is still `{{ .ConfirmationURL }}`. That is the implicit flow: it returns the session in a URL **fragment**, which the server never sees, so `/auth/callback` finds no `token_hash`, `type`, or `code` and falls through to the error page. Switch the template to `token_hash` (step 4). Note Supabase blocks template edits on the free tier until custom SMTP is configured (step 5). |
+| 431 Request Header Fields Too Large | Cookies are shared across localhost ports. Clear all localhost cookies; ensure only one dev server uses port 3000. |
 | Magic link not received | Check Supabase Auth logs; enable Email provider; check spam |
 | Link opens but no session | Add redirect URLs with `?**` wildcard |
 | Google `redirect_uri_mismatch` | Use Supabase callback URI in Google Console |

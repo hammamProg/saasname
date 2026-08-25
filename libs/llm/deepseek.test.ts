@@ -80,7 +80,7 @@ describe("createDeepSeekProvider", () => {
 
     await createDeepSeekProvider().complete({ system: "s", user: "u", model: "m" });
 
-    const init = fetchMock.mock.calls[0][1] as unknown as RequestInit;
+    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
     expect(JSON.parse(init.body as string).response_format).toBeUndefined();
   });
 

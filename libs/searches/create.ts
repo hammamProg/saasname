@@ -2,7 +2,7 @@ import { createSupabaseAdmin } from "@/libs/supabase";
 import { spendCredits } from "@/libs/credits/spend";
 import { normalizeName } from "@/libs/names/normalize";
 import { runProbe, type SettledCheck } from "@/libs/probes/run";
-import { CORE_PROBES } from "@/libs/probes/registry";
+import { ALL_PROBES } from "@/libs/probes/registry";
 import type { PlatformProbe } from "@/libs/probes/types";
 import type { TargetPlatform } from "@/libs/names/generate";
 import { rollUp, scoreCheck, type ScoredCheck } from "@/libs/scoring/verdict";
@@ -95,7 +95,7 @@ export async function createSearch(
     throw new Error("No usable candidates");
   }
 
-  const probes = args.probes ?? CORE_PROBES;
+  const probes = args.probes ?? ALL_PROBES;
 
   // Throws InsufficientCreditsError before a single row is written, so a
   // failed payment leaves nothing behind to clean up.

@@ -124,10 +124,64 @@ export function scoreWebSerp(signals: ProbeSignals): PlatformVerdict {
   return { platform: "web-serp", verdict: "clear", strength: 10 };
 }
 
+export function scoreGooglePlay(signals: ProbeSignals): PlatformVerdict {
+  if (!signals.exactMatch) {
+    return { platform: "google-play", verdict: "clear", strength: 0 };
+  }
+
+  // Play exposes no rating count through the markdown path, so there is no
+  // recency signal to soften this with. An exact-name app is contested; it is
+  // never escalated to blocked on evidence this thin.
+  return { platform: "google-play", verdict: "contested", strength: 50 };
+}
+
+export function scoreSocials(signals: ProbeSignals): PlatformVerdict {
+  const keys = ["github", "x", "linkedin"];
+  const states = keys.map((k) => signals[k]).filter((v) => typeof v === "string");
+
+  if (states.length === 0 || states.every((s) => s === "unknown")) {
+    return { platform: "socials", verdict: "unknown", strength: 0 };
+  }
+
+  const taken = states.filter((s) => s === "taken").length;
+
+  if (taken === 0) {
+    return { platform: "socials", verdict: "clear", strength: 0 };
+  }
+
+  // A taken handle is an inconvenience, never a legal obstacle. These probes
+  // are indicative and are never allowed to block a name on their own.
+  return {
+    platform: "socials",
+    verdict: "contested",
+    strength: Math.round((taken / states.length) * 60),
+  };
+}
+
+export function scoreTrademark(signals: ProbeSignals): PlatformVerdict {
+  const live = Number(signals.liveMarks) || 0;
+
+  if (live === 0) {
+    // Dead, cancelled and abandoned marks block nothing.
+    return { platform: "trademark", verdict: "clear", strength: 0 };
+  }
+
+  // A live mark in a software class is the one hard blocker in the product.
+  // A live mark in an unrelated class is advisory.
+  if (signals.liveInSoftwareClass === true) {
+    return { platform: "trademark", verdict: "blocked", strength: 100 };
+  }
+
+  return { platform: "trademark", verdict: "contested", strength: 60 };
+}
+
 const SCORERS: Record<string, (s: ProbeSignals, now?: number) => PlatformVerdict> = {
   "app-store": scoreAppStore,
   domains: (s) => scoreDomains(s),
   "web-serp": (s) => scoreWebSerp(s),
+  "google-play": (s) => scoreGooglePlay(s),
+  socials: (s) => scoreSocials(s),
+  trademark: (s) => scoreTrademark(s),
 };
 
 export function scoreCheck(check: ScoredCheck, now = Date.now()): PlatformVerdict {
@@ -148,10 +202,10 @@ export function scoreCheck(check: ScoredCheck, now = Date.now()): PlatformVerdic
  *  A collision on an abandoned Android app matters far less to an iOS-targeted
  *  product than the reverse. */
 export const PLATFORM_WEIGHTS: Record<TargetPlatform, Record<string, number>> = {
-  ios: { "app-store": 1.5, domains: 1, "web-serp": 1, "google-play": 0.4 },
-  android: { "app-store": 0.4, domains: 1, "web-serp": 1, "google-play": 1.5 },
-  web: { "app-store": 0.4, domains: 1.5, "web-serp": 1.5, "google-play": 0.4 },
-  cross: { "app-store": 1, domains: 1, "web-serp": 1, "google-play": 1 },
+  ios: { "app-store": 1.5, domains: 1, "web-serp": 1, "google-play": 0.4, trademark: 1.5, socials: 0.3 },
+  android: { "app-store": 0.4, domains: 1, "web-serp": 1, "google-play": 1.5, trademark: 1.5, socials: 0.3 },
+  web: { "app-store": 0.4, domains: 1.5, "web-serp": 1.5, "google-play": 0.4, trademark: 1.5, socials: 0.3 },
+  cross: { "app-store": 1, domains: 1, "web-serp": 1, "google-play": 1, trademark: 1.5, socials: 0.3 },
 };
 
 export type CandidateVerdict = {
@@ -193,6 +247,18 @@ export function rollUp(
   }
 
   const score = weightTotal > 0 ? Math.round(weightedSum / weightTotal) : 0;
+
+  // A live software trademark forces blocked regardless of everything else. A
+  // taken handle is an inconvenience; a trademark conflict is a lawsuit.
+  //
+  // This applies only when the probe actually returned data. The trademark
+  // probe is best-effort, so a failed lookup is `unknown`, and an unknown
+  // trademark must never produce blocked -- nor be quietly treated as clear.
+  const trademark = platforms.find((p) => p.platform === "trademark");
+
+  if (trademark?.verdict === "blocked") {
+    return { verdict: "blocked", score: Math.max(score, 90), platforms };
+  }
 
   const hasBlocked = platforms.some((p) => p.verdict === "blocked");
   const hasContested = platforms.some((p) => p.verdict === "contested");

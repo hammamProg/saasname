@@ -6,6 +6,9 @@ import {
   scoreCheck,
   scoreDomains,
   scoreWebSerp,
+  scoreGooglePlay,
+  scoreSocials,
+  scoreTrademark,
   type ScoredCheck,
 } from "@/libs/scoring/verdict";
 
@@ -243,5 +246,97 @@ describe("rollUp", () => {
     // Scoring a failed check as 0 would drag the average down and understate
     // the collision we did find.
     expect(rollUp(withUnknown, "web", NOW).score).toBe(50);
+  });
+});
+
+describe("best-effort platform scoring", () => {
+  it("treats a live software trademark as blocked", () => {
+    expect(
+      scoreTrademark({ liveMarks: 3, liveInSoftwareClass: true })
+    ).toMatchObject({ verdict: "blocked" });
+  });
+
+  it("treats a live mark in an unrelated class as advisory only", () => {
+    expect(
+      scoreTrademark({ liveMarks: 3, liveInSoftwareClass: false })
+    ).toMatchObject({ verdict: "contested" });
+  });
+
+  it("treats dead marks as no obstacle at all", () => {
+    // 115 exact "SLACK" marks, none alive, blocks nothing.
+    expect(scoreTrademark({ liveMarks: 0, deadMarks: 115 })).toMatchObject({
+      verdict: "clear",
+    });
+  });
+
+  it("never lets socials block a name on their own", () => {
+    const result = scoreSocials({ github: "taken", x: "taken", linkedin: "taken" });
+    // A taken handle is an inconvenience, not a legal obstacle.
+    expect(result.verdict).toBe("contested");
+  });
+
+  it("is clear when every handle is free", () => {
+    expect(
+      scoreSocials({ github: "available", x: "available", linkedin: "available" })
+    ).toMatchObject({ verdict: "clear" });
+  });
+
+  it("is unknown when no social platform answered", () => {
+    expect(
+      scoreSocials({ github: "unknown", x: "unknown", linkedin: "unknown" })
+    ).toMatchObject({ verdict: "unknown" });
+  });
+
+  it("keeps a Google Play collision at contested, given the thin evidence", () => {
+    expect(scoreGooglePlay({ exactMatch: true })).toMatchObject({
+      verdict: "contested",
+    });
+  });
+});
+
+describe("trademark as a hard blocker", () => {
+  const clearRest: ScoredCheck[] = [
+    ok("app-store", { exactMatch: false }),
+    ok("domains", { com: "available", io: "available", ai: "available", dev: "available", app: "available" }),
+    ok("web-serp", { resultCount: 0 }),
+  ];
+
+  it("blocks the candidate even when everything else is clear", () => {
+    const checks = [
+      ...clearRest,
+      ok("trademark", { liveMarks: 1, liveInSoftwareClass: true }),
+    ];
+
+    const result = rollUp(checks, "web", NOW);
+    expect(result.verdict).toBe("blocked");
+    expect(result.score).toBeGreaterThanOrEqual(90);
+  });
+
+  it("does not block on an unknown trademark result", () => {
+    // A failed lookup must never produce blocked -- nor pass silently as clear.
+    const checks: ScoredCheck[] = [
+      ...clearRest,
+      { platform: "trademark", status: "failed", signals: {} },
+    ];
+
+    const result = rollUp(checks, "web", NOW);
+    expect(result.verdict).not.toBe("blocked");
+    expect(result.verdict).toBe("unknown");
+  });
+
+  it("does not block on dead marks alone", () => {
+    const checks = [...clearRest, ok("trademark", { liveMarks: 0, deadMarks: 115 })];
+
+    expect(rollUp(checks, "web", NOW).verdict).toBe("clear");
+  });
+
+  it("still blocks when a best-effort probe failed alongside it", () => {
+    const checks: ScoredCheck[] = [
+      ...clearRest,
+      ok("trademark", { liveMarks: 2, liveInSoftwareClass: true }),
+      { platform: "socials", status: "failed", signals: {} },
+    ];
+
+    expect(rollUp(checks, "web", NOW).verdict).toBe("blocked");
   });
 });

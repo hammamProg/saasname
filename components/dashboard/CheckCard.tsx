@@ -17,6 +17,16 @@ const PLATFORM_LABELS: Record<string, string> = {
   "app-store": "App Store",
   domains: "Domains",
   "web-serp": "Web search",
+  "google-play": "Google Play",
+  trademark: "US trademark",
+  socials: "Social handles",
+};
+
+/** Rendered under best-effort platforms so their limits are stated where the
+ *  result is read, not buried in a footnote. */
+const PLATFORM_CAVEATS: Record<string, string> = {
+  trademark: "US only, exact wordmark. Not legal advice.",
+  socials: "Indicative only.",
 };
 
 function daysSince(iso: unknown): number | null {
@@ -56,6 +66,41 @@ function describe(platform: string, s: Record<string, unknown>): string[] {
         const state = String(s[t]);
         const label = state === "available" ? "available" : state === "taken" ? "taken" : "could not check";
         return `.${t} — ${label}`;
+      });
+  }
+
+  if (platform === "google-play") {
+    return s.exactMatch
+      ? [`"${String(s.topTitle)}" is already listed.`]
+      : [`No app with this exact name (${Number(s.resultCount) || 0} results).`];
+  }
+
+  if (platform === "trademark") {
+    const live = Number(s.liveMarks) || 0;
+    const dead = Number(s.deadMarks) || 0;
+
+    if (live === 0) {
+      return dead > 0
+        ? [`No live mark. ${dead} dead or cancelled ${dead === 1 ? "mark" : "marks"}.`]
+        : ["No exact wordmark on file."];
+    }
+
+    const lines = [`${live} live ${live === 1 ? "mark" : "marks"} for this exact wordmark.`];
+    if (s.liveInSoftwareClass) lines.push("At least one is in a software class.");
+    else lines.push("None in a software class.");
+    if (s.topOwner) lines.push(`e.g. ${String(s.topOwner)}`);
+    return lines;
+  }
+
+  if (platform === "socials") {
+    return ["github", "x", "linkedin"]
+      .filter((k) => typeof s[k] === "string")
+      .map((k) => {
+        const state = String(s[k]);
+        const label =
+          state === "available" ? "free" : state === "taken" ? "taken" : "could not check";
+        const name = k === "x" ? "X" : k === "github" ? "GitHub" : "LinkedIn";
+        return `${name} — ${label}`;
       });
   }
 
@@ -120,6 +165,11 @@ export default function CheckCard({ check }: { check: CheckRow }) {
           </li>
         ))}
       </ul>
+      {PLATFORM_CAVEATS[check.platform] && (
+        <p className="mt-2 text-xs italic text-muted">
+          {PLATFORM_CAVEATS[check.platform]}
+        </p>
+      )}
       {check.evidence_url && (
         <a
           href={check.evidence_url}

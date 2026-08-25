@@ -132,7 +132,7 @@ Stage `vitest.config.ts`, `package.json`, `package-lock.json`, `libs/credits/pac
 - Consumes: nothing
 - Produces: a decision recorded in `docs/spikes/2026-08-25-external-apis.md` under a `## USPTO` heading, stating one of: `ODP_SEARCH_WORKS`, `TMSEARCH_FALLBACK_REQUIRED`, or `NOT_VIABLE_FOR_V1`.
 
-- [ ] **Step 1: Register for an ODP API key**
+- [x] **Step 1: Register for an ODP API key**
 
 Go to `https://data.uspto.gov/apis`, sign in with a USPTO.gov account, and generate an API key. Add to `.env.local`:
 
@@ -140,7 +140,7 @@ Go to `https://data.uspto.gov/apis`, sign in with a USPTO.gov account, and gener
 USPTO_API_KEY=your_key_here
 ```
 
-- [ ] **Step 2: Write the probe script**
+- [x] **Step 2: Write the probe script**
 
 Create `scripts/spikes/uspto-trademark.ts`:
 
@@ -171,16 +171,16 @@ async function probe(url: string) {
 for (const url of CANDIDATES) await probe(url);
 ```
 
-- [ ] **Step 3: Run it**
+- [x] **Step 3: Run it**
 
 Run: `npx tsx scripts/spikes/uspto-trademark.ts`
 Expected: one of the URLs returns 200 with JSON containing trademark records, or all return 404/403.
 
-- [ ] **Step 4: If both fail, probe the public search backend**
+- [x] **Step 4: If both fail, probe the public search backend**
 
 Open `https://tmsearch.uspto.gov` in a browser with the Network tab recording, search for a term, and note the XHR request the page makes — URL, method, headers, and body. Reproduce that request with `curl`. Record whether it works without authentication.
 
-- [ ] **Step 5: Record the finding**
+- [x] **Step 5: Record the finding**
 
 Create `docs/spikes/2026-08-25-external-apis.md`:
 
@@ -201,7 +201,7 @@ Create `docs/spikes/2026-08-25-external-apis.md`:
 before Phase 5 begins.
 ```
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 Stage the script and the spike doc, commit with message: `spike: probe USPTO trademark search availability`
 
@@ -217,11 +217,11 @@ Stage the script and the spike doc, commit with message: `spike: probe USPTO tra
 - Consumes: `docs/spikes/2026-08-25-external-apis.md` from Task 2
 - Produces: a `## Google Play` section stating verdict `WORKS` or `BLOCKED`, plus the exact selectors or JSON path yielding: app title, developer, rating average, rating count, install band, last-updated date.
 
-- [ ] **Step 1: Confirm the Firecrawl key**
+- [x] **Step 1: Confirm the Firecrawl key**
 
 Check `.env.local` for `FIRECRAWL_API_KEY`. If absent, obtain one from `https://firecrawl.dev` and add it.
 
-- [ ] **Step 2: Write the probe script**
+- [x] **Step 2: Write the probe script**
 
 Create `scripts/spikes/google-play.ts`:
 
@@ -244,16 +244,16 @@ const json = await res.json();
 console.log(JSON.stringify(json).slice(0, 3000));
 ```
 
-- [ ] **Step 3: Run it**
+- [x] **Step 3: Run it**
 
 Run: `npx tsx scripts/spikes/google-play.ts`
 Expected: 200, with markdown containing app titles and developer names for the search term.
 
-- [ ] **Step 4: Probe a single app detail page**
+- [x] **Step 4: Probe a single app detail page**
 
 Change the `url` in the script to `https://play.google.com/store/apps/details?id=com.Slack` and re-run. Confirm the response contains a rating average, a rating count, an install band, and an updated-on date. These are the signals the scoring rollup needs — a search page alone is not sufficient.
 
-- [ ] **Step 5: Record the finding**
+- [x] **Step 5: Record the finding**
 
 Append to `docs/spikes/2026-08-25-external-apis.md`:
 
@@ -271,7 +271,7 @@ install band <yes/no>, last updated <yes/no>, developer <yes/no>
 surrounding text or heading the parser should key off>
 ```
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 Stage the script and the spike doc, commit with message: `spike: probe Google Play scraping via Firecrawl`
 
@@ -289,7 +289,7 @@ The spec calls these the most fragile component in the system. This spike establ
 - Consumes: `docs/spikes/2026-08-25-external-apis.md` from Task 3
 - Produces: a `## Socials` section with a per-platform verdict table. Any platform marked `DROP` is excluded from the v1 probe set.
 
-- [ ] **Step 1: Write the probe script**
+- [x] **Step 1: Write the probe script**
 
 Create `scripts/spikes/socials.ts`:
 
@@ -322,17 +322,17 @@ for (const p of PLATFORMS) {
 }
 ```
 
-- [ ] **Step 2: Run it**
+- [x] **Step 2: Run it**
 
 Run: `npx tsx scripts/spikes/socials.ts`
 
 Expected: a viable platform returns a clearly different status for the taken handle (200) than the free one (404). A platform returning 200 for both, or 403/429 for both, is unusable by direct fetch.
 
-- [ ] **Step 3: Retry blocked platforms through Firecrawl**
+- [x] **Step 3: Retry blocked platforms through Firecrawl**
 
 For each platform where direct fetch failed to distinguish, retry via the Firecrawl scrape endpoint using the pattern from Task 3 Step 2. Record whether Firecrawl distinguishes taken from free.
 
-- [ ] **Step 4: Record the finding**
+- [x] **Step 4: Record the finding**
 
 Append to `docs/spikes/2026-08-25-external-apis.md`:
 
@@ -351,7 +351,7 @@ Append to `docs/spikes/2026-08-25-external-apis.md`:
 **Platforms dropped:** <list, with the reason>
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 Stage the script and the spike doc, commit with message: `spike: probe social handle availability checks`
 

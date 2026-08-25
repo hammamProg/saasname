@@ -15,6 +15,8 @@ export default function ButtonAccount({ variant = "default" }: ButtonAccountProp
   const { user } = useUser();
   const [open, setOpen] = useState(false);
   const [billingLoading, setBillingLoading] = useState(false);
+  // Google throttles avatar URLs (429); fall back to the initial badge.
+  const [avatarFailed, setAvatarFailed] = useState(false);
 
   if (!user) {
     return (
@@ -77,11 +79,12 @@ export default function ButtonAccount({ variant = "default" }: ButtonAccountProp
             : "flex items-center gap-2 rounded-xl border-2 border-foreground bg-surface px-3 py-2 text-sm font-bold disabled:opacity-60"
         }
       >
-        {avatar ? (
+        {avatar && !avatarFailed ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={avatar}
             alt=""
+            onError={() => setAvatarFailed(true)}
             className={isSidebar ? "h-8 w-8 rounded-full object-cover ring-2 ring-brand-cyan/20" : "h-8 w-8 rounded-full object-cover"}
           />
         ) : (

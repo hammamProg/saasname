@@ -42,7 +42,6 @@ export default function BrandLogo({
         alt={config.brand.logoAlt}
         width={LOGO_WIDTH}
         height={LOGO_HEIGHT}
-        quality={100}
         unoptimized
         priority
         className="block max-w-none object-contain object-left"

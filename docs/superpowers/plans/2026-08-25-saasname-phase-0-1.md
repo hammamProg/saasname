@@ -59,11 +59,11 @@ Nothing in this repo is tested and there is no runner. Every later task depends 
 - Consumes: nothing
 - Produces: `npm test` (single run), `npm run test:watch`. Tests are co-located as `*.test.ts` beside the code they cover.
 
-- [ ] **Step 1: Install Vitest**
+- [x] **Step 1: Install Vitest**
 
 Run: `npm install -D vitest@^3 @vitest/coverage-v8@^3 tsx`
 
-- [ ] **Step 2: Create the config**
+- [x] **Step 2: Create the config**
 
 Create `vitest.config.ts`:
 
@@ -84,7 +84,7 @@ export default defineConfig({
 });
 ```
 
-- [ ] **Step 3: Add npm scripts**
+- [x] **Step 3: Add npm scripts**
 
 In `package.json`, add to `"scripts"`:
 
@@ -94,7 +94,7 @@ In `package.json`, add to `"scripts"`:
 "test:coverage": "vitest run --coverage"
 ```
 
-- [ ] **Step 4: Write a test that proves the alias resolves**
+- [x] **Step 4: Write a test that proves the alias resolves**
 
 Create `libs/credits/packs.test.ts`:
 
@@ -109,12 +109,12 @@ describe("test harness", () => {
 });
 ```
 
-- [ ] **Step 5: Run the tests**
+- [x] **Step 5: Run the tests**
 
 Run: `npm test`
 Expected: PASS, 1 test.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 Stage `vitest.config.ts`, `package.json`, `package-lock.json`, `libs/credits/packs.test.ts` and commit with message: `test: add Vitest test infrastructure`
 

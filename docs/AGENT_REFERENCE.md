@@ -69,21 +69,29 @@ fastship/
 
 | Route | File | Type | Auth | Description |
 |-------|------|------|------|-------------|
-| `/` | `app/page.tsx` | Page | Public | Default landing (Header → Hero → … → Footer) |
-| `/landing` | `app/landing/page.tsx` | Page | Public | Example static SEO marketing page |
-| `/blog` | `app/blog/page.tsx` | Page | Public | Blog index |
-| `/blog/supabase-waitlist-setup` | `app/blog/[slug]/page.tsx` | Page | Public | Blog post (dynamic) |
-| `/blog/resend-transactional-emails` | `app/blog/[slug]/page.tsx` | Page | Public | Blog post (dynamic) |
-| `/components` | `app/components/page.tsx` | Page | Public | Live component showcase |
-| `/dashboard` | `app/dashboard/page.tsx` | Page | **Protected** | Private dashboard; redirects if unauthenticated |
-| `/tos` | `app/tos/page.tsx` | Page | Public | Terms of service |
-| `/privacy-policy` | `app/privacy-policy/page.tsx` | Page | Public | Privacy policy |
-| `/sitemap.xml` | `app/sitemap.ts` | Metadata | Public | Auto-generated sitemap |
-| `/robots.txt` | `app/robots.ts` | Metadata | Public | Robots rules |
-| `/api/auth/*` | `app/api/auth/[...nextauth]/route.ts` | API | — | NextAuth (sign-in, callbacks, session) |
-| `/api/lead` | `app/api/lead/route.ts` | API POST | Public | Waitlist email capture |
+| `/` | `app/page.tsx` | Page | Public | Landing page |
+| `/landing` | `app/landing/page.tsx` | Page | Public | Alternate marketing page |
+| `/blog`, `/blog/[slug]` | `app/blog/` | Page | Public | Blog |
+| `/components` | `app/components/page.tsx` | Page | Public | Component showcase |
+| `/r/[token]` | `app/r/[token]/page.tsx` | Page | **Public** | Shared report. noindex. Readable only while `is_public` AND `share_token` are both set |
+| `/dashboard` | `app/dashboard/page.tsx` | Page | Protected | Generate names, credit balance |
+| `/dashboard/searches` | `app/dashboard/searches/page.tsx` | Page | Protected | Report history |
+| `/dashboard/searches/[id]` | `app/dashboard/searches/[id]/page.tsx` | Page | Protected | One report; drives the run while unfinished |
+| `/dashboard/credits` | `app/dashboard/credits/page.tsx` | Page | Protected | Buy credit packs |
+| `/dashboard/settings`, `/dashboard/account` | `app/dashboard/` | Page | Protected | Account |
+| `/auth/signin`, `/auth/callback`, `/auth/error` | `app/auth/` | Page/API | Public | Magic link + Google |
+| `/tos`, `/privacy-policy` | `app/` | Page | Public | Legal |
+| `/sitemap.xml`, `/robots.txt` | `app/` | Metadata | Public | SEO |
+| `/api/generate` | POST | API | Protected | Idea to 5-8 candidate names. Free, no credits |
+| `/api/searches` | POST | API | Protected | Spends credits, writes pending rows, returns `searchId`. Runs no probes |
+| `/api/searches/[id]/stream` | GET | API | Protected | SSE. **Drives the probe run.** `maxDuration` 300 |
+| `/api/searches/[id]/share` | POST | API | Protected | Toggle sharing |
+| `/api/webhooks/paddle` | POST | API | Signed | Grants credits on purchase |
+| `/api/paddle/portal`, `/api/paddle/sync` | API | Protected | Billing |
+| `/api/lead` | POST | API | Public | Waitlist capture |
+| `/api/user` | GET/POST | API | Protected | Profile |
 
-**Protected by `proxy.ts`:** `/dashboard/:path*` only.
+**Protected by `proxy.ts`:** `/dashboard/:path*`.
 
 ---
 
@@ -147,25 +155,30 @@ Key files: `libs/auth.ts`, `app/api/auth/[...nextauth]/route.ts`, `proxy.ts`, `t
 
 ## Database migrations
 
-### `001_leads.sql`
+Applied in order. `005`–`013` do not exist; numbering jumped when the ShipNow
+provisioning surface was removed.
 
-| Item | Detail |
-|------|--------|
-| Table | `public.leads` — `id` (uuid), `email` (unique), `created_at` |
-| Index | `leads_created_at_idx` |
-| RLS | Enabled, **no public policies** — API uses `service_role` |
-| Used by | `POST /api/lead` via `createSupabaseAdmin()` |
+| File | Adds |
+|------|------|
+| `001_leads.sql` | `leads`. RLS on, no policy — service role only |
+| `002_next_auth.sql` | `next_auth` schema (legacy; Supabase Auth is used now) |
+| `003_profiles.sql` | `profiles` + `handle_new_user` trigger |
+| `004_subscriptions.sql` | Paddle billing columns on `profiles`, protected by a trigger |
+| `014_credits.sql` | `credit_ledger` (**append-only**), `credit_balance`, `spend_credits`, `grant_credits`, signup grant |
+| `015_searches.sql` | `searches`, `candidates`, `checks`, `platform_cache` |
+| `016_verdicts.sql` | `verdict`/`strength` on checks; `verdict`/`score`/`explanation` on candidates |
+| `017_sharing.sql` | `share_token`/`is_public` + anon read policies |
 
-### `002_next_auth.sql`
+**Invariants enforced in SQL, not just code:**
 
-| Item | Detail |
-|------|--------|
-| Schema | `next_auth` |
-| Tables | `users`, `sessions`, `accounts`, `verification_tokens` |
-| Function | `next_auth.uid()` for JWT claim lookup |
-| Used by | `@auth/supabase-adapter` in `libs/auth.ts` |
-| Prerequisite | Run after `001_leads.sql` |
-| Post-migration | Add `next_auth` to **Exposed schemas** in Supabase dashboard |
+- `credit_ledger` is append-only. A trigger rejects UPDATE and DELETE. Refunds
+  are new positive rows. Deleting a user still cascades.
+- `grant_credits` is `service_role` only. `spend_credits` and `credit_balance`
+  are callable by `authenticated` but pinned to `auth.uid()`.
+- `platform_cache` has RLS on with **no policy** and no grants — service role
+  only. The advisor flags this as `rls_enabled_no_policy`; that is intended.
+- Sharing policies require `is_public` **and** `share_token`. Neither field
+  alone can expose a report.
 
 ---
 
@@ -266,21 +279,44 @@ Default landing stack (`app/page.tsx`): Header → Hero → Problem → Features
 
 ---
 
-## ShipFast tutorial progress
+## Build phases
 
-| ShipFast feature | FastShip status | Doc |
-|------------------|-----------------|-----|
-| Get started / clone | Done | [GETTING_STARTED.md](./GETTING_STARTED.md) |
-| Ship in 5 minutes (landing) | Done | [SHIP_IN_5_MINUTES.md](./SHIP_IN_5_MINUTES.md) |
-| Database / waitlist | Done | [DATABASE.md](./DATABASE.md) |
-| Emails (Resend) | Done | [EMAILS.md](./EMAILS.md) |
-| Components library | Done | [COMPONENTS.md](./COMPONENTS.md) |
-| Static SEO pages | Done | [STATIC_PAGE.md](./STATIC_PAGE.md) |
-| SEO (metadata, sitemap) | Done | [SEO.md](./SEO.md) |
-| User auth (NextAuth) | Done | [AUTH.md](./AUTH.md) |
-| Paddle payments | **Not started** | — |
-| Private pages (beyond dashboard) | Partial | `/dashboard` only |
-| Supabase user profiles / RLS | **Not started** | — |
+Spec: `docs/superpowers/specs/2026-08-25-saasname-design.md`
+
+| Phase | Contents | Status |
+|-------|----------|--------|
+| 0 | Spikes: USPTO, Google Play, socials | Done |
+| 1 | Rebrand, auth, credit ledger, Paddle packs | Done |
+| 2 | Idea to candidates via DeepSeek | Done |
+| 3a | Core probes, first report | Done |
+| 3b | SSE streaming, progressive report | Done |
+| 4 | Scoring rollup + LLM explanations | Done |
+| 5 | Best-effort probes (Play, trademark, socials) | Done |
+| 6 | Opt-in sharing, history | Done |
+
+**Not done:** the landing page still sells a Next.js boilerplate and carries
+~20 "ShipNow" mentions. Deliberate — it needs real product copy, not a
+find-and-replace.
+
+---
+
+## Working with the LLM
+
+`deepseek-v4-flash` is a **reasoning model**. Reasoning tokens are billed as
+output *and* count against `max_tokens`, and their length is unstable — the same
+prompt was measured at 67, 144, 402, 675, 725 and 818 reasoning tokens across
+runs.
+
+Consequences, both learned the hard way:
+
+- **Never cap `max_tokens` near the observed need.** Running out mid-thought
+  returns an empty completion: full price, nothing delivered. Caps here are
+  runaway guards set far above need, not cost levers.
+- **Save money on input instead.** Short prompts, short JSON keys, one batched
+  call per search rather than one per candidate.
+- The explanation pass never decides anything. It receives a digest with no
+  numbers in it, because it will quote back whatever it is given, and it has
+  been observed inventing counts that were never sent.
 
 ---
 

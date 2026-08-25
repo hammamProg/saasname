@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Sparkles } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Loader2, ShieldCheck, Sparkles } from "lucide-react";
 import apiClient, { ApiError } from "@/libs/api";
 import {
   TARGET_PLATFORMS,
@@ -22,12 +23,15 @@ const IDEA_MAX_LENGTH = 500;
 const SEED_MAX_LENGTH = 50;
 
 export default function GenerateForm() {
+  const router = useRouter();
   const [idea, setIdea] = useState("");
   const [seedName, setSeedName] = useState("");
   const [targetPlatform, setTargetPlatform] = useState<TargetPlatform>("web");
   const [candidates, setCandidates] = useState<GeneratedCandidate[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [checking, setChecking] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const tooShort = idea.trim().length < IDEA_MIN_LENGTH;
 
@@ -38,6 +42,7 @@ export default function GenerateForm() {
     // Clear the previous run so a failure cannot leave stale names on screen
     // looking like the result of the request that just failed.
     setCandidates(null);
+    setSelected(new Set());
 
     try {
       const { candidates: next } = await apiClient.post<{
@@ -49,6 +54,7 @@ export default function GenerateForm() {
       });
 
       setCandidates(next);
+      setSelected(new Set(next.map((c) => c.normalizedName)));
     } catch (caught) {
       setError(
         caught instanceof ApiError
@@ -57,6 +63,39 @@ export default function GenerateForm() {
       );
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleCheck() {
+    if (!candidates) return;
+
+    setChecking(true);
+    setError(null);
+
+    try {
+      const { searchId } = await apiClient.post<{ searchId: string }>("/searches", {
+        mode: "generate",
+        ideaText: idea.trim(),
+        seedName: seedName.trim() || undefined,
+        targetPlatform,
+        candidates: candidates
+          .filter((c) => selected.has(c.normalizedName))
+          .map((c) => ({ name: c.name, rationale: c.rationale })),
+      });
+
+      router.push(`/dashboard/searches/${searchId}`);
+    } catch (caught) {
+      // 402 means out of credits, which has a specific next step.
+      if (caught instanceof ApiError && caught.status === 402) {
+        router.push("/dashboard/credits");
+        return;
+      }
+      setError(
+        caught instanceof ApiError
+          ? caught.message
+          : "Could not check these names right now. Please try again."
+      );
+      setChecking(false);
     }
   }
 
@@ -140,7 +179,41 @@ export default function GenerateForm() {
       )}
 
       {candidates && candidates.length > 0 && (
-        <CandidateList candidates={candidates} />
+        <>
+          <CandidateList
+            candidates={candidates}
+            selected={selected}
+            onToggle={(normalizedName) =>
+              setSelected((prev) => {
+                const next = new Set(prev);
+                if (next.has(normalizedName)) next.delete(normalizedName);
+                else next.add(normalizedName);
+                return next;
+              })
+            }
+          />
+
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={handleCheck}
+              disabled={checking || selected.size === 0}
+              className="btn-primary flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {checking ? (
+                <Loader2 size={16} className="animate-spin" aria-hidden="true" />
+              ) : (
+                <ShieldCheck size={16} aria-hidden="true" />
+              )}
+              {checking
+                ? "Checking…"
+                : `Check ${selected.size} ${selected.size === 1 ? "name" : "names"}`}
+            </button>
+            <p className="text-xs text-muted">
+              Costs 1 credit per name. Refunded if a check cannot be completed.
+            </p>
+          </div>
+        </>
       )}
     </section>
   );

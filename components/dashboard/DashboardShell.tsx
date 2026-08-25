@@ -26,13 +26,13 @@ function SidebarChrome({
 }) {
   return (
     <>
-      <div className="flex items-center justify-between border-b border-brand-mint/10 px-5 py-5">
+      <div className="flex items-center justify-between border-b border-brand-cyan/10 px-5 py-5">
         <BrandLogo size="lg" href="/dashboard" />
         {onClose && (
           <button
             type="button"
             aria-label="Close menu"
-            className="rounded-lg p-2 text-brand-mint/70 transition-colors hover:bg-white/5 hover:text-brand-mint lg:hidden"
+            className="rounded-lg p-2 text-brand-cyan/70 transition-colors hover:bg-white/5 hover:text-brand-cyan lg:hidden"
             onClick={onClose}
           >
             <X size={20} />
@@ -44,7 +44,7 @@ function SidebarChrome({
         <AppSidebar hasAccess={hasAccess} onNavigate={onNavigate} theme="dark" />
       </div>
 
-      <div className="border-t border-brand-mint/10 p-4">
+      <div className="border-t border-brand-cyan/10 p-4">
         <ButtonAccount variant="sidebar" />
       </div>
     </>
@@ -60,7 +60,7 @@ export default function DashboardShell({ hasAccess, children }: DashboardShellPr
     <DashboardAccessProvider hasAccess={hasAccess}>
       <div className="flex min-h-screen bg-background lg:h-screen lg:overflow-hidden">
       {/* Column 1 — desktop sidebar */}
-      <aside className="hidden w-[280px] shrink-0 flex-col border-r border-brand-mint/10 bg-brand-navy lg:flex">
+      <aside className="hidden w-[280px] shrink-0 flex-col border-r border-brand-cyan/10 bg-brand-ink lg:flex">
         <SidebarChrome hasAccess={hasAccess} />
       </aside>
 
@@ -69,7 +69,7 @@ export default function DashboardShell({ hasAccess, children }: DashboardShellPr
         <button
           type="button"
           aria-label="Close menu"
-          className="fixed inset-0 z-40 bg-brand-navy/60 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-40 bg-brand-ink/60 backdrop-blur-sm lg:hidden"
           onClick={closeMobile}
         />
       )}
@@ -77,7 +77,7 @@ export default function DashboardShell({ hasAccess, children }: DashboardShellPr
       {/* Mobile sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-[min(100vw-3rem,280px)] flex-col border-r border-brand-mint/10 bg-brand-navy transition-transform duration-200 lg:hidden",
+          "fixed inset-y-0 left-0 z-50 flex w-[min(100vw-3rem,280px)] flex-col border-r border-brand-cyan/10 bg-brand-ink transition-transform duration-200 lg:hidden",
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >

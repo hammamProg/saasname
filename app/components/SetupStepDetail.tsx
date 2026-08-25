@@ -19,8 +19,8 @@ function CodePreview({ commands }: { commands: string[] }) {
   }
 
   return (
-    <div className="group relative mt-4 overflow-hidden rounded-lg bg-brand-navy">
-      <div className="flex items-center justify-between border-b border-white/10 bg-brand-navy/80 px-4 py-2">
+    <div className="group relative mt-4 overflow-hidden rounded-lg bg-brand-ink">
+      <div className="flex items-center justify-between border-b border-white/10 bg-brand-ink/80 px-4 py-2">
         <span className="font-mono text-xs text-white/50">terminal</span>
         <button
           type="button"

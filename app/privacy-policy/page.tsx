@@ -18,8 +18,8 @@ export default function PrivacyPolicyPage() {
       <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
         <h1 className="section-heading text-3xl font-extrabold">Privacy Policy</h1>
         <p className="mt-6 leading-relaxed text-muted">
-          Replace this page with your privacy policy. ShipFast includes a guide for
-          generating one with GPT — coming soon in ShipNow docs.
+          Replace this page with your privacy policy. Coming soon in the SaaSNa.me
+          docs.
         </p>
       </main>
     </div>

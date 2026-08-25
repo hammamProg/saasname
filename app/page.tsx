@@ -19,7 +19,7 @@ import { renderSchemaTags } from "@/libs/seo-schema";
 export const metadata = getSEOTags({
   title: "Launch Your SaaS in Days. Not Months.",
   description:
-    "ShipNow is a production-ready SaaS starter kit with authentication, payments, emails, database, SEO, and deployment workflows already configured.",
+    "SaaSNa.me finds a SaaS name that is actually free to use — checked across app stores, web search, social handles, trademarks, and domains.",
   canonicalUrlRelative: "/",
 });
 

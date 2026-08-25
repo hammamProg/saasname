@@ -13,7 +13,7 @@ export default function ButtonGradient({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-xl bg-gradient-to-r from-brand-teal to-brand-mint px-8 py-3 text-sm font-bold text-brand-navy shadow-lg transition hover:opacity-90 ${className}`}
+      className={`rounded-xl bg-gradient-to-r from-brand-blue to-brand-cyan px-8 py-3 text-sm font-bold text-brand-ink shadow-lg transition hover:opacity-90 ${className}`}
     >
       {children}
     </button>

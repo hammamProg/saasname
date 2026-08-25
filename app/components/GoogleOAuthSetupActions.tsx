@@ -55,7 +55,7 @@ export function GoogleOAuthSetupActions({ project, onProjectUpdated }: Props) {
       )}
       <GoogleOAuthVisualGuide project={project} />
 
-      <div id="google-oauth-save" className="rounded-xl border border-brand-mint/25 bg-brand-mint/10 p-4 space-y-3">
+      <div id="google-oauth-save" className="rounded-xl border border-brand-cyan/25 bg-brand-cyan/10 p-4 space-y-3">
         <p className="text-sm font-semibold text-slate-900">Save credentials</p>
         <p className="text-xs text-slate-600">
           ShipNow stores these and applies them when you configure Supabase auth in step 4.

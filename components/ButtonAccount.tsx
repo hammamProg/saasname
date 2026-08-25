@@ -73,7 +73,7 @@ export default function ButtonAccount({ variant = "default" }: ButtonAccountProp
         disabled={billingLoading}
         className={
           isSidebar
-            ? "flex w-full items-center gap-2 rounded-xl border border-brand-mint/15 bg-brand-teal/15 px-3 py-2.5 text-sm font-semibold text-brand-mint transition-colors hover:bg-brand-teal/25 disabled:opacity-60"
+            ? "flex w-full items-center gap-2 rounded-xl border border-brand-cyan/15 bg-brand-blue/15 px-3 py-2.5 text-sm font-semibold text-brand-cyan transition-colors hover:bg-brand-blue/25 disabled:opacity-60"
             : "flex items-center gap-2 rounded-xl border-2 border-foreground bg-surface px-3 py-2 text-sm font-bold disabled:opacity-60"
         }
       >
@@ -82,13 +82,13 @@ export default function ButtonAccount({ variant = "default" }: ButtonAccountProp
           <img
             src={avatar}
             alt=""
-            className={isSidebar ? "h-8 w-8 rounded-full object-cover ring-2 ring-brand-mint/20" : "h-8 w-8 rounded-full object-cover"}
+            className={isSidebar ? "h-8 w-8 rounded-full object-cover ring-2 ring-brand-cyan/20" : "h-8 w-8 rounded-full object-cover"}
           />
         ) : (
           <span
             className={
               isSidebar
-                ? "flex h-8 w-8 items-center justify-center rounded-full bg-brand-mint/20 text-xs font-bold text-brand-gold"
+                ? "flex h-8 w-8 items-center justify-center rounded-full bg-brand-cyan/20 text-xs font-bold text-brand-violet"
                 : "flex h-8 w-8 items-center justify-center rounded-full bg-primary-soft text-xs"
             }
           >
@@ -96,7 +96,7 @@ export default function ButtonAccount({ variant = "default" }: ButtonAccountProp
           </span>
         )}
         <span className="min-w-0 flex-1 truncate text-left">{name}</span>
-        <span className={isSidebar ? "text-brand-mint/60" : "text-muted"}>
+        <span className={isSidebar ? "text-brand-cyan/60" : "text-muted"}>
           {open ? "⌃" : "⌄"}
         </span>
       </button>
@@ -105,7 +105,7 @@ export default function ButtonAccount({ variant = "default" }: ButtonAccountProp
         <div
           className={
             isSidebar
-              ? "animate-popup absolute bottom-full left-0 z-10 mb-2 w-full overflow-hidden rounded-xl border border-brand-mint/15 bg-brand-navy shadow-xl shadow-black/30"
+              ? "animate-popup absolute bottom-full left-0 z-10 mb-2 w-full overflow-hidden rounded-xl border border-brand-cyan/15 bg-brand-ink shadow-xl shadow-black/30"
               : "animate-popup absolute right-0 z-10 mt-2 w-48 overflow-hidden rounded-xl border border-border bg-card shadow-xl"
           }
         >
@@ -113,7 +113,7 @@ export default function ButtonAccount({ variant = "default" }: ButtonAccountProp
             href="/dashboard"
             className={
               isSidebar
-                ? "flex items-center gap-2 px-4 py-3 text-sm text-brand-mint/90 hover:bg-brand-teal/20"
+                ? "flex items-center gap-2 px-4 py-3 text-sm text-brand-cyan/90 hover:bg-brand-blue/20"
                 : "flex items-center gap-2 px-4 py-3 text-sm hover:bg-surface"
             }
             onClick={() => setOpen(false)}
@@ -125,7 +125,7 @@ export default function ButtonAccount({ variant = "default" }: ButtonAccountProp
             onClick={handleBilling}
             className={
               isSidebar
-                ? "flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-brand-mint/90 hover:bg-brand-teal/20"
+                ? "flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-brand-cyan/90 hover:bg-brand-blue/20"
                 : "flex w-full items-center gap-2 px-4 py-3 text-left text-sm hover:bg-surface"
             }
           >
@@ -136,7 +136,7 @@ export default function ButtonAccount({ variant = "default" }: ButtonAccountProp
             onClick={handleSignOut}
             className={
               isSidebar
-                ? "flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-brand-mint/90 hover:bg-brand-teal/20"
+                ? "flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-brand-cyan/90 hover:bg-brand-blue/20"
                 : "flex w-full items-center gap-2 px-4 py-3 text-left text-sm hover:bg-surface"
             }
           >

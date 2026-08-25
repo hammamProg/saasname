@@ -54,7 +54,7 @@ export default function LandingCodePreview() {
           subtitle="Clean, production-ready code you can read, customize, and ship with confidence."
         />
 
-        <div className="mt-12 overflow-hidden rounded-2xl border border-white/10 bg-black/50 shadow-2xl shadow-brand-teal/10">
+        <div className="mt-12 overflow-hidden rounded-2xl border border-white/10 bg-black/50 shadow-2xl shadow-brand-blue/10">
           <div className="flex gap-1 overflow-x-auto border-b border-white/10 bg-white/5 p-2">
             {tabs.map((tab) => (
               <button
@@ -63,7 +63,7 @@ export default function LandingCodePreview() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`shrink-0 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                   activeTab === tab.id
-                    ? "bg-gradient-to-r from-brand-teal/25 to-brand-mint/20 text-foreground"
+                    ? "bg-gradient-to-r from-brand-blue/25 to-brand-cyan/20 text-foreground"
                     : "text-muted hover:text-foreground"
                 }`}
               >

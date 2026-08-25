@@ -26,7 +26,7 @@ export default function Header({ variant = "default" }: HeaderProps) {
     <header
       className={
         isLanding
-          ? "sticky top-0 z-50 border-b border-brand-mint/10 bg-brand-navy/90 backdrop-blur-xl"
+          ? "sticky top-0 z-50 border-b border-brand-cyan/10 bg-brand-ink/90 backdrop-blur-xl"
           : "border-b border-border/70 bg-background"
       }
     >
@@ -55,7 +55,7 @@ export default function Header({ variant = "default" }: HeaderProps) {
           </Link>
           {isLanding ? (
             <ButtonCheckout
-              label="Get ShipNow"
+              label="Get SaaSNa.me"
               source="landing"
               extraStyle="btn-gradient !px-5 !py-2.5 text-sm"
             />
@@ -78,7 +78,7 @@ export default function Header({ variant = "default" }: HeaderProps) {
         <div
           className={`border-t px-4 py-4 backdrop-blur-xl md:hidden ${
             isLanding
-              ? "border-brand-mint/10 bg-brand-navy/95"
+              ? "border-brand-cyan/10 bg-brand-ink/95"
               : "border-border bg-background/95"
           }`}
         >
@@ -98,7 +98,7 @@ export default function Header({ variant = "default" }: HeaderProps) {
             </Link>
             {isLanding ? (
               <ButtonCheckout
-                label="Get ShipNow"
+                label="Get SaaSNa.me"
                 source="landing"
                 extraStyle="btn-gradient w-full !py-2.5 text-sm"
               />

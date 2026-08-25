@@ -46,7 +46,7 @@ export function ProjectAvatar({ project, size = "md", className }: ProjectAvatar
   return (
     <div
       className={cn(
-        "flex items-center justify-center bg-gradient-to-br from-brand-teal/30 to-brand-mint/20 font-bold text-primary",
+        "flex items-center justify-center bg-gradient-to-br from-brand-blue/30 to-brand-cyan/20 font-bold text-primary",
         size === "cover" ? "aspect-[16/10] w-full rounded-none" : cn("shrink-0 rounded-xl", spec.box),
         spec.text,
         className

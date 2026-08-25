@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata = getSEOTags({
   title: "Dashboard",
-  description: "Your ShipNow workspace.",
+  description: "Your SaaSNa.me workspace.",
   canonicalUrlRelative: "/dashboard",
 });
 

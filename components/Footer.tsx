@@ -13,7 +13,7 @@ export default function Footer({ variant = "default" }: FooterProps) {
     <footer
       className={
         isLanding
-          ? "border-t border-brand-mint/10 bg-brand-navy/80 py-12"
+          ? "border-t border-brand-cyan/10 bg-brand-ink/80 py-12"
           : "border-t border-border bg-surface py-12"
       }
     >

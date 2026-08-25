@@ -49,7 +49,7 @@ export default function LandingProblem() {
             </div>
 
             <div className="relative glass-card border-emerald-500/25 p-6 shadow-lg shadow-emerald-500/10">
-              <div className="absolute -inset-px rounded-2xl bg-gradient-to-r from-brand-teal/25 via-brand-mint/20 to-brand-gold/10 opacity-50 blur-sm" />
+              <div className="absolute -inset-px rounded-2xl bg-gradient-to-r from-brand-blue/25 via-brand-cyan/20 to-brand-violet/10 opacity-50 blur-sm" />
               <div className="relative">
                 <p className="text-xs font-semibold uppercase tracking-wider text-emerald-400">
                   With ShipNow

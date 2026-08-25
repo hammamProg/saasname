@@ -30,7 +30,7 @@ export default function Hero() {
 
             <h1 className="section-heading text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
               Ship your startup in{" "}
-              <span className="bg-gradient-to-br from-brand-teal via-brand-mint to-brand-gold bg-clip-text text-transparent">
+              <span className="bg-gradient-to-br from-brand-blue via-brand-cyan to-brand-violet bg-clip-text text-transparent">
                 days, not weeks
               </span>
             </h1>
@@ -78,7 +78,7 @@ export default function Hero() {
               <div className="flex items-center gap-2 border-b border-border bg-surface/80 px-4 py-3">
                 <span className="h-2.5 w-2.5 rounded-full bg-red-400" />
                 <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
-                <span className="h-2.5 w-2.5 rounded-full bg-brand-mint" />
+                <span className="h-2.5 w-2.5 rounded-full bg-brand-cyan" />
                 <span className="ml-2 text-xs font-medium text-muted">{config.appName} Launchpad</span>
               </div>
               <Image

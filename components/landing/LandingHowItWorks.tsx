@@ -12,7 +12,7 @@ const steps = [
       <div className="mt-6 space-y-2 rounded-xl border border-white/10 bg-black/30 p-4 font-mono text-xs">
         <p className="text-emerald-400">✓ Checkout complete</p>
         <p className="text-muted">Lifetime access unlocked</p>
-        <p className="text-brand-mint">→ Download & clone repo</p>
+        <p className="text-brand-cyan">→ Download & clone repo</p>
       </div>
     ),
   },
@@ -71,7 +71,7 @@ export default function LandingHowItWorks() {
               className="glass-card glass-card-hover relative overflow-hidden p-8"
             >
               <span className="text-5xl font-extrabold text-white/5">{item.step}</span>
-              <div className="mt-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-brand-teal/25 to-brand-mint/20 text-accent">
+              <div className="mt-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-brand-blue/25 to-brand-cyan/20 text-accent">
                 <item.icon size={22} />
               </div>
               <h3 className="mt-6 text-xl font-bold">{item.title}</h3>

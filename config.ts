@@ -1,22 +1,23 @@
 const config = {
-  appName: "ShipNow",
+  appName: "SaaSNa.me",
   appDescription:
-    "Production-ready SaaS starter kit with authentication, payments, emails, database, SEO, and deployment workflows already configured. Launch in days, not months.",
-  domainName: "shipnow.vip",
-  productionUrl: "https://shipnow.vip",
-  supportEmail: "support@shipnow.vip",
+    "Find a SaaS name that is actually free to use — checked across app stores, web search, social handles, trademarks, and domains.",
+  domainName: "saasna.me",
+  productionUrl: "https://saasna.me",
+  supportEmail: "support@saasna.me",
   brand: {
-    logo: "/brand/shipnow-logo.png",
-    logoAlt: "ShipNow",
+    logo: "/brand/saasname-logo.png",
+    logoAlt: "SaaSNa.me",
   },
   colors: {
     theme: "light",
-    navy: "#06202B",
-    teal: "#077A7D",
-    mint: "#7AE2CF",
-    gold: "#FDEB9E",
-    main: "#077A7D",
-    accent: "#7AE2CF",
+    ink: "#021B42",
+    violet: "#622EF8",
+    indigo: "#3C3FEB",
+    blue: "#008DF7",
+    cyan: "#00BDFC",
+    main: "#008DF7",
+    accent: "#00BDFC",
   },
   auth: {
     loginUrl: "/auth/signin",
@@ -25,8 +26,8 @@ const config = {
   resend: {
     fromNoReply:
       process.env.RESEND_FROM_EMAIL?.trim() ||
-      "ShipNow <onboarding@resend.dev>",
-    supportEmail: "support@shipnow.vip",
+      "SaaSNa.me <onboarding@resend.dev>",
+    supportEmail: "support@saasna.me",
   },
   pricing: {
     plans: [
@@ -62,9 +63,9 @@ const config = {
     ],
   },
   links: {
-    twitter: "https://twitter.com/shipnow",
-    github: "https://github.com/hammamProg/fastship",
-    support: `mailto:${process.env.NEXT_PUBLIC_SUPPORT_EMAIL ?? "support@shipnow.vip"}`,
+    twitter: "https://twitter.com/saasname",
+    github: "https://github.com/hammamProg/saasname",
+    support: `mailto:${process.env.NEXT_PUBLIC_SUPPORT_EMAIL ?? "support@saasna.me"}`,
     affiliates: "#",
     terms: "/tos",
     privacy: "/privacy-policy",

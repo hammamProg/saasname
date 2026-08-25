@@ -39,7 +39,7 @@ export function ResendDnsVerifyPanel({ domain, dnsRecords, domainStatus }: Props
   }
 
   return (
-    <div className="space-y-4 rounded-xl border border-brand-mint/30 bg-brand-mint/10 p-4">
+    <div className="space-y-4 rounded-xl border border-brand-cyan/30 bg-brand-cyan/10 p-4">
       <div>
         <p className="text-sm font-semibold text-slate-900">
           Verify DNS — add {dnsRecords.length} record{dnsRecords.length === 1 ? "" : "s"} at your registrar

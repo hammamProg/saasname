@@ -2,7 +2,7 @@ import { Resend } from "resend";
 import type { ReactNode } from "react";
 import config from "@/config";
 
-const RESEND_DEV_FROM = "ShipNow <onboarding@resend.dev>";
+const RESEND_DEV_FROM = "SaaSNa.me <onboarding@resend.dev>";
 
 type SendEmailParams = {
   to: string | string[];

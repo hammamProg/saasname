@@ -68,7 +68,7 @@ export default function LandingTestimonials() {
 
               <figcaption className="mt-6 flex items-center justify-between gap-4 border-t border-white/10 pt-6">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-brand-teal/30 to-brand-mint/30 text-sm font-bold">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-brand-blue/30 to-brand-cyan/30 text-sm font-bold">
                     {item.initial}
                   </div>
                   <div>

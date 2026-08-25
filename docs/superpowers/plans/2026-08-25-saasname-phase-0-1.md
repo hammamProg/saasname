@@ -368,11 +368,11 @@ Stage the script and the spike doc, commit with message: `spike: probe social ha
 - Consumes: nothing
 - Produces: `config.appName === "SaaSNa.me"`, `config.domainName === "saasna.me"`. CSS variables `--verdict-clear`, `--verdict-contested`, `--verdict-blocked`, `--verdict-unknown` and Tailwind utilities `text-verdict-clear`, `bg-verdict-clear` (and the same for the other three).
 
-- [ ] **Step 1: Rename the package**
+- [x] **Step 1: Rename the package**
 
 In `package.json`, change `"name": "fastship"` to `"name": "saasname"`.
 
-- [ ] **Step 2: Update app identity in `config.ts`**
+- [x] **Step 2: Update app identity in `config.ts`**
 
 Replace the first block of `config.ts` (through the `colors` object) with:
 
@@ -400,7 +400,7 @@ const config = {
   },
 ```
 
-- [ ] **Step 3: Copy the logo into place**
+- [x] **Step 3: Copy the logo into place**
 
 Run:
 
@@ -409,7 +409,7 @@ mkdir -p public/brand
 cp "/Users/hammamkhaled/Downloads/ChatGPT Image Aug 25, 2026 at 06_22_59 PM.png" public/brand/saasname-logo.png
 ```
 
-- [ ] **Step 4: Replace the design tokens**
+- [x] **Step 4: Replace the design tokens**
 
 In `app/globals.css`, replace the `:root` block and the `@theme inline` block with:
 
@@ -470,7 +470,7 @@ In `app/globals.css`, replace the `:root` block and the `@theme inline` block wi
 }
 ```
 
-- [ ] **Step 5: Update the selection colour**
+- [x] **Step 5: Update the selection colour**
 
 Further down `app/globals.css`, replace the `::selection` rule with:
 
@@ -481,20 +481,20 @@ Further down `app/globals.css`, replace the `::selection` rule with:
 }
 ```
 
-- [ ] **Step 6: Find remaining ShipNow references**
+- [x] **Step 6: Find remaining ShipNow references**
 
 Run: `grep -rn "ShipNow\|shipnow\|FastShip\|fastship" --include="*.ts" --include="*.tsx" --include="*.css" app components libs config.ts`
 
 Update every user-visible string to SaaSNa.me. Leave `libs/shipnow-project-session.ts` alone — Task 6 deletes it.
 
-- [ ] **Step 7: Verify the build and the tokens**
+- [x] **Step 7: Verify the build and the tokens**
 
 Run: `npm run build`
 Expected: build succeeds.
 
 Run: `npm run dev`, open the site, and confirm in DevTools that `getComputedStyle(document.documentElement).getPropertyValue('--verdict-clear')` returns ` #02DF97`.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 Stage `config.ts`, `app/globals.css`, `package.json`, `public/brand`, commit with message: `feat: rebrand to SaaSNa.me with logo-derived palette`
 

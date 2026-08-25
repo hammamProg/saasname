@@ -35,9 +35,9 @@ export default function LandingPricing() {
           </p>
         </div>
 
-        <article className="relative mt-12 overflow-hidden rounded-3xl border border-brand-mint/30 bg-black/40 p-8 shadow-2xl shadow-brand-teal/15 backdrop-blur-xl sm:p-10">
-          <div className="absolute -right-20 -top-20 h-40 w-40 rounded-full bg-brand-teal/20 blur-3xl" />
-          <div className="absolute -bottom-20 -left-20 h-40 w-40 rounded-full bg-brand-gold/10 blur-3xl" />
+        <article className="relative mt-12 overflow-hidden rounded-3xl border border-brand-cyan/30 bg-black/40 p-8 shadow-2xl shadow-brand-blue/15 backdrop-blur-xl sm:p-10">
+          <div className="absolute -right-20 -top-20 h-40 w-40 rounded-full bg-brand-blue/20 blur-3xl" />
+          <div className="absolute -bottom-20 -left-20 h-40 w-40 rounded-full bg-brand-violet/10 blur-3xl" />
 
           <div className="relative">
             <div className="flex items-end justify-center gap-2">

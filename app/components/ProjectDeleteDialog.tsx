@@ -57,7 +57,7 @@ export function ProjectDeleteDialog({
     <dialog
       ref={dialogRef}
       onClose={handleClose}
-      className="fixed inset-0 z-50 m-0 h-full max-h-none w-full max-w-none border-0 bg-transparent p-4 backdrop:bg-brand-navy/50"
+      className="fixed inset-0 z-50 m-0 h-full max-h-none w-full max-w-none border-0 bg-transparent p-4 backdrop:bg-brand-ink/50"
     >
       <div className="mx-auto flex min-h-full max-w-md items-center justify-center">
         <div className="w-full rounded-2xl border border-border bg-card p-6 shadow-2xl sm:p-8">

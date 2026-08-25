@@ -11,11 +11,11 @@ export default function LandingFinalCTA() {
   return (
     <section className="relative overflow-hidden py-24 sm:py-32">
       <div
-        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-brand-mint/10 to-transparent"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-brand-cyan/10 to-transparent"
         aria-hidden
       />
       <div
-        className="pointer-events-none absolute left-1/2 top-1/2 h-[500px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-r from-brand-teal/25 via-brand-mint/20 to-brand-gold/10 blur-3xl animate-glow-pulse"
+        className="pointer-events-none absolute left-1/2 top-1/2 h-[500px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-r from-brand-blue/25 via-brand-cyan/20 to-brand-violet/10 blur-3xl animate-glow-pulse"
         aria-hidden
       />
 

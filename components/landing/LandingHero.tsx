@@ -73,7 +73,7 @@ export default function LandingHero() {
             <ul className="flex flex-wrap gap-x-6 gap-y-2 pt-2">
               {trustBadges.map((badge) => (
                 <li key={badge} className="flex items-center gap-2 text-sm text-muted">
-                  <Check size={16} className="shrink-0 text-brand-mint" />
+                  <Check size={16} className="shrink-0 text-brand-cyan" />
                   {badge}
                 </li>
               ))}
@@ -81,9 +81,9 @@ export default function LandingHero() {
           </div>
 
           <div className="animate-fade-up relative [animation-delay:150ms]">
-            <div className="absolute -inset-6 rounded-[2.5rem] bg-gradient-to-br from-brand-teal/25 via-brand-mint/15 to-brand-gold/10 blur-3xl" />
+            <div className="absolute -inset-6 rounded-[2.5rem] bg-gradient-to-br from-brand-blue/25 via-brand-cyan/15 to-brand-violet/10 blur-3xl" />
 
-            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/40 shadow-2xl shadow-brand-teal/10 ring-1 ring-white/10 backdrop-blur-xl">
+            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/40 shadow-2xl shadow-brand-blue/10 ring-1 ring-white/10 backdrop-blur-xl">
               <div className="flex items-center gap-2 border-b border-white/10 bg-white/5 px-4 py-3">
                 <span className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
                 <span className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
@@ -94,8 +94,8 @@ export default function LandingHero() {
               </div>
 
               <div className="space-y-3 p-5">
-                <div className="rounded-xl border border-dashed border-brand-mint/40 bg-brand-teal/10 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-brand-mint">
+                <div className="rounded-xl border border-dashed border-brand-cyan/40 bg-brand-blue/10 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-brand-cyan">
                     New project
                   </p>
                   <p className="mt-1 font-semibold">my-saas-app</p>
@@ -110,7 +110,7 @@ export default function LandingHero() {
                     className="flex items-center justify-between rounded-xl border border-white/8 bg-white/5 px-4 py-3"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-brand-teal/25 to-brand-mint/20 text-accent">
+                      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-brand-blue/25 to-brand-cyan/20 text-accent">
                         <item.icon size={16} />
                       </span>
                       <span className="text-sm font-medium">{item.label}</span>
@@ -130,7 +130,7 @@ export default function LandingHero() {
                   className="animate-float glass-card flex items-center gap-2 px-3 py-2 shadow-lg"
                   style={{ animationDelay: `${i * 0.8}s` }}
                 >
-                  <span className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-brand-teal/30 to-brand-mint/30 text-xs font-bold">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-brand-blue/30 to-brand-cyan/30 text-xs font-bold">
                     {logo.badge}
                   </span>
                   <span className="text-xs font-medium">

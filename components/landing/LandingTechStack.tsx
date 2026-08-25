@@ -33,7 +33,7 @@ export default function LandingTechStack() {
               <div className="absolute h-72 w-72 rounded-full border border-dashed border-white/5" />
             </div>
 
-            <div className="relative z-10 flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-teal via-brand-mint to-brand-gold p-px shadow-lg shadow-brand-teal/30">
+            <div className="relative z-10 flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-blue via-brand-cyan to-brand-violet p-px shadow-lg shadow-brand-blue/30">
               <div className="flex h-full w-full items-center justify-center rounded-2xl bg-black text-sm font-bold">
                 ShipNow
               </div>
@@ -52,7 +52,7 @@ export default function LandingTechStack() {
                   onClick={() => setActive(item.id)}
                   className={`absolute flex h-14 w-14 items-center justify-center rounded-xl border text-xs font-bold transition-all ${
                     active === item.id
-                      ? "scale-110 border-brand-mint/50 bg-brand-teal/20 shadow-lg shadow-brand-teal/20"
+                      ? "scale-110 border-brand-cyan/50 bg-brand-blue/20 shadow-lg shadow-brand-blue/20"
                       : "border-white/10 bg-white/5 hover:border-white/20"
                   }`}
                   style={{ transform: `translate(${x}px, ${y}px)` }}
@@ -85,7 +85,7 @@ export default function LandingTechStack() {
                   onClick={() => setActive(item.id)}
                   className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
                     active === item.id
-                      ? "border-brand-mint/50 bg-brand-teal/15 text-foreground"
+                      ? "border-brand-cyan/50 bg-brand-blue/15 text-foreground"
                       : "border-white/10 text-muted hover:text-foreground"
                   }`}
                 >

@@ -39,7 +39,7 @@ export default async function DashboardSettingsPage() {
           <p className="mt-1 text-sm text-muted">
             {hasAccess
               ? "You have lifetime access. Manage Paddle receipts from your account menu."
-              : "Choose a plan on the Dashboard to unlock ShipNow and Integrations."}
+              : "Choose a plan on the Dashboard to unlock SaaSNa.me."}
           </p>
           {!hasAccess && (
             <Link href="/dashboard" className="btn-primary mt-4 inline-flex px-5 py-2.5 text-sm">

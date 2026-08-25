@@ -42,7 +42,7 @@ export function SupabaseProjectSetupActions({
   }
 
   return (
-    <div className="mb-5 space-y-3 rounded-xl border border-brand-mint/25 bg-brand-mint/10 p-4">
+    <div className="mb-5 space-y-3 rounded-xl border border-brand-cyan/25 bg-brand-cyan/10 p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-sm font-semibold text-slate-900">Supabase project</p>

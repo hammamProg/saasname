@@ -116,10 +116,10 @@ export default function AppSidebar({
               "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
               isDark
                 ? active
-                  ? "border border-brand-mint/20 bg-brand-teal/25 text-brand-mint shadow-sm shadow-brand-teal/10"
+                  ? "border border-brand-cyan/20 bg-brand-blue/25 text-brand-cyan shadow-sm shadow-brand-blue/10"
                   : pending
-                    ? "bg-white/5 text-brand-mint"
-                    : "text-brand-mint/70 hover:bg-white/5 hover:text-brand-mint"
+                    ? "bg-white/5 text-brand-cyan"
+                    : "text-brand-cyan/70 hover:bg-white/5 hover:text-brand-cyan"
                 : active
                   ? "bg-primary-soft text-primary"
                   : pending
@@ -134,7 +134,7 @@ export default function AppSidebar({
               <Icon
                 size={18}
                 className={cn(
-                  active && (isDark ? "text-brand-gold" : "text-primary")
+                  active && (isDark ? "text-brand-violet" : "text-primary")
                 )}
               />
             )}
@@ -144,7 +144,7 @@ export default function AppSidebar({
                 className={cn(
                   "ml-auto rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
                   isDark
-                    ? "bg-brand-teal/30 text-brand-gold"
+                    ? "bg-brand-blue/30 text-brand-violet"
                     : "bg-surface text-muted"
                 )}
               >
@@ -160,7 +160,7 @@ export default function AppSidebar({
           className={cn(
             "mt-4 rounded-xl px-3 py-3 text-xs leading-relaxed",
             isDark
-              ? "border border-brand-mint/10 bg-brand-teal/10 text-brand-mint/80"
+              ? "border border-brand-cyan/10 bg-brand-blue/10 text-brand-cyan/80"
               : "text-muted"
           )}
         >

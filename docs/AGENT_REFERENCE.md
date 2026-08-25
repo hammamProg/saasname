@@ -106,6 +106,9 @@ From `.env.example`:
 | `NEXT_PUBLIC_PADDLE_CLIENT_TOKEN` | Paddle checkout | Yes | **Not wired up yet** |
 | `PADDLE_API_KEY` | Paddle API | No | **Not wired up yet** |
 | `PADDLE_WEBHOOK_SECRET` | Paddle webhooks | No | **Not wired up yet** |
+| `NEXT_PUBLIC_PADDLE_PRICE_ID_CREDITS_25` | Starter credit pack | Yes | Paddle price ID, 25 credits |
+| `NEXT_PUBLIC_PADDLE_PRICE_ID_CREDITS_100` | Builder credit pack | Yes | Paddle price ID, 100 credits |
+| `DEEPSEEK_API_KEY` | Name generation (`/api/generate`) | **No** | Server-only. Absent → the route returns `503` |
 
 Minimum to run locally: none (landing works). For waitlist DB: Supabase trio. For auth: Supabase + NextAuth + at least one provider.
 

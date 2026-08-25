@@ -181,3 +181,32 @@ describe("explainVerdicts retry", () => {
     expect(out.size).toBe(0);
   });
 });
+
+describe("digest ordering", () => {
+  it("leads with the platform that caused the verdict", async () => {
+    // A blocked name was once described as "domains and web are contested"
+    // because the live trademark that actually blocked it was third in the
+    // list and only the first two facts are sent.
+    const provider = providerReturning('{"e":[]}');
+
+    await explainVerdicts(provider, [
+      {
+        name: "Alpha",
+        verdict: {
+          verdict: "blocked",
+          score: 90,
+          platforms: [
+            { platform: "domains", verdict: "contested", strength: 50 },
+            { platform: "web-serp", verdict: "contested", strength: 55 },
+            { platform: "trademark", verdict: "blocked", strength: 100 },
+          ],
+        },
+      },
+    ]);
+
+    const payload = JSON.parse(
+      (provider.complete as ReturnType<typeof vi.fn>).mock.calls[0][0].user
+    );
+    expect(payload[0].f[0]).toMatch(/trademark/);
+  });
+});

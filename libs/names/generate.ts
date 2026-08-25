@@ -27,6 +27,20 @@ const RETRY_BELOW = 5;
 const MIN_ACCEPTABLE = 3;
 const MAX_NAME_LENGTH = 30;
 
+/** Runaway guard, not a cost lever.
+ *
+ *  This is a reasoning model, so reasoning tokens are billed as output and
+ *  count against max_tokens. A cap of 900 was measured failing intermittently
+ *  on the same prompt: one run spent 850 reasoning tokens and truncated the
+ *  answer at 50, the next spent all 900 and returned nothing at all, the third
+ *  used 402 and finished cleanly. Anything near the observed need turns into a
+ *  random 502 for the user.
+ *
+ *  Reasoning has not been observed above ~900 here, so this leaves ample room.
+ *  Prompt size is where the saving actually comes from, and the prompts above
+ *  are kept terse for that reason. */
+const GENERATION_OUTPUT_BUDGET = 3000;
+
 // Kept deliberately terse: every token here is billed on every generation.
 const SYSTEM_PROMPT =
   'Name software products. Reply JSON {"candidates":[{"name","rationale"}]}. ' +
@@ -130,8 +144,7 @@ export async function generateCandidates({
     user: buildUserPrompt(idea, seedName, targetPlatform),
     model: GENERATION_MODEL,
     json: true,
-    // Reasoning tokens count against this, so it covers thinking plus 8 names.
-    maxOutputTokens: 900,
+    maxOutputTokens: GENERATION_OUTPUT_BUDGET,
   };
 
   const collected: GeneratedCandidate[] = [];

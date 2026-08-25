@@ -22,7 +22,11 @@ function redact(text: string, key: string): string {
 export const googlePlayProbe: PlatformProbe = {
   id: "google-play",
   tier: "best_effort",
-  timeoutMs: 20_000,
+  // Scraping the Play search page through Firecrawl was measured at ~1s warm
+  // but timed out at 20s on a cold run. It is best-effort, so a timeout only
+  // costs this one signal -- but the call is paid for either way, so give it
+  // room to actually finish.
+  timeoutMs: 30_000,
 
   async run(name: string, ctx: ProbeContext): Promise<ProbeResult> {
     const apiKey = process.env.FIRECRAWL_API_KEY?.trim();

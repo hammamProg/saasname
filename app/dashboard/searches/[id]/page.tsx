@@ -6,7 +6,9 @@ import { requireUser } from "@/libs/supabase/require-user";
 import { getSEOTags } from "@/libs/seo";
 import CheckCard, { type CheckRow } from "@/components/dashboard/CheckCard";
 import VerdictBadge from "@/components/dashboard/VerdictBadge";
+import SearchProgress from "@/components/dashboard/SearchProgress";
 import type { Verdict } from "@/libs/scoring/verdict";
+import { CORE_PROBES } from "@/libs/probes/registry";
 
 export const dynamic = "force-dynamic";
 
@@ -70,8 +72,19 @@ export default async function SearchReportPage({
         (VERDICT_ORDER[a.verdict ?? "unknown"] ?? 2) -
         (VERDICT_ORDER[b.verdict ?? "unknown"] ?? 2)
     );
+  const allChecks = rows.flatMap((c) => c.checks);
+  const settled = allChecks.filter((c) => c.status !== "pending").length;
+  const isRunning = search.status === "pending" || search.status === "running";
+  // Only a core probe failure refunds. Counting best-effort failures here told
+  // users they had been refunded when no ledger row existed -- a false claim
+  // about their money, which is worse than saying nothing.
+  const coreIds = new Set(CORE_PROBES.map((p) => p.id));
   const refunded = rows.filter((c) =>
-    c.checks.some((check) => check.status !== "ok")
+    c.checks.some(
+      (check) =>
+        coreIds.has(check.platform) &&
+        (check.status === "failed" || check.status === "skipped")
+    )
   ).length;
 
   return (
@@ -93,7 +106,7 @@ export default async function SearchReportPage({
         <p className="text-sm text-muted">
           {rows.length} {rows.length === 1 ? "name" : "names"} checked ·{" "}
           {search.credits_spent} {search.credits_spent === 1 ? "credit" : "credits"} spent
-          {refunded > 0 && (
+          {!isRunning && refunded > 0 && (
             <>
               {" "}·{" "}
               <span className="font-semibold text-foreground">
@@ -104,6 +117,14 @@ export default async function SearchReportPage({
           )}
         </p>
       </div>
+
+      {isRunning && (
+        <SearchProgress
+          searchId={id}
+          total={allChecks.length}
+          initialDone={settled}
+        />
+      )}
 
       <p className="rounded-xl border border-border bg-surface px-4 py-3 text-xs text-muted">
         Verdicts are computed from the checks below, which you can open and

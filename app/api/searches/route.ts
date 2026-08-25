@@ -5,8 +5,8 @@ import { createSearch, MAX_CANDIDATES } from "@/libs/searches/create";
 import { TARGET_PLATFORMS, type TargetPlatform } from "@/libs/names/generate";
 
 export const dynamic = "force-dynamic";
-/** Up to 8 candidates x 3 probes, six at a time, worst probe 15s. */
-export const maxDuration = 60;
+/** Spends credits and writes rows only; the probes run on the stream route. */
+export const maxDuration = 30;
 
 const IDEA_MAX_LENGTH = 500;
 const SEED_MAX_LENGTH = 50;

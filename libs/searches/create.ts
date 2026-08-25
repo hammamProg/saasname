@@ -1,19 +1,11 @@
 import { createSupabaseAdmin } from "@/libs/supabase";
 import { spendCredits } from "@/libs/credits/spend";
 import { normalizeName } from "@/libs/names/normalize";
-import { runProbe, type SettledCheck } from "@/libs/probes/run";
 import { ALL_PROBES } from "@/libs/probes/registry";
 import type { PlatformProbe } from "@/libs/probes/types";
 import type { TargetPlatform } from "@/libs/names/generate";
-import { rollUp, scoreCheck, type ScoredCheck } from "@/libs/scoring/verdict";
-import { explainVerdicts } from "@/libs/scoring/explain";
-import { createDeepSeekProvider, isDeepSeekConfigured } from "@/libs/llm/deepseek";
 
 export const MAX_CANDIDATES = 8;
-/** Simultaneous outbound probes across the whole run. */
-export const CONCURRENCY = 6;
-/** Consecutive failures on one platform before the rest are skipped. */
-export const CIRCUIT_BREAKER_THRESHOLD = 3;
 
 export type CandidateInput = {
   name: string;
@@ -29,28 +21,6 @@ export type CreateSearchArgs = {
   candidates: CandidateInput[];
   probes?: readonly PlatformProbe[];
 };
-
-/** Runs `tasks` with at most `limit` in flight, preserving result order. */
-async function pooled<T>(
-  tasks: Array<() => Promise<T>>,
-  limit: number
-): Promise<T[]> {
-  const results = new Array<T>(tasks.length);
-  let next = 0;
-
-  async function worker() {
-    while (next < tasks.length) {
-      const index = next++;
-      results[index] = await tasks[index]();
-    }
-  }
-
-  await Promise.all(
-    Array.from({ length: Math.min(limit, tasks.length) }, worker)
-  );
-
-  return results;
-}
 
 /** De-duplicates by normalized name and drops anything unusable. */
 function prepareCandidates(input: CandidateInput[]) {
@@ -71,16 +41,19 @@ function prepareCandidates(input: CandidateInput[]) {
 }
 
 /**
- * Creates a search, spends one credit per candidate, runs the core probes, and
- * refunds any candidate whose core probes did not all succeed.
+ * Spends the credits and writes the search, its candidates, and one pending
+ * check per candidate x platform. Runs no probes.
  *
- * Credits are spent before any work begins so a run cannot start unfunded. The
- * refund is a new positive ledger row, never an edit — `014`'s append-only
- * trigger enforces that at the database level regardless of what this code does.
+ * Creation and execution are separate so the request that spends money returns
+ * in milliseconds and the user gets a page to watch, rather than holding a
+ * connection open across as many as 48 outbound calls.
+ *
+ * Credits are spent before any row is written, so a run cannot start unfunded
+ * and a failed payment leaves nothing to clean up.
  */
 export async function createSearch(
   args: CreateSearchArgs
-): Promise<{ searchId: string }> {
+): Promise<{ searchId: string; total: number }> {
   const admin = createSupabaseAdmin();
 
   if (!admin) {
@@ -97,8 +70,6 @@ export async function createSearch(
 
   const probes = args.probes ?? ALL_PROBES;
 
-  // Throws InsufficientCreditsError before a single row is written, so a
-  // failed payment leaves nothing behind to clean up.
   await spendCredits({
     userId: args.userId,
     amount: candidates.length,
@@ -113,7 +84,7 @@ export async function createSearch(
       idea_text: args.ideaText ?? null,
       seed_name: args.seedName ?? null,
       target_platform: args.targetPlatform,
-      status: "running",
+      status: "pending",
       credits_spent: candidates.length,
     })
     .select("id")
@@ -135,126 +106,28 @@ export async function createSearch(
         rationale: c.rationale ?? null,
       }))
     )
-    .select("id, name, normalized_name");
+    .select("id");
 
   if (candidateError || !rows) {
     throw new Error(`Failed to create candidates: ${candidateError?.message}`);
   }
 
-  // One consecutive-failure counter per platform. Once a platform trips, its
-  // remaining checks are skipped rather than spending the budget re-confirming
-  // that it is down.
-  //
-  // The breaker can only skip work that has not started. Anything already in
-  // flight runs to completion, so with fewer tasks than CONCURRENCY it never
-  // engages at all. That is the intended trade: it exists to stop a long run
-  // from hammering a dead platform, not to abort requests mid-flight.
-  const consecutiveFailures = new Map<string, number>();
-  const tripped = new Set<string>();
-
-  const tasks = rows.flatMap((row) =>
-    probes.map((probe) => async () => {
-      if (tripped.has(probe.id)) {
-        return {
-          candidateId: row.id as string,
-          settled: {
-            platform: probe.id,
-            status: "skipped" as const,
-            signals: {},
-            cached: false,
-          },
-        };
-      }
-
-      const settled = await runProbe(probe, row.name as string);
-
-      if (settled.status === "failed") {
-        const count = (consecutiveFailures.get(probe.id) ?? 0) + 1;
-        consecutiveFailures.set(probe.id, count);
-        if (count >= CIRCUIT_BREAKER_THRESHOLD) tripped.add(probe.id);
-      } else {
-        consecutiveFailures.set(probe.id, 0);
-      }
-
-      return { candidateId: row.id as string, settled };
-    })
+  // Pending checks are written up front so the report can show the whole grid
+  // immediately, with each cell filling in as its probe settles.
+  const checks = rows.flatMap((row) =>
+    probes.map((probe) => ({
+      candidate_id: row.id as string,
+      platform: probe.id,
+      status: "pending",
+      signals: {},
+    }))
   );
 
-  const settledAll = await pooled(tasks, CONCURRENCY);
+  const { error: checkError } = await admin.from("checks").insert(checks);
 
-  await admin.from("checks").insert(
-    settledAll.map(({ candidateId, settled }) => {
-      const scored = scoreCheck(settled as ScoredCheck);
-      return {
-        candidate_id: candidateId,
-        platform: settled.platform,
-        status: settled.status,
-        signals: settled.signals,
-        verdict: scored.verdict,
-        strength: scored.strength,
-        evidence_url: (settled as SettledCheck).evidenceUrl ?? null,
-        error: (settled as SettledCheck).error ?? null,
-        fetched_at: new Date().toISOString(),
-      };
-    })
-  );
-
-  // Verdicts are computed here, deterministically, from the signals just
-  // recorded. The LLM never sees this step; it only describes the result.
-  const verdicts = rows.map((row) => ({
-    row,
-    verdict: rollUp(
-      settledAll
-        .filter((s) => s.candidateId === row.id)
-        .map(({ settled }) => settled as ScoredCheck),
-      args.targetPlatform
-    ),
-  }));
-
-  const explanations = isDeepSeekConfigured()
-    ? await explainVerdicts(
-        createDeepSeekProvider(),
-        verdicts.map((v) => ({ name: v.row.name as string, verdict: v.verdict }))
-      )
-    : new Map<string, string>();
-
-  for (const { row, verdict } of verdicts) {
-    await admin
-      .from("candidates")
-      .update({
-        verdict: verdict.verdict,
-        score: verdict.score,
-        explanation: explanations.get(row.name as string) ?? null,
-      })
-      .eq("id", row.id);
+  if (checkError) {
+    throw new Error(`Failed to create checks: ${checkError.message}`);
   }
 
-  // A candidate is refunded when any core probe did not succeed: the user paid
-  // for a verdict on that name and did not get a complete one.
-  const coreIds = new Set(probes.filter((p) => p.tier === "core").map((p) => p.id));
-  const refunded = rows.filter((row) =>
-    settledAll.some(
-      ({ candidateId, settled }) =>
-        candidateId === row.id &&
-        coreIds.has(settled.platform) &&
-        settled.status !== "ok"
-    )
-  );
-
-  for (const row of refunded) {
-    await admin.rpc("grant_credits", {
-      p_user_id: args.userId,
-      p_amount: 1,
-      p_reason: `refund:${searchId}:${row.normalized_name}`,
-    });
-  }
-
-  await admin
-    .from("searches")
-    .update({
-      status: refunded.length === rows.length ? "failed" : "complete",
-    })
-    .eq("id", searchId);
-
-  return { searchId };
+  return { searchId, total: checks.length };
 }

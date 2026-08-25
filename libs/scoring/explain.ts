@@ -58,15 +58,33 @@ const SYSTEM = [
  *  versions produced "brand strength 41" and "an exact-name app at 20/100",
  *  which mean nothing to a founder. Omitting them also shrinks the prompt. */
 function digest(input: ExplainInput): Record<string, unknown> {
+  // Ordered by how much each platform explains the verdict, because only the
+  // first two are sent. An early version described a blocked name as "domains
+  // and web presence are contested" while the actual cause -- a live software
+  // trademark -- was third in the list and never reached the model.
+  const RANK: Record<string, number> = { blocked: 0, contested: 1, unknown: 2 };
+
+  const relevant = input.verdict.platforms
+    .filter((p) => p.verdict !== "clear")
+    .sort((a, b) => (RANK[a.verdict] ?? 3) - (RANK[b.verdict] ?? 3));
+
   const facts: string[] = [];
 
-  for (const p of input.verdict.platforms) {
-    if (p.verdict === "clear") continue;
-
+  for (const p of relevant) {
     if (p.verdict === "unknown") {
       facts.push(`${p.platform}: could not check`);
     } else if (p.platform === "app-store") {
       facts.push(`app store: an app already uses this exact name`);
+    } else if (p.platform === "google-play") {
+      facts.push(`google play: an app already uses this exact name`);
+    } else if (p.platform === "trademark") {
+      facts.push(
+        p.verdict === "blocked"
+          ? `trademark: a live US mark in a software class`
+          : `trademark: a live US mark in another class`
+      );
+    } else if (p.platform === "socials") {
+      facts.push(`social handles: some are taken`);
     } else if (p.platform === "domains") {
       facts.push(`domains: ${p.verdict}`);
     } else if (p.platform === "web-serp") {

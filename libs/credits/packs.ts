@@ -5,7 +5,9 @@ export type CreditPack = {
   name: string;
   credits: number;
   priceId: string;
-  priceLabel: string;
+  description: string;
+  features: { name: string }[];
+  isFeatured?: boolean;
 };
 
 /** Packs with a configured Paddle price ID. An unconfigured pack is hidden

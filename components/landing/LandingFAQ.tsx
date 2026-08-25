@@ -22,7 +22,7 @@ const faqs = [
   {
     question: "Do I get updates?",
     answer:
-      "Lifetime access includes future updates to the boilerplate — new integrations, security patches, and framework upgrades. You pull updates when you're ready; your customized product stays yours.",
+      "Credits are bought in one-time packs and never expire — there is no subscription and nothing renews. Each name search spends one credit, and you can top up whenever you run low.",
   },
   {
     question: "Is this beginner friendly?",

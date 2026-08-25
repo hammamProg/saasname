@@ -1,12 +1,12 @@
 import { Check, ShieldCheck } from "lucide-react";
-import config from "@/config";
 import { getPriceRecord, describeBillingCycle } from "@/libs/paddle/prices";
+import { getCreditPacks } from "@/libs/credits/packs";
 import ButtonCheckout from "@/components/ButtonCheckout";
 import MarketingBackdrop from "@/components/ui/MarketingBackdrop";
 
 const included = [
   "Full source code",
-  "Lifetime access",
+  "Credits never expire",
   "Future updates",
   "Documentation",
   "Production-ready architecture",
@@ -16,8 +16,14 @@ const included = [
 ];
 
 export default async function LandingPricing() {
-  const plan =
-    config.pricing.plans.find((p) => p.isFeatured) ?? config.pricing.plans[0];
+  const packs = getCreditPacks();
+  const plan = packs.find((p) => p.isFeatured) ?? packs[0];
+
+  // No pack has a Paddle price ID configured -- render nothing rather than an
+  // empty card with a checkout button that cannot work.
+  if (!plan) {
+    return null;
+  }
 
   // Live amount and cadence from Paddle -- see components/SubscriptionPlans.tsx.
   const prices = await getPriceRecord([plan.priceId]);
@@ -36,7 +42,7 @@ export default async function LandingPricing() {
             Everything You Need To Launch
           </h2>
           <p className="mt-4 text-lg text-muted">
-            One payment. Unlimited launches. No recurring fees.
+            One payment. Credits never expire. No subscription.
           </p>
         </div>
 
@@ -48,11 +54,6 @@ export default async function LandingPricing() {
             <div className="flex items-end justify-center gap-2">
               {price ? (
                 <>
-                  {plan.priceAnchor && (
-                    <span className="pb-2 text-2xl text-muted line-through">
-                      ${plan.priceAnchor}
-                    </span>
-                  )}
                   <span className="text-6xl font-extrabold tracking-tight">
                     {price.formatted}
                   </span>

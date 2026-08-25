@@ -24,7 +24,7 @@ export default function CTA() {
               href="#pricing"
               className="inline-flex items-center gap-2 rounded-lg bg-white px-6 py-3.5 text-sm font-bold text-primary shadow-lg transition-transform hover:scale-[1.02]"
             >
-              View lifetime pricing
+              View credit packs
               <ArrowRight size={16} />
             </Link>
             <Link

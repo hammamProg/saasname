@@ -1,5 +1,5 @@
 import { Check } from "lucide-react";
-import config from "@/config";
+import { getCreditPacks } from "@/libs/credits/packs";
 import ButtonCheckout from "@/components/ButtonCheckout";
 import { cn } from "@/libs/cn";
 import { describeBillingCycle, type PriceRecord } from "@/libs/paddle/prices";
@@ -21,7 +21,7 @@ export default function SubscriptionPlans({
 
   return (
     <div className={gridClass}>
-      {config.pricing.plans.map((plan) => {
+      {getCreditPacks().map((plan) => {
         const price = prices[plan.priceId];
         const cycle = price ? describeBillingCycle(price) : null;
         const isOneTime = price ? !price.isSubscription : false;
@@ -46,17 +46,15 @@ export default function SubscriptionPlans({
 
             <div className="space-y-1">
               <h3 className="text-xl font-bold tracking-tight">{plan.name}</h3>
+              <p className="text-sm font-semibold text-primary">
+                {plan.credits} credits
+              </p>
               <p className="text-sm text-muted">{plan.description}</p>
             </div>
 
             <div className="mt-8 flex items-end gap-2">
               {price ? (
                 <>
-                  {plan.priceAnchor && (
-                    <span className="pb-1 text-lg text-muted line-through">
-                      ${plan.priceAnchor}
-                    </span>
-                  )}
                   <span className="text-5xl font-extrabold tracking-tight">
                     {price.formatted}
                   </span>
@@ -94,7 +92,7 @@ export default function SubscriptionPlans({
                 <ButtonCheckout
                   extraStyle="w-full shadow-md shadow-primary/20"
                   priceId={plan.priceId}
-                  label={`Get ${plan.name}`}
+                  label={`Buy ${plan.credits} credits`}
                   source={variant}
                 />
               ) : (
@@ -107,7 +105,7 @@ export default function SubscriptionPlans({
             {price && (
               <p className="mt-3 text-center text-xs text-muted">
                 {isOneTime
-                  ? "One-time payment"
+                  ? "One-time payment · Credits never expire"
                   : `Billed ${cycle === "/month" ? "monthly" : cycle}. Cancel anytime.`}
               </p>
             )}

@@ -1,12 +1,12 @@
 import { ShieldCheck, Sparkles } from "lucide-react";
 import SubscriptionPlans from "@/components/SubscriptionPlans";
-import config from "@/config";
 import { getPriceRecord } from "@/libs/paddle/prices";
+import { getCreditPacks } from "@/libs/credits/packs";
 import MarketingBackdrop from "@/components/ui/MarketingBackdrop";
 
 export default async function Pricing() {
   const prices = await getPriceRecord(
-    config.pricing.plans.map((plan) => plan.priceId)
+    getCreditPacks().map((pack) => pack.priceId)
   );
 
   return (
@@ -20,11 +20,11 @@ export default async function Pricing() {
             Simple pricing
           </div>
           <h2 className="section-heading mt-4 text-3xl font-extrabold sm:text-4xl lg:text-5xl">
-            Pay once. Ship forever.
+            Pay once. Credits never expire.
           </h2>
           <p className="mt-4 text-lg text-muted">
-            Lifetime access to the boilerplate, launchpad setup guide, and integrations — no
-            recurring subscription.
+            Buy a pack of credits and spend them whenever you like — no
+            subscription, no expiry.
           </p>
         </div>
 

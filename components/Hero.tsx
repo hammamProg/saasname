@@ -21,7 +21,7 @@ export default function Hero() {
               className="group inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-soft/70 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-primary backdrop-blur-sm transition-colors hover:bg-primary-soft"
             >
               <Sparkles size={14} />
-              Lifetime access · Ship in days
+              Credits never expire · Ship in days
               <ArrowRight
                 size={14}
                 className="transition-transform group-hover:translate-x-0.5"

@@ -38,7 +38,7 @@ export default async function DashboardSettingsPage() {
           <h2 className="font-bold">Billing</h2>
           <p className="mt-1 text-sm text-muted">
             {hasAccess
-              ? "You have lifetime access. Manage Paddle receipts from your account menu."
+              ? "Your credits never expire. Manage Paddle receipts from your account menu."
               : "Choose a plan on the Dashboard to unlock SaaSNa.me."}
           </p>
           {!hasAccess && (

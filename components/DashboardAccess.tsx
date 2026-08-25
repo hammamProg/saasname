@@ -203,7 +203,7 @@ export default function DashboardAccess({
           Welcome, {displayName} — unlock your launchpad
         </h2>
         <p className="max-w-2xl text-muted">
-          One-time payment for lifetime access. After checkout you&apos;ll land on the setup guide
+          One-time payment, no subscription. After checkout you&apos;ll land on the setup guide
           with Composio integrations to ship your SaaS faster.
         </p>
         {access?.subscription_status && !access.has_access && (

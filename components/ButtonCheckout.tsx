@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import config from "@/config";
+import { getCreditPacks } from "@/libs/credits/packs";
 import { siteUrl } from "@/libs/seo";
 import { getPaddleCheckout, isPaddleClientConfigured } from "@/libs/paddle/client";
 import { useUser } from "@/components/Providers";
@@ -26,8 +27,8 @@ export default function ButtonCheckout({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const resolvedPriceId = priceId ?? config.pricing.plans[0]?.priceId ?? "";
-  const buttonLabel = label ?? "Get lifetime access";
+  const resolvedPriceId = priceId ?? getCreditPacks()[0]?.priceId ?? "";
+  const buttonLabel = label ?? "Buy credits";
 
   const handleClick = async () => {
     setError(null);
@@ -38,7 +39,7 @@ export default function ButtonCheckout({
     }
 
     if (!resolvedPriceId) {
-      setError("Add NEXT_PUBLIC_PADDLE_PRICE_ID_STARTER to .env.local");
+      setError("Add NEXT_PUBLIC_PADDLE_PRICE_ID_CREDITS_25 to .env.local");
       return;
     }
 

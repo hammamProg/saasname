@@ -7,11 +7,11 @@ const steps = [
     icon: ShoppingBag,
     title: "Buy ShipNow",
     description:
-      "One-time purchase. Lifetime access to the full codebase, docs, and future updates.",
+      "One-time purchase. Your credits never expire and there is no subscription.",
     visual: (
       <div className="mt-6 space-y-2 rounded-xl border border-white/10 bg-black/30 p-4 font-mono text-xs">
         <p className="text-emerald-400">✓ Checkout complete</p>
-        <p className="text-muted">Lifetime access unlocked</p>
+        <p className="text-muted">Credits added to your balance</p>
         <p className="text-brand-cyan">→ Download & clone repo</p>
       </div>
     ),

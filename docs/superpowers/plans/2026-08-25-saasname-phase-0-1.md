@@ -1610,4 +1610,10 @@ Phase 0–1 is complete when:
 
 ## What Phase 2 needs from this
 
-Phase 2 (idea → candidates via DeepSeek) begins by adding `DEEPSEEK_API_KEY` and a `libs/llm/provider.ts` interface. It consumes `spendCredits` and `config.credits.perCandidate` from this phase, and nothing else.
+Phase 2 (idea → candidates via DeepSeek) begins by adding `DEEPSEEK_API_KEY` and a `libs/llm/provider.ts` interface.
+
+> **Correction (2026-08-25):** this section originally said Phase 2 consumes `spendCredits`
+> and `config.credits.perCandidate`. It does not. The design spec §7 meters *validation*, not
+> generation — "1 credit = 1 candidate fully validated" — so generation is free and the first
+> debit happens in Phase 3. See
+> [`docs/superpowers/specs/2026-08-25-phase-2-idea-to-candidates-design.md`](../specs/2026-08-25-phase-2-idea-to-candidates-design.md) §1.

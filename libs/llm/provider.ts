@@ -5,6 +5,9 @@ export type LlmCompletionRequest = {
   /** Ask the provider to constrain output to a JSON object. */
   json?: boolean;
   timeoutMs?: number;
+  /** Hard cap on output tokens. Output is the expensive half of a completion,
+   *  so callers that know their answer is short should say so. */
+  maxOutputTokens?: number;
 };
 
 /** Vendor-neutral completion surface. Returns the raw assistant string;

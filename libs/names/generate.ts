@@ -27,23 +27,17 @@ const RETRY_BELOW = 5;
 const MIN_ACCEPTABLE = 3;
 const MAX_NAME_LENGTH = 30;
 
-const SYSTEM_PROMPT = [
-  "You name software products.",
-  "You reply with a JSON object and nothing else.",
-  'The object has one key, "candidates", whose value is an array of objects.',
-  'Each object has exactly two string keys: "name" and "rationale".',
-  "A name is one or two words, at most 30 characters, easy to say aloud, and",
-  "plausibly registrable as a domain. A rationale is one short sentence.",
-  "Never number the names. Never repeat a name.",
-].join(" ");
+// Kept deliberately terse: every token here is billed on every generation.
+const SYSTEM_PROMPT =
+  'Name software products. Reply JSON {"candidates":[{"name","rationale"}]}. ' +
+  "Names: 1-2 words, max 30 chars, sayable, domain-plausible, no repeats. " +
+  "Rationale: one short sentence.";
 
 const PLATFORM_GUIDANCE: Record<TargetPlatform, string> = {
-  ios: "The product is an iOS app, so favour names that read well on an App Store listing.",
-  android:
-    "The product is an Android app, so favour names that read well on a Google Play listing.",
-  web: "The product is a web app, so favour names that work as a domain and a wordmark.",
-  cross:
-    "The product ships on web and mobile, so favour names that work as a domain and a store listing.",
+  ios: "Suits an App Store listing.",
+  android: "Suits a Google Play listing.",
+  web: "Works as a domain and wordmark.",
+  cross: "Works as a domain and a store listing.",
 };
 
 function buildUserPrompt(
@@ -53,17 +47,12 @@ function buildUserPrompt(
 ): string {
   const lines = [
     `Idea: ${idea}`,
-    PLATFORM_GUIDANCE[targetPlatform],
-    `Target platform: ${targetPlatform}`,
-    `Return exactly ${REQUESTED_COUNT} candidates.`,
+    `Target: ${targetPlatform}. ${PLATFORM_GUIDANCE[targetPlatform]}`,
+    `Return ${REQUESTED_COUNT}.`,
   ];
 
   if (seedName?.trim()) {
-    lines.splice(
-      1,
-      0,
-      `The user already likes the name "${seedName.trim()}". Offer names in a similar spirit, but do not repeat it verbatim.`
-    );
+    lines.splice(1, 0, `Similar in spirit to "${seedName.trim()}", but not it.`);
   }
 
   return lines.join("\n");
@@ -141,6 +130,8 @@ export async function generateCandidates({
     user: buildUserPrompt(idea, seedName, targetPlatform),
     model: GENERATION_MODEL,
     json: true,
+    // Reasoning tokens count against this, so it covers thinking plus 8 names.
+    maxOutputTokens: 900,
   };
 
   const collected: GeneratedCandidate[] = [];

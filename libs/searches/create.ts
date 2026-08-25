@@ -5,6 +5,9 @@ import { runProbe, type SettledCheck } from "@/libs/probes/run";
 import { CORE_PROBES } from "@/libs/probes/registry";
 import type { PlatformProbe } from "@/libs/probes/types";
 import type { TargetPlatform } from "@/libs/names/generate";
+import { rollUp, scoreCheck, type ScoredCheck } from "@/libs/scoring/verdict";
+import { explainVerdicts } from "@/libs/scoring/explain";
+import { createDeepSeekProvider, isDeepSeekConfigured } from "@/libs/llm/deepseek";
 
 export const MAX_CANDIDATES = 8;
 /** Simultaneous outbound probes across the whole run. */
@@ -180,16 +183,51 @@ export async function createSearch(
   const settledAll = await pooled(tasks, CONCURRENCY);
 
   await admin.from("checks").insert(
-    settledAll.map(({ candidateId, settled }) => ({
-      candidate_id: candidateId,
-      platform: settled.platform,
-      status: settled.status,
-      signals: settled.signals,
-      evidence_url: (settled as SettledCheck).evidenceUrl ?? null,
-      error: (settled as SettledCheck).error ?? null,
-      fetched_at: new Date().toISOString(),
-    }))
+    settledAll.map(({ candidateId, settled }) => {
+      const scored = scoreCheck(settled as ScoredCheck);
+      return {
+        candidate_id: candidateId,
+        platform: settled.platform,
+        status: settled.status,
+        signals: settled.signals,
+        verdict: scored.verdict,
+        strength: scored.strength,
+        evidence_url: (settled as SettledCheck).evidenceUrl ?? null,
+        error: (settled as SettledCheck).error ?? null,
+        fetched_at: new Date().toISOString(),
+      };
+    })
   );
+
+  // Verdicts are computed here, deterministically, from the signals just
+  // recorded. The LLM never sees this step; it only describes the result.
+  const verdicts = rows.map((row) => ({
+    row,
+    verdict: rollUp(
+      settledAll
+        .filter((s) => s.candidateId === row.id)
+        .map(({ settled }) => settled as ScoredCheck),
+      args.targetPlatform
+    ),
+  }));
+
+  const explanations = isDeepSeekConfigured()
+    ? await explainVerdicts(
+        createDeepSeekProvider(),
+        verdicts.map((v) => ({ name: v.row.name as string, verdict: v.verdict }))
+      )
+    : new Map<string, string>();
+
+  for (const { row, verdict } of verdicts) {
+    await admin
+      .from("candidates")
+      .update({
+        verdict: verdict.verdict,
+        score: verdict.score,
+        explanation: explanations.get(row.name as string) ?? null,
+      })
+      .eq("id", row.id);
+  }
 
   // A candidate is refunded when any core probe did not succeed: the user paid
   // for a verdict on that name and did not get a complete one.

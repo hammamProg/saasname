@@ -37,6 +37,7 @@ export function createDeepSeekProvider(): LlmProvider {
       model,
       json,
       timeoutMs,
+      maxOutputTokens,
     }: LlmCompletionRequest): Promise<string> {
       const budget = timeoutMs ?? DEFAULT_TIMEOUT_MS;
       const controller = new AbortController();
@@ -56,6 +57,7 @@ export function createDeepSeekProvider(): LlmProvider {
               { role: "user", content: user },
             ],
             ...(json ? { response_format: { type: "json_object" } } : {}),
+            ...(maxOutputTokens ? { max_tokens: maxOutputTokens } : {}),
           }),
           signal: controller.signal,
         });

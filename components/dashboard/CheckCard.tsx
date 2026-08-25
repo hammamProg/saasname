@@ -1,10 +1,14 @@
 import { AlertTriangle, MinusCircle, Search } from "lucide-react";
 import { cn } from "@/libs/cn";
+import VerdictBadge from "@/components/dashboard/VerdictBadge";
+import type { Verdict } from "@/libs/scoring/verdict";
 
 export type CheckRow = {
   platform: string;
   status: "pending" | "ok" | "failed" | "skipped";
   signals: Record<string, unknown>;
+  verdict: Verdict | null;
+  strength: number | null;
   evidence_url: string | null;
   error: string | null;
 };
@@ -102,10 +106,13 @@ export default function CheckCard({ check }: { check: CheckRow }) {
 
   return (
     <div className="rounded-xl border border-border bg-card p-4">
-      <p className="flex items-center gap-2 text-sm font-semibold">
-        <Search size={15} className="text-muted" aria-hidden="true" />
-        {label}
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="flex items-center gap-2 text-sm font-semibold">
+          <Search size={15} className="text-muted" aria-hidden="true" />
+          {label}
+        </p>
+        {check.verdict && <VerdictBadge verdict={check.verdict} size="sm" />}
+      </div>
       <ul className="mt-2 space-y-1">
         {describe(check.platform, check.signals).map((line) => (
           <li key={line} className="text-sm text-muted">

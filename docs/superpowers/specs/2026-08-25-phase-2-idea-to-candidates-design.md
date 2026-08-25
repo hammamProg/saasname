@@ -60,7 +60,7 @@ is a worse experience than an honest absence.
 | `libs/llm/provider.ts` | `LlmProvider` interface — the swap point for another vendor | — |
 | `libs/llm/deepseek.ts` | DeepSeek adapter over the OpenAI-compatible REST endpoint | `provider.ts` |
 | `libs/names/generate.ts` | Prompt → call → parse → validate → dedupe | provider, normalize |
-| `app/api/generate/route.ts` | Auth-gated POST boundary | generate, `require-user` |
+| `app/api/generate/route.ts` | Auth-gated POST boundary | generate, `supabase/auth-api` |
 | `components/dashboard/GenerateForm.tsx` | Client form: idea, optional seed, platform | — |
 | `components/dashboard/CandidateList.tsx` | Renders candidate cards | — |
 
@@ -93,6 +93,11 @@ type GenerateRequest = {
 name, and a JSON flag, and returns the raw string. Parsing belongs to the caller, so the
 interface stays vendor-neutral.
 
+The route authenticates with `getAuthUser()` + `unauthorizedResponse()` from
+`libs/supabase/auth-api`, matching `app/api/user/route.ts`. It does **not** use
+`requireUser()`: that helper issues a `redirect()`, which is correct for a page and wrong for
+a JSON endpoint, where the client expects a `401` body it can act on.
+
 ---
 
 ## 4. Data flow
@@ -100,7 +105,7 @@ interface stays vendor-neutral.
 ```
 GenerateForm (client)
   └─ POST /api/generate { idea, seedName?, targetPlatform }
-       requireUser()              ← auth gate only; no credit check
+       getAuthUser()              ← 401 if absent; no credit check
        validate input             ← 400 on bad shape
        generateCandidates()
          buildPrompt(idea, seedName, targetPlatform)

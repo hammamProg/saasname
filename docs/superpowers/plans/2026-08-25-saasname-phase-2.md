@@ -41,7 +41,7 @@
 This is the single definition of "the same name" for the whole product. Phase 3 keys its
 `platform_cache` on it, so it must be written once here rather than reinvented later.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `libs/names/normalize.test.ts`:
 
@@ -84,12 +84,12 @@ describe("normalizeName", () => {
 });
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `npx vitest run libs/names/normalize.test.ts`
 Expected: FAIL — cannot resolve `@/libs/names/normalize`.
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 Create `libs/names/normalize.ts`:
 
@@ -112,12 +112,12 @@ export function normalizeName(raw: string): string {
 }
 ```
 
-- [ ] **Step 4: Run the test to verify it passes**
+- [x] **Step 4: Run the test to verify it passes**
 
 Run: `npx vitest run libs/names/normalize.test.ts`
 Expected: PASS, 6 tests.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add libs/names/normalize.ts libs/names/normalize.test.ts
@@ -145,7 +145,7 @@ git commit -m "feat: add shared name normalization"
 `complete` returns the raw string. Parsing belongs to the caller so the interface stays
 vendor-neutral — swapping to Claude or GPT should not change any parsing code.
 
-- [ ] **Step 1: Write the interface**
+- [x] **Step 1: Write the interface**
 
 Create `libs/llm/provider.ts`:
 
@@ -177,7 +177,7 @@ export class LlmError extends Error {
 }
 ```
 
-- [ ] **Step 2: Write the failing test**
+- [x] **Step 2: Write the failing test**
 
 Create `libs/llm/deepseek.test.ts`:
 
@@ -336,12 +336,12 @@ describe("createDeepSeekProvider", () => {
 });
 ```
 
-- [ ] **Step 3: Run the test to verify it fails**
+- [x] **Step 3: Run the test to verify it fails**
 
 Run: `npx vitest run libs/llm/deepseek.test.ts`
 Expected: FAIL — cannot resolve `@/libs/llm/deepseek`.
 
-- [ ] **Step 4: Write the implementation**
+- [x] **Step 4: Write the implementation**
 
 Create `libs/llm/deepseek.ts`:
 
@@ -446,12 +446,12 @@ export function createDeepSeekProvider(): LlmProvider {
 }
 ```
 
-- [ ] **Step 5: Run the test to verify it passes**
+- [x] **Step 5: Run the test to verify it passes**
 
 Run: `npx vitest run libs/llm/deepseek.test.ts`
 Expected: PASS, 10 tests.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add libs/llm/provider.ts libs/llm/deepseek.ts libs/llm/deepseek.test.ts
@@ -479,7 +479,7 @@ git commit -m "feat: add the LLM provider interface and DeepSeek adapter"
 `parseCandidates` is exported separately so its validation rules can be tested without a
 provider at all.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `libs/names/generate.test.ts`:
 
@@ -648,12 +648,12 @@ describe("generateCandidates", () => {
 });
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `npx vitest run libs/names/generate.test.ts`
 Expected: FAIL — cannot resolve `@/libs/names/generate`.
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 Create `libs/names/generate.ts`:
 
@@ -843,17 +843,17 @@ export async function generateCandidates({
 }
 ```
 
-- [ ] **Step 4: Run the test to verify it passes**
+- [x] **Step 4: Run the test to verify it passes**
 
 Run: `npx vitest run libs/names/generate.test.ts`
 Expected: PASS, 16 tests.
 
-- [ ] **Step 5: Run the whole suite**
+- [x] **Step 5: Run the whole suite**
 
 Run: `npm test`
 Expected: PASS — Task 1 and 2 suites still green alongside the existing 38.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add libs/names/generate.ts libs/names/generate.test.ts
@@ -875,7 +875,7 @@ No test file. The route is a thin boundary over `generateCandidates`, which Task
 exhaustively; the parts unique to the route — auth and status-code mapping — are verified by
 hand in Task 6. Vitest also cannot import a route module without a request scope.
 
-- [ ] **Step 1: Write the route**
+- [x] **Step 1: Write the route**
 
 Create `app/api/generate/route.ts`:
 
@@ -987,19 +987,19 @@ export async function POST(request: Request) {
 }
 ```
 
-- [ ] **Step 2: Verify it compiles**
+- [x] **Step 2: Verify it compiles**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
 
-- [ ] **Step 3: Verify the auth gate rejects an anonymous caller**
+- [x] **Step 3: Verify the auth gate rejects an anonymous caller**
 
 Start the dev server if it is not already running (`npm run dev`), then:
 
 Run: `curl -s -o /dev/null -w "%{http_code}\n" -X POST http://localhost:3000/api/generate -H "Content-Type: application/json" -d '{"idea":"a tool for naming things","targetPlatform":"web"}'`
 Expected: `401`
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add app/api/generate/route.ts
@@ -1022,7 +1022,7 @@ git commit -m "feat: add the name generation API route"
 No selection control and no "Validate" button. Validation does not exist until Phase 3, and a
 disabled control promising it is worse than an honest absence.
 
-- [ ] **Step 1: Write the candidate list**
+- [x] **Step 1: Write the candidate list**
 
 Create `components/dashboard/CandidateList.tsx`:
 
@@ -1047,7 +1047,7 @@ export default function CandidateList({
 }
 ```
 
-- [ ] **Step 2: Write the form**
+- [x] **Step 2: Write the form**
 
 Create `components/dashboard/GenerateForm.tsx`:
 
@@ -1198,7 +1198,7 @@ export default function GenerateForm() {
 }
 ```
 
-- [ ] **Step 3: Render it on the dashboard**
+- [x] **Step 3: Render it on the dashboard**
 
 In `app/dashboard/page.tsx`, add the import beside the other component imports:
 
@@ -1218,12 +1218,12 @@ and place it between the overview and the balance in the has-access branch:
   );
 ```
 
-- [ ] **Step 4: Verify it compiles and the suite is green**
+- [x] **Step 4: Verify it compiles and the suite is green**
 
 Run: `npx tsc --noEmit && npm test && npm run build`
 Expected: no type errors, all tests pass, build succeeds.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add components/dashboard/GenerateForm.tsx components/dashboard/CandidateList.tsx app/dashboard/page.tsx
@@ -1294,7 +1294,7 @@ Expected: the red error message renders. There must be no empty candidate grid a
 
 Restore the key afterwards.
 
-- [ ] **Step 5: Document the new env var**
+- [x] **Step 5: Document the new env var**
 
 In `docs/AGENT_REFERENCE.md`, add `DEEPSEEK_API_KEY` to the environment variable list with
 the note: "Server-only. Name generation (`/api/generate`). Absent → the route returns 503."

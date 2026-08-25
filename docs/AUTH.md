@@ -36,7 +36,7 @@ Sign in page (/auth/signin)
 
 | Setting | Local value |
 |---------|-------------|
-| Site URL | `http://localhost:3000` |
+| Site URL | `http://localhost:3000` (port 3000 is canonical — see troubleshooting) |
 | Redirect URLs | `http://localhost:3000/auth/callback` |
 | | `http://localhost:3000/auth/callback?**` |
 
@@ -119,6 +119,7 @@ await supabase.auth.signInWithOAuth({
 | Magic link lands on "Invalid or expired sign-in link" | The Supabase Magic Link template is still `{{ .ConfirmationURL }}`. That is the implicit flow: it returns the session in a URL **fragment**, which the server never sees, so `/auth/callback` finds no `token_hash`, `type`, or `code` and falls through to the error page. Switch the template to `token_hash` (step 4). Note Supabase blocks template edits on the free tier until custom SMTP is configured (step 5). |
 | 431 Request Header Fields Too Large | Cookies are shared across localhost ports. Clear all localhost cookies; ensure only one dev server uses port 3000. |
 | Magic link not received | Check Supabase Auth logs; enable Email provider; check spam |
+| Cannot edit the Magic Link email template | Supabase blocks template edits on the free tier while using the default email sender. Configure custom SMTP first, then edit the template. |
 | Link opens but no session | Add redirect URLs with `?**` wildcard |
 | Google `redirect_uri_mismatch` | Use Supabase callback URI in Google Console |
 

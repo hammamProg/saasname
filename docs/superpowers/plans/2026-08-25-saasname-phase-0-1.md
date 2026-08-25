@@ -628,7 +628,7 @@ Supabase dashboard → Authentication → URL Configuration:
 
 The wildcard entry is required — without it the `?next=` and `?token_hash=` parameters are stripped.
 
-- [ ] **Step 4: Switch magic links to the token_hash flow** — BLOCKED BY STEP 5
+- [x] **Step 4: Switch magic links to the token_hash flow** (done after Step 5)
 
 > **Correction (2026-08-25):** this step cannot be done before Step 5. The Management API
 > rejects `mailer_templates_magic_link_content` with:
@@ -646,7 +646,7 @@ Supabase dashboard → Authentication → Email Templates → Magic Link. Set th
 
 This avoids PKCE entirely. `app/auth/callback/route.ts:56` already handles `token_hash` via `verifyOtp`, which needs no browser-stored code verifier and therefore works from any email client or device.
 
-- [ ] **Step 5: Configure custom SMTP** — DO THIS BEFORE STEP 4
+- [x] **Step 5: Configure custom SMTP** — MUST PRECEDE STEP 4
 
 > **Blocked (2026-08-25):** `RESEND_API_KEY` in `.env.local` is still the literal
 > placeholder `re_...` (6 characters). A real Resend key is needed before SMTP can be
@@ -661,19 +661,29 @@ The built-in Supabase email sender is capped at roughly 2 messages per hour, whi
 
 Then Authentication → Rate Limits → raise emails per hour. This control is locked until custom SMTP is enabled.
 
-- [ ] **Step 6: Clear the poisoned cookie jar**
+- [x] **Step 6: Clear the poisoned cookie jar**
 
 Cookies are not isolated by port, so every project run on localhost has been contributing to one shared jar — this is what produced the 431. In the browser, delete all cookies for `localhost` and for any LAN IP used during development.
 
-- [ ] **Step 7: Verify both sign-in paths end to end**
+- [x] **Step 7: Verify both sign-in paths end to end**
 
 Run: `npm run dev`
 
 1. Sign in with a magic link. Confirm the email arrives, the link lands on `localhost:3000/auth/callback`, and you reach `/dashboard`.
 2. Sign out, then sign in with Google. Confirm you reach `/dashboard`.
-3. In the console on `/dashboard`, run `document.cookie.length`. Expected: under 2000. A number near 16000 means stale cookies remain — repeat Step 6.
+3. In the console on `/dashboard`, run `document.cookie.length`.
 
-- [ ] **Step 8: Document it**
+> **Correction (2026-08-26):** "under 2000" is not achievable and is the wrong signal. A
+> healthy Supabase session is ~5.5 KB on its own: the JWT is split across
+> `sb-<ref>-auth-token.0` and `.1` and carries Google identity metadata. Measured 5491
+> bytes across 4 cookies on a clean jar.
+>
+> Check the cookie *names*, not the total. Every cookie should be
+> `sb-<your-project-ref>-*` or `__next_hmr_refresh_hash__`. A cookie bearing a **different**
+> project ref is the stale cross-project junk that caused the 431 — that is what Step 6
+> clears. Near 16000 with foreign refs means repeat Step 6.
+
+- [x] **Step 8: Document it**
 
 In `docs/AUTH.md`, update the "URL configuration" table to state port 3000 explicitly, and add a troubleshooting row:
 

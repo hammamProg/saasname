@@ -16,11 +16,9 @@ type DashboardShellProps = {
 };
 
 function SidebarChrome({
-  hasAccess,
   onNavigate,
   onClose,
 }: {
-  hasAccess: boolean;
   onNavigate?: () => void;
   onClose?: () => void;
 }) {
@@ -41,7 +39,7 @@ function SidebarChrome({
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        <AppSidebar hasAccess={hasAccess} onNavigate={onNavigate} theme="dark" />
+        <AppSidebar onNavigate={onNavigate} theme="dark" />
       </div>
 
       <div className="border-t border-brand-cyan/10 p-4">
@@ -61,7 +59,7 @@ export default function DashboardShell({ hasAccess, children }: DashboardShellPr
       <div className="flex min-h-screen bg-background lg:h-screen lg:overflow-hidden">
       {/* Column 1 — desktop sidebar */}
       <aside className="hidden w-[280px] shrink-0 flex-col border-r border-brand-cyan/10 bg-brand-ink lg:flex">
-        <SidebarChrome hasAccess={hasAccess} />
+        <SidebarChrome />
       </aside>
 
       {/* Mobile drawer overlay */}
@@ -81,7 +79,7 @@ export default function DashboardShell({ hasAccess, children }: DashboardShellPr
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <SidebarChrome hasAccess={hasAccess} onNavigate={closeMobile} onClose={closeMobile} />
+        <SidebarChrome onNavigate={closeMobile} onClose={closeMobile} />
       </aside>
 
       {/* Column 2 — main content */}

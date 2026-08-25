@@ -70,19 +70,6 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   }
 
   return (
-    <Suspense
-      fallback={
-        <div className="space-y-4">
-          <div className="h-10 w-64 animate-pulse rounded-lg bg-surface" />
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, index) => (
-              <div key={index} className="h-32 animate-pulse rounded-2xl bg-surface" />
-            ))}
-          </div>
-        </div>
-      }
-    >
-      <DashboardOverview displayName={displayName} email={email} />
-    </Suspense>
+    <DashboardOverview displayName={displayName} />
   );
 }

@@ -9,7 +9,7 @@ import SubscriptionPlans from "@/components/SubscriptionPlans";
 import PaymentStepper from "@/components/dashboard/PaymentStepper";
 import MarketingBackdrop from "@/components/ui/MarketingBackdrop";
 
-const PREMIUM_PATH = "/dashboard/projects";
+const PREMIUM_PATH = "/dashboard";
 const SUCCESS_REDIRECT_MS = 2000;
 const MAX_POLL_ATTEMPTS = 15;
 
@@ -59,7 +59,7 @@ export default function DashboardAccess({
     }
     redirectScheduled.current = true;
     setPhase("success");
-    setMessage("Payment successful! Opening your launchpad…");
+    setMessage("Payment successful! Opening your dashboard…");
     window.setTimeout(() => router.push(PREMIUM_PATH), SUCCESS_REDIRECT_MS);
   }, [router]);
 

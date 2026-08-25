@@ -8,7 +8,6 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import { prefetchDashboardData } from "@/libs/dashboard-data-cache";
 
 type DashboardAccessContextValue = {
   hasAccess: boolean;
@@ -25,10 +24,6 @@ export function DashboardAccessProvider({
   hasAccess: boolean;
   children: ReactNode;
 }) {
-  useEffect(() => {
-    prefetchDashboardData(hasAccess);
-  }, [hasAccess]);
-
   return (
     <DashboardAccessContext.Provider value={{ hasAccess }}>
       {children}

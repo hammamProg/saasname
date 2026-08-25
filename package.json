@@ -12,8 +12,6 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@nangohq/frontend": "^0.70.8",
-    "@nangohq/node": "^0.70.8",
     "@paddle/paddle-js": "^1.6.4",
     "@paddle/paddle-node-sdk": "^3.8.0",
     "@supabase/ssr": "^0.12.0",

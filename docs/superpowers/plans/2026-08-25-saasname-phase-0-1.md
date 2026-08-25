@@ -514,11 +514,11 @@ This clone carries a whole product SaaSNa.me does not need: a wizard that provis
 - Consumes: nothing
 - Produces: a dashboard that renders for a signed-in user with no project concept. `npm run build` passes with zero unresolved imports.
 
-- [ ] **Step 1: Delete the API surface**
+- [x] **Step 1: Delete the API surface**
 
 Run: `git rm -r app/api/projects`
 
-- [ ] **Step 2: Delete the provisioning libs**
+- [x] **Step 2: Delete the provisioning libs**
 
 Run:
 
@@ -531,7 +531,7 @@ git rm libs/composio*.ts libs/project-*.ts libs/projects.ts libs/setup-step*.ts 
        libs/dashboard-data-cache.ts
 ```
 
-- [ ] **Step 3: Delete the obsolete migrations**
+- [x] **Step 3: Delete the obsolete migrations**
 
 These describe tables SaaSNa.me does not use. They stay in git history.
 
@@ -545,13 +545,13 @@ git rm supabase/migrations/005_projects.sql supabase/migrations/006_project_gith
 
 Note: the tables still exist in the live Supabase database. Dropping them is a separate manual decision — do not write a destructive migration without the owner's explicit say-so.
 
-- [ ] **Step 4: Find every broken import**
+- [x] **Step 4: Find every broken import**
 
 Run: `npm run build`
 
 The build will fail with a list of unresolved imports. Work through them: delete the component or code path that consumed the removed lib. Do not stub anything out — if a dashboard panel existed only to show project setup progress, delete the panel.
 
-- [ ] **Step 5: Reduce the dashboard to a shell**
+- [x] **Step 5: Reduce the dashboard to a shell**
 
 Replace the body of `components/dashboard/DashboardOverview.tsx` so it renders only a greeting and an empty state:
 
@@ -572,11 +572,11 @@ export function DashboardOverview({ displayName }: { displayName: string }) {
 
 Update `app/dashboard/page.tsx` to pass only `displayName` and remove any project-related data fetching.
 
-- [ ] **Step 6: Drop unused dependencies**
+- [x] **Step 6: Drop unused dependencies**
 
 Run: `npm uninstall @nangohq/frontend @nangohq/node`
 
-- [ ] **Step 7: Verify**
+- [x] **Step 7: Verify**
 
 Run: `npm run build`
 Expected: build succeeds with no unresolved imports.
@@ -584,7 +584,7 @@ Expected: build succeeds with no unresolved imports.
 Run: `npm test`
 Expected: PASS (the Task 1 test still runs).
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 Stage all changes, commit with message: `refactor: strip ShipNow project-provisioning surface`
 

@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { CheckCircle2, Loader2, Sparkles } from "lucide-react";
 import apiClient from "@/libs/api";
 import type { ProfileAccess } from "@/libs/access";
+import type { PriceRecord } from "@/libs/paddle/prices";
 import SubscriptionPlans from "@/components/SubscriptionPlans";
 import PaymentStepper from "@/components/dashboard/PaymentStepper";
 import MarketingBackdrop from "@/components/ui/MarketingBackdrop";
@@ -23,6 +24,8 @@ type DashboardAccessProps = {
   initialHasAccess: boolean;
   initialAccess: ProfileAccess | null;
   displayName?: string;
+  /** Live Paddle prices, resolved server-side and passed across the boundary. */
+  prices: PriceRecord;
 };
 
 type PanelPhase = "idle" | "activating" | "success" | "pending";
@@ -35,6 +38,7 @@ export default function DashboardAccess({
   initialHasAccess,
   initialAccess,
   displayName = "there",
+  prices,
 }: DashboardAccessProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -210,7 +214,7 @@ export default function DashboardAccess({
       </div>
 
         <div className="relative mt-8">
-          <SubscriptionPlans variant="dashboard" />
+          <SubscriptionPlans variant="dashboard" prices={prices} />
         </div>
       </div>
 

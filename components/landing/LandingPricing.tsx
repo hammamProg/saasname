@@ -1,5 +1,6 @@
 import { Check, ShieldCheck } from "lucide-react";
 import config from "@/config";
+import { getPriceRecord, describeBillingCycle } from "@/libs/paddle/prices";
 import ButtonCheckout from "@/components/ButtonCheckout";
 import MarketingBackdrop from "@/components/ui/MarketingBackdrop";
 
@@ -14,9 +15,13 @@ const included = [
   "Email infrastructure",
 ];
 
-export default function LandingPricing() {
+export default async function LandingPricing() {
   const plan =
     config.pricing.plans.find((p) => p.isFeatured) ?? config.pricing.plans[0];
+
+  // Live amount and cadence from Paddle -- see components/SubscriptionPlans.tsx.
+  const prices = await getPriceRecord([plan.priceId]);
+  const price = prices[plan.priceId];
 
   return (
     <section id="pricing" className="relative overflow-hidden py-20 sm:py-28">
@@ -41,16 +46,30 @@ export default function LandingPricing() {
 
           <div className="relative">
             <div className="flex items-end justify-center gap-2">
-              {plan.priceAnchor && (
-                <span className="pb-2 text-2xl text-muted line-through">
-                  ${plan.priceAnchor}
+              {price ? (
+                <>
+                  {plan.priceAnchor && (
+                    <span className="pb-2 text-2xl text-muted line-through">
+                      ${plan.priceAnchor}
+                    </span>
+                  )}
+                  <span className="text-6xl font-extrabold tracking-tight">
+                    {price.formatted}
+                  </span>
+                  <div className="pb-2 text-left">
+                    <span className="block text-xs font-semibold uppercase text-muted">
+                      {price.currency}
+                    </span>
+                    <span className="block text-sm font-bold text-accent">
+                      {price.isSubscription ? describeBillingCycle(price) : "One-time"}
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <span className="text-2xl font-semibold text-muted">
+                  Price shown at checkout
                 </span>
               )}
-              <span className="text-6xl font-extrabold tracking-tight">${plan.price}</span>
-              <div className="pb-2 text-left">
-                <span className="block text-xs font-semibold uppercase text-muted">USD</span>
-                <span className="block text-sm font-bold text-accent">Lifetime</span>
-              </div>
             </div>
 
             <ul className="mt-10 space-y-3.5">

@@ -1,8 +1,14 @@
 import { ShieldCheck, Sparkles } from "lucide-react";
 import SubscriptionPlans from "@/components/SubscriptionPlans";
+import config from "@/config";
+import { getPriceRecord } from "@/libs/paddle/prices";
 import MarketingBackdrop from "@/components/ui/MarketingBackdrop";
 
-export default function Pricing() {
+export default async function Pricing() {
+  const prices = await getPriceRecord(
+    config.pricing.plans.map((plan) => plan.priceId)
+  );
+
   return (
     <section id="pricing" className="relative overflow-hidden py-20 sm:py-28">
       <MarketingBackdrop variant="section" />
@@ -22,7 +28,7 @@ export default function Pricing() {
           </p>
         </div>
 
-        <SubscriptionPlans variant="landing" />
+        <SubscriptionPlans variant="landing" prices={prices} />
 
         <div className="mx-auto mt-10 flex max-w-xl flex-wrap items-center justify-center gap-4 text-sm text-muted">
           <span className="inline-flex items-center gap-2">

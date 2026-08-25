@@ -2,6 +2,8 @@ import { Suspense } from "react";
 import { createClient } from "@/libs/supabase/server";
 import { requireUser } from "@/libs/supabase/require-user";
 import { getProfileAccess } from "@/libs/access";
+import { getPriceRecord } from "@/libs/paddle/prices";
+import config from "@/config";
 import { getSEOTags } from "@/libs/seo";
 import DashboardAccess from "@/components/DashboardAccess";
 import { DashboardOverview } from "@/components/dashboard/DashboardOverview";
@@ -23,9 +25,10 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const supabase = await createClient();
   const params = await searchParams;
 
-  const [{ data: profile }, access] = await Promise.all([
+  const [{ data: profile }, access, prices] = await Promise.all([
     supabase.from("profiles").select("email").eq("id", user.id).maybeSingle(),
     getProfileAccess(user.id),
+    getPriceRecord(config.pricing.plans.map((plan) => plan.priceId)),
   ]);
 
   const metadata = user.user_metadata as {
@@ -62,6 +65,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               initialHasAccess={hasAccess}
               initialAccess={access}
               displayName={displayName}
+              prices={prices}
             />
           </Suspense>
         </section>

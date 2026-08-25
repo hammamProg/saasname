@@ -8,6 +8,7 @@ import { getSEOTags } from "@/libs/seo";
 import DashboardAccess from "@/components/DashboardAccess";
 import { DashboardOverview } from "@/components/dashboard/DashboardOverview";
 import CreditBalance from "@/components/CreditBalance";
+import GenerateForm from "@/components/dashboard/GenerateForm";
 
 export const dynamic = "force-dynamic";
 
@@ -77,6 +78,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   return (
     <div className="space-y-8">
       <DashboardOverview displayName={displayName} />
+      <GenerateForm />
       <CreditBalance userId={user.id} />
     </div>
   );

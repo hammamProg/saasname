@@ -24,6 +24,28 @@ const config = {
     loginUrl: "/auth/signin",
     callbackUrl: "/dashboard",
   },
+  credits: {
+    signupGrant: 5,
+    perCandidate: 1,
+    packs: [
+      {
+        id: "starter",
+        name: "Starter",
+        credits: 25,
+        priceId:
+          process.env.NEXT_PUBLIC_PADDLE_PRICE_ID_CREDITS_25?.trim() ?? "",
+        priceLabel: "$9",
+      },
+      {
+        id: "builder",
+        name: "Builder",
+        credits: 100,
+        priceId:
+          process.env.NEXT_PUBLIC_PADDLE_PRICE_ID_CREDITS_100?.trim() ?? "",
+        priceLabel: "$29",
+      },
+    ],
+  },
   resend: {
     fromNoReply:
       process.env.RESEND_FROM_EMAIL?.trim() ||

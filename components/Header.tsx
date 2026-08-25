@@ -31,7 +31,7 @@ export default function Header({ variant = "default" }: HeaderProps) {
       }
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-        <BrandLogo size="lg" />
+        <BrandLogo size="lg" onDark />
 
         <div className="hidden items-center gap-8 md:flex">
           {links.map((link) => (

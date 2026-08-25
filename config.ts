@@ -7,6 +7,7 @@ const config = {
   supportEmail: "support@saasna.me",
   brand: {
     logo: "/brand/saasname-logo.png",
+    logoOnDark: "/brand/saasname-logo-on-dark.png",
     logoAlt: "SaaSNa.me",
   },
   colors: {

@@ -691,7 +691,7 @@ In `docs/AUTH.md`, update the "URL configuration" table to state port 3000 expli
 | 431 Request Header Fields Too Large | Cookies are shared across localhost ports. Clear all localhost cookies; ensure only one dev server uses port 3000. |
 ```
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 Stage `docs/AUTH.md`, commit with message: `docs: pin auth to port 3000 and document the token_hash flow`
 

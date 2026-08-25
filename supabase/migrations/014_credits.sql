@@ -41,7 +41,7 @@ drop policy if exists "Users can read own ledger" on public.credit_ledger;
 create policy "Users can read own ledger"
   on public.credit_ledger for select
   to authenticated
-  using (auth.uid() = user_id);
+  using ((select auth.uid()) = user_id);
 
 -- ---------------------------------------------------------------------------
 -- Append-only enforcement
@@ -72,6 +72,7 @@ create trigger credit_ledger_no_update
 create or replace function public.reject_ledger_truncate()
 returns trigger
 language plpgsql
+set search_path = ''
 as $$
 begin
   raise exception 'credit_ledger is append-only';
@@ -225,6 +226,8 @@ begin
   return new;
 end;
 $$;
+
+revoke all on function public.grant_signup_credits() from public, anon, authenticated;
 
 drop trigger if exists grant_signup_credits on public.profiles;
 create trigger grant_signup_credits

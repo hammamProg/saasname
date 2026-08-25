@@ -39,6 +39,11 @@ begin
 end;
 $$;
 
+-- Trigger functions must never be reachable via /rest/v1/rpc. Supabase's default
+-- privileges grant EXECUTE on new functions to anon and authenticated, so both
+-- must be named explicitly -- revoking from PUBLIC alone is not enough.
+revoke all on function public.handle_new_user() from public, anon, authenticated;
+
 drop trigger if exists on_auth_user_created on auth.users;
 
 create trigger on_auth_user_created

@@ -21,6 +21,7 @@ create index if not exists profiles_paddle_subscription_id_idx
 create or replace function public.protect_profile_billing_fields()
 returns trigger
 language plpgsql
+set search_path = ''
 as $$
 begin
   if auth.uid() is null then
@@ -36,6 +37,8 @@ begin
   return new;
 end;
 $$;
+
+revoke all on function public.protect_profile_billing_fields() from public, anon, authenticated;
 
 drop trigger if exists protect_profile_billing_fields on public.profiles;
 

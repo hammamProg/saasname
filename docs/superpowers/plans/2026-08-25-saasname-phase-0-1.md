@@ -684,7 +684,7 @@ Stage `docs/AUTH.md`, commit with message: `docs: pin auth to port 3000 and docu
 - Consumes: `public.profiles` (from `003_profiles.sql`)
 - Produces: table `public.credit_ledger`; functions `public.credit_balance(uuid) → integer`, `public.spend_credits(uuid, integer, text, uuid) → integer`, `public.grant_credits(uuid, integer, text) → integer`. `spend_credits` raises `INSUFFICIENT_CREDITS` when the balance is too low.
 
-- [ ] **Step 1: Write the migration**
+- [x] **Step 1: Write the migration**
 
 Create `supabase/migrations/014_credits.sql`:
 
@@ -816,7 +816,7 @@ create trigger grant_signup_credits
   for each row execute function public.grant_signup_credits();
 ```
 
-- [ ] **Step 2: Write the verification script**
+- [x] **Step 2: Write the verification script**
 
 SQL functions cannot be covered by Vitest. This script is their test — it asserts behaviour and raises if anything is wrong.
 
@@ -888,7 +888,7 @@ Expected: success, no errors.
 Paste `014_credits_verify.sql` into the SQL editor and run it.
 Expected: five `PASS:` notices and no `FAIL:` exception.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 Stage both migration files, commit with message: `feat: add append-only credit ledger with atomic spend`
 
@@ -1091,7 +1091,7 @@ Stage `libs/credits`, commit with message: `feat: add credit balance and atomic 
   - `getCreditPacks(): CreditPack[]`
   - `creditsForPriceId(priceId: string): number | null` — returns `null` for an unknown price ID
 
-- [ ] **Step 1: Add pack definitions to `config.ts`**
+- [x] **Step 1: Add pack definitions to `config.ts`**
 
 Inside the `config` object, after the `auth` block, add:
 
@@ -1120,7 +1120,7 @@ Inside the `config` object, after the `auth` block, add:
 
 Add the two variables to `.env.local` with the Paddle price IDs for the one-time products created in the Paddle dashboard.
 
-- [ ] **Step 2: Write the failing test**
+- [x] **Step 2: Write the failing test**
 
 Replace the entire contents of `libs/credits/packs.test.ts`:
 
@@ -1150,12 +1150,12 @@ describe("creditsForPriceId", () => {
 });
 ```
 
-- [ ] **Step 3: Run the test to verify it fails**
+- [x] **Step 3: Run the test to verify it fails**
 
 Run: `npm test -- libs/credits/packs.test.ts`
 Expected: FAIL — cannot resolve `@/libs/credits/packs`.
 
-- [ ] **Step 4: Write the implementation**
+- [x] **Step 4: Write the implementation**
 
 Create `libs/credits/packs.ts`:
 
@@ -1188,12 +1188,12 @@ export function creditsForPriceId(priceId: string): number | null {
 }
 ```
 
-- [ ] **Step 5: Run the test to verify it passes**
+- [x] **Step 5: Run the test to verify it passes**
 
 Run: `npm test -- libs/credits/packs.test.ts`
 Expected: PASS, 4 tests.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 Stage `config.ts`, `libs/credits/packs.ts`, `libs/credits/packs.test.ts`, commit with message: `feat: define credit packs and price-ID mapping`
 

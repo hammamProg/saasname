@@ -3,6 +3,7 @@ import { EventName } from "@paddle/paddle-node-sdk";
 import type { Subscription, Transaction } from "@paddle/paddle-node-sdk";
 import { getPaddleServer, getUserIdFromCustomData } from "@/libs/paddle/server";
 import { syncSubscriptionToProfile, syncTransactionToProfile } from "@/libs/paddle/sync-profile";
+import { grantCreditsForTransaction } from "@/libs/credits/grant";
 
 export const runtime = "nodejs";
 
@@ -53,9 +54,26 @@ export async function POST(request: Request) {
           userId: getUserIdFromCustomData((event.data as Subscription).customData) ?? undefined,
         });
         break;
-      case EventName.TransactionCompleted:
-        await syncFromTransaction(event.data as Transaction);
+      case EventName.TransactionCompleted: {
+        const transaction = event.data as Transaction;
+        const granted = await grantCreditsForTransaction(
+          transaction as unknown as {
+            id: string;
+            customData: unknown;
+            items: Array<{ price?: { id?: string } | null }>;
+          }
+        );
+
+        // A transaction is either a credit-pack purchase or a subscription
+        // payment, never both. Doing both for one transaction would be wrong.
+        if (granted > 0) {
+          console.info("[paddle/webhook] Granted credits:", granted);
+          break;
+        }
+
+        await syncFromTransaction(transaction);
         break;
+      }
       default:
         break;
     }

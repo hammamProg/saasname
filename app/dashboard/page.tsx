@@ -7,6 +7,7 @@ import { getCreditPacks } from "@/libs/credits/packs";
 import { getSEOTags } from "@/libs/seo";
 import DashboardAccess from "@/components/DashboardAccess";
 import { DashboardOverview } from "@/components/dashboard/DashboardOverview";
+import CreditBalance from "@/components/CreditBalance";
 
 export const dynamic = "force-dynamic";
 
@@ -74,6 +75,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   }
 
   return (
-    <DashboardOverview displayName={displayName} />
+    <div className="space-y-8">
+      <DashboardOverview displayName={displayName} />
+      <CreditBalance userId={user.id} />
+    </div>
   );
 }

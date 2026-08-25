@@ -878,12 +878,12 @@ end $$;
 rollback;
 ```
 
-- [ ] **Step 3: Apply the migration**
+- [x] **Step 3: Apply the migration**
 
 Paste the contents of `014_credits.sql` into the Supabase dashboard SQL editor and run it.
 Expected: success, no errors.
 
-- [ ] **Step 4: Run the verification script**
+- [x] **Step 4: Run the verification script**
 
 Paste `014_credits_verify.sql` into the SQL editor and run it.
 Expected: five `PASS:` notices and no `FAIL:` exception.
@@ -1210,7 +1210,7 @@ Stage `config.ts`, `libs/credits/packs.ts`, `libs/credits/packs.test.ts`, commit
 - Consumes: `creditsForPriceId` (Task 10), `public.grant_credits` (Task 8), `getUserIdFromCustomData` from `@/libs/paddle/server`
 - Produces: `grantCreditsForTransaction(transaction: { id: string; customData: unknown; items: Array<{ price?: { id?: string } | null }> }): Promise<number>` — returns credits granted, `0` when the transaction contains no recognised credit pack
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `libs/credits/grant.test.ts`:
 
@@ -1288,12 +1288,12 @@ describe("grantCreditsForTransaction", () => {
 });
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `npm test -- libs/credits/grant.test.ts`
 Expected: FAIL — cannot resolve `@/libs/credits/grant`.
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 Create `libs/credits/grant.ts`:
 
@@ -1350,12 +1350,12 @@ export async function grantCreditsForTransaction(
 }
 ```
 
-- [ ] **Step 4: Run the test to verify it passes**
+- [x] **Step 4: Run the test to verify it passes**
 
 Run: `npm test -- libs/credits/grant.test.ts`
 Expected: PASS, 4 tests.
 
-- [ ] **Step 5: Wire it into the webhook**
+- [x] **Step 5: Wire it into the webhook**
 
 In `app/api/webhooks/paddle/route.ts`, add the import:
 
@@ -1388,7 +1388,7 @@ Replace the `TransactionCompleted` case:
 
 A transaction is either a credit-pack purchase or a subscription payment, never both. Granting credits and syncing subscription access for the same transaction would be wrong.
 
-- [ ] **Step 6: Verify the build and suite**
+- [x] **Step 6: Verify the build and suite**
 
 Run: `npm run build`
 Expected: succeeds.
@@ -1396,7 +1396,7 @@ Expected: succeeds.
 Run: `npm test`
 Expected: PASS.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 Stage `libs/credits/grant.ts`, `libs/credits/grant.test.ts`, `app/api/webhooks/paddle/route.ts`, commit with message: `feat: grant credits on completed Paddle transactions`
 
@@ -1412,7 +1412,7 @@ Stage `libs/credits/grant.ts`, `libs/credits/grant.test.ts`, `app/api/webhooks/p
 - Consumes: `getCreditBalance` (Task 9), the `--verdict-*` tokens (Task 5)
 - Produces: a server component `<CreditBalance userId={string} />`
 
-- [ ] **Step 1: Write the component**
+- [x] **Step 1: Write the component**
 
 Create `components/CreditBalance.tsx`:
 
@@ -1450,7 +1450,7 @@ export default async function CreditBalance({ userId }: { userId: string }) {
 }
 ```
 
-- [ ] **Step 2: Render it on the dashboard**
+- [x] **Step 2: Render it on the dashboard**
 
 In `app/dashboard/page.tsx`, add the import:
 
@@ -1464,7 +1464,7 @@ and render it beneath `DashboardOverview`:
 <CreditBalance userId={user.id} />
 ```
 
-- [ ] **Step 3: Verify in the browser**
+- [x] **Step 3: Verify in the browser**
 
 Run: `npm run dev`, sign in, open `/dashboard`.
 Expected: the balance reads **5** for a newly created account — the signup grant from Task 8 Step 1.
@@ -1475,11 +1475,11 @@ If it reads 0, the account predates the trigger. Grant manually in the SQL edito
 select public.grant_credits('<your-user-id>', 5, 'manual_backfill');
 ```
 
-- [ ] **Step 4: Verify a purchase end to end**
+- [x] **Step 4: Verify a purchase end to end**
 
 With the Paddle sandbox configured and the webhook reachable (use a tunnel for local testing), buy the Starter pack. Confirm the balance increases by 25 and that `credit_ledger` contains a row with reason `purchase:txn_…`.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 Stage `components/CreditBalance.tsx`, `app/dashboard/page.tsx`, commit with message: `feat: show credit balance on the dashboard`
 
@@ -1497,7 +1497,7 @@ Task 12's balance card links to `/dashboard/credits`. This task creates it.
 - Consumes: `getCreditPacks` (Task 10), `ButtonCheckout` from `@/components/ButtonCheckout`, `getCreditBalance` (Task 9)
 - Produces: route `/dashboard/credits`
 
-- [ ] **Step 1: Write the packs grid**
+- [x] **Step 1: Write the packs grid**
 
 `ButtonCheckout` already handles Paddle initialisation, the signed-out redirect, and `customData`, and it accepts a `priceId`. Reuse it rather than reimplementing checkout.
 
@@ -1542,7 +1542,7 @@ export default function CreditPacks() {
 }
 ```
 
-- [ ] **Step 2: Write the page**
+- [x] **Step 2: Write the page**
 
 Create `app/dashboard/credits/page.tsx`:
 
@@ -1583,7 +1583,7 @@ export default async function CreditsPage() {
 }
 ```
 
-- [ ] **Step 3: Verify**
+- [x] **Step 3: Verify**
 
 Run: `npm run build`
 Expected: succeeds.
@@ -1591,7 +1591,7 @@ Expected: succeeds.
 Run: `npm run dev`, sign in, click "Top up" on the dashboard balance card.
 Expected: `/dashboard/credits` renders both packs, and clicking one opens the Paddle sandbox checkout overlay. If the packs grid shows the "not configured" message, the price-ID env vars from Task 10 Step 1 are missing.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 Stage `components/CreditPacks.tsx`, `app/dashboard/credits/page.tsx`, commit with message: `feat: add buy-credits page`
 

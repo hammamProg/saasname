@@ -1248,7 +1248,7 @@ the assistant's knowledge cutoff, so it is checked rather than trusted.
 
 **Blocked on:** a DeepSeek API key. Everything above ships and tests without one.
 
-- [ ] **Step 1: Add the key**
+- [x] **Step 1: Add the key**
 
 Add to `.env.local`:
 
@@ -1256,7 +1256,12 @@ Add to `.env.local`:
 DEEPSEEK_API_KEY=sk-...
 ```
 
-- [ ] **Step 2: Confirm the model name is live**
+- [x] **Step 2: Confirm the model name is live**
+
+> **Verified 2026-08-25:** `deepseek-v4-flash` is live and returned a completion.
+> No change to `GENERATION_MODEL` was needed. Note the response also carries a
+> `reasoning_content` field — this is a reasoning model, and reasoning tokens count
+> against `max_tokens`. A real generation took ~5.8s against a 15s budget.
 
 Run:
 
@@ -1279,14 +1284,14 @@ curl -s https://api.deepseek.com/models -H "Authorization: Bearer $KEY"
 Then update `GENERATION_MODEL` in `libs/names/generate.ts` and the model names in the Global
 Constraints of both plans and in the parent spec §1.
 
-- [ ] **Step 3: Verify the happy path in the browser**
+- [x] **Step 3: Verify the happy path in the browser**
 
 Run `npm run dev`, sign in, open `/dashboard`, enter an idea of at least 10 characters, and
 submit.
 Expected: 5–8 candidate cards, each with a name and a one-sentence rationale, and no
 duplicates that differ only by case or spacing.
 
-- [ ] **Step 4: Verify the failure path does not look like an empty result**
+- [x] **Step 4: Verify the failure path does not look like an empty result**
 
 Comment out `DEEPSEEK_API_KEY` in `.env.local`, restart the dev server, and submit again.
 Expected: the red error message renders. There must be no empty candidate grid and no
@@ -1299,7 +1304,7 @@ Restore the key afterwards.
 In `docs/AGENT_REFERENCE.md`, add `DEEPSEEK_API_KEY` to the environment variable list with
 the note: "Server-only. Name generation (`/api/generate`). Absent → the route returns 503."
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add docs/AGENT_REFERENCE.md

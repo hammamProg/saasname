@@ -1,13 +1,42 @@
 "use client";
 
 import { NAME_STYLES, type NameStyleId } from "@/libs/names/styles";
+import { findBrandMark } from "@/components/dashboard/generate/brand-marks";
 import { cn } from "@/libs/cn";
+
+/** One example: its mark, then its name.
+ *
+ *  The mark inherits the card's text colour rather than the brand's own. Ten
+ *  full-colour logos would dominate the form and read as a customer list or an
+ *  endorsement, neither of which is true. Monochrome at text size keeps them
+ *  as what they are — a legend for the style. */
+function ExampleBrand({ name }: { name: string }) {
+  const mark = findBrandMark(name);
+
+  return (
+    <span className="inline-flex items-center gap-1.5 text-xs opacity-80">
+      {mark && (
+        <svg
+          viewBox="0 0 24 24"
+          width="12"
+          height="12"
+          fill="currentColor"
+          aria-hidden="true"
+          className="shrink-0"
+        >
+          <path d={mark.path} />
+        </svg>
+      )}
+      {name}
+    </span>
+  );
+}
 
 /** Lets the user aim the batch at one naming direction.
  *
  *  Examples sit under each label because "Invented" means little in the
- *  abstract and everything next to "Zapier, Klaviyo". The choice is what stops
- *  the model hedging across styles, which is what made batches incoherent. */
+ *  abstract and everything next to Zapier and Algolia. The choice is what
+ *  stops the model hedging across styles, which made batches incoherent. */
 export default function StylePicker({
   selected,
   onSelect,
@@ -38,11 +67,18 @@ export default function StylePicker({
               )}
             >
               <span className="text-sm font-semibold">{style.label}</span>
-              <span className="text-xs opacity-80">
-                {style.examples.length > 0
-                  ? style.examples.join(", ")
-                  : "A spread of every direction"}
-              </span>
+
+              {style.examples.length > 0 ? (
+                <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  {style.examples.map((example) => (
+                    <ExampleBrand key={example} name={example} />
+                  ))}
+                </span>
+              ) : (
+                <span className="text-xs opacity-80">
+                  A spread of every direction
+                </span>
+              )}
             </button>
           );
         })}

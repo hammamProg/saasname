@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { findBrandMark } from "@/components/dashboard/generate/brand-marks";
 import {
   NAME_STYLES,
   DEFAULT_STYLE_ID,
@@ -23,6 +24,16 @@ describe("NAME_STYLES", () => {
     for (const style of NAME_STYLES) {
       if (style.id === DEFAULT_STYLE_ID) continue;
       expect(style.examples.length).toBeGreaterThanOrEqual(2);
+    }
+  });
+
+  it("has a brand mark for every example name", () => {
+    // The cards render a logo beside each example. A name with no mark would
+    // render as a lone word next to two logos, which reads as a bug.
+    for (const style of NAME_STYLES) {
+      for (const example of style.examples) {
+        expect(findBrandMark(example), example).toBeDefined();
+      }
     }
   });
 

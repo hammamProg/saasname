@@ -34,7 +34,7 @@ export const NAME_STYLES: readonly NameStyle[] = [
   {
     id: "invented",
     label: "Invented",
-    examples: ["Zapier", "Klaviyo"],
+    examples: ["Zapier", "Algolia"],
     constraint: "Coined words that are not real words. Must be pronounceable.",
   },
   {
@@ -58,7 +58,7 @@ export const NAME_STYLES: readonly NameStyle[] = [
   {
     id: "playful",
     label: "Playful",
-    examples: ["Mailchimp", "Grammarly"],
+    examples: ["Mailchimp", "Hootsuite"],
     constraint: "Wordplay or an unexpected pairing. Memorable over serious.",
   },
   {

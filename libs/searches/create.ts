@@ -17,6 +17,8 @@ export type CreateSearchArgs = {
   mode: "generate" | "check";
   ideaText?: string;
   seedName?: string;
+  /** Naming direction that produced these candidates; null in check mode. */
+  nameStyle?: string | null;
   targetPlatform: TargetPlatform;
   candidates: CandidateInput[];
   probes?: readonly PlatformProbe[];
@@ -87,6 +89,7 @@ export async function createSearch(
       mode: args.mode,
       idea_text: args.ideaText ?? null,
       seed_name: args.seedName ?? null,
+      name_style: args.nameStyle ?? null,
       target_platform: args.targetPlatform,
       status: "pending",
       credits_spent: candidates.length,

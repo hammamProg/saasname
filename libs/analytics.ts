@@ -33,6 +33,12 @@ export function trackDemoExampleClicked(): void {
   track("demo_example_clicked");
 }
 
+/** Which naming directions people actually pick, and whether the picker is
+ *  used at all. The style id is a fixed catalogue value, never user text. */
+export function trackGenerateStyleSelected(styleId: string): void {
+  track("generate_style_selected", { style: styleId });
+}
+
 export function trackSignUpStarted(method: "google" | "magic_link"): void {
   track("sign_up_started", { method });
 }

@@ -7,6 +7,7 @@ import {
   TARGET_PLATFORMS,
   type TargetPlatform,
 } from "@/libs/names/generate";
+import { resolveStyle } from "@/libs/names/styles";
 
 export const dynamic = "force-dynamic";
 /** Two model calls worst case at 15s each, plus overhead. */
@@ -17,6 +18,8 @@ export const maxDuration = 75;
 const IDEA_MIN_LENGTH = 10;
 const IDEA_MAX_LENGTH = 500;
 const SEED_MAX_LENGTH = 50;
+/** Regenerating repeatedly grows this list; the prompt is billed per token. */
+const MAX_EXCLUDED_NAMES = 40;
 
 function isTargetPlatform(value: unknown): value is TargetPlatform {
   return (
@@ -34,7 +37,13 @@ export async function POST(request: Request) {
 
   // Generation is deliberately free (see the Phase 2 spec). No credit check.
 
-  let body: { idea?: unknown; seedName?: unknown; targetPlatform?: unknown };
+  let body: {
+    idea?: unknown;
+    seedName?: unknown;
+    targetPlatform?: unknown;
+    style?: unknown;
+    excludeNames?: unknown;
+  };
 
   try {
     body = await request.json();
@@ -70,6 +79,23 @@ export async function POST(request: Request) {
     );
   }
 
+  // An unrecognised style resolves to the unconstrained one rather than
+  // rejecting: a client holding a retired id should get a vaguer batch, not an
+  // error it cannot act on.
+  const style = resolveStyle(
+    typeof body.style === "string" ? body.style : undefined
+  ).id;
+
+  // Names already on screen, so a regenerate does not repeat them. Capped so a
+  // crafted request cannot inflate the prompt.
+  const excludeNames = Array.isArray(body.excludeNames)
+    ? body.excludeNames
+        .filter((entry): entry is string => typeof entry === "string")
+        .map((entry) => entry.trim().slice(0, SEED_MAX_LENGTH))
+        .filter(Boolean)
+        .slice(0, MAX_EXCLUDED_NAMES)
+    : undefined;
+
   if (!isDeepSeekConfigured()) {
     console.error("[api/generate] DEEPSEEK_API_KEY is not configured");
     return NextResponse.json(
@@ -84,9 +110,11 @@ export async function POST(request: Request) {
       idea,
       seedName,
       targetPlatform: body.targetPlatform,
+      style,
+      excludeNames,
     });
 
-    return NextResponse.json({ candidates });
+    return NextResponse.json({ candidates, style });
   } catch (error) {
     // The upstream message can contain provider detail. Log it, return a
     // generic one: it must never reach the client.

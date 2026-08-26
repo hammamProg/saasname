@@ -3,6 +3,7 @@ import { getAuthUser, unauthorizedResponse } from "@/libs/supabase/auth-api";
 import { InsufficientCreditsError } from "@/libs/credits/errors";
 import { createSearch, MAX_CANDIDATES } from "@/libs/searches/create";
 import { TARGET_PLATFORMS, type TargetPlatform } from "@/libs/names/generate";
+import { resolveStyle } from "@/libs/names/styles";
 
 export const dynamic = "force-dynamic";
 /** Spends credits and writes rows only; the probes run on the stream route. */
@@ -23,6 +24,7 @@ type Body = {
   mode?: unknown;
   ideaText?: unknown;
   seedName?: unknown;
+  style?: unknown;
   targetPlatform?: unknown;
   candidates?: unknown;
 };
@@ -97,6 +99,10 @@ export async function POST(request: Request) {
       ideaText,
       seedName,
       targetPlatform: body.targetPlatform,
+      nameStyle:
+        mode === "generate" && typeof body.style === "string"
+          ? resolveStyle(body.style).id
+          : null,
       candidates,
     });
 

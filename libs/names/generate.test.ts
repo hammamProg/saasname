@@ -3,7 +3,9 @@ import {
   generateCandidates,
   parseCandidates,
   GENERATION_MODEL,
+  BATCH_SIZE,
 } from "@/libs/names/generate";
+import { NAME_STYLES, resolveStyle } from "@/libs/names/styles";
 import { LlmError, type LlmProvider } from "@/libs/llm/provider";
 
 function payload(names: Array<[string, string]>) {
@@ -113,7 +115,7 @@ describe("generateCandidates", () => {
 
     const out = await generateCandidates({ provider, ...args });
 
-    expect(out).toHaveLength(8);
+    expect(out).toHaveLength(BATCH_SIZE);
     expect(callsOf(provider)).toHaveLength(1);
     expect(callsOf(provider)[0][0]).toMatchObject({
       model: GENERATION_MODEL,
@@ -135,7 +137,9 @@ describe("generateCandidates", () => {
   it("retries once when the first response is malformed", async () => {
     const provider = stubProvider("garbage", payload(eight));
 
-    expect(await generateCandidates({ provider, ...args })).toHaveLength(8);
+    expect(await generateCandidates({ provider, ...args })).toHaveLength(
+      BATCH_SIZE
+    );
     expect(callsOf(provider)).toHaveLength(2);
   });
 
@@ -145,7 +149,9 @@ describe("generateCandidates", () => {
       payload(eight.slice(2, 8))
     );
 
-    expect(await generateCandidates({ provider, ...args })).toHaveLength(8);
+    expect(await generateCandidates({ provider, ...args })).toHaveLength(
+      BATCH_SIZE
+    );
     expect(callsOf(provider)).toHaveLength(2);
   });
 
@@ -181,13 +187,58 @@ describe("generateCandidates", () => {
     await expect(generateCandidates({ provider, ...args })).rejects.toThrow(/upstream 500/);
   });
 
-  it("never returns more than eight candidates", async () => {
+  it("never returns more than one batch", async () => {
     const many: Array<[string, string]> = Array.from({ length: 20 }, (_v, i) => [
       `Name${i}`,
       `reason ${i}`,
     ]);
     const provider = stubProvider(payload(many));
 
-    expect(await generateCandidates({ provider, ...args })).toHaveLength(8);
+    expect(await generateCandidates({ provider, ...args })).toHaveLength(
+      BATCH_SIZE
+    );
+  });
+
+  it("puts the chosen style's constraint in the prompt", async () => {
+    const provider = stubProvider(payload(eight));
+
+    await generateCandidates({ provider, ...args, style: "invented" });
+
+    expect(callsOf(provider)[0][0].user).toContain(
+      resolveStyle("invented").constraint
+    );
+  });
+
+  it("falls back to the unconstrained style for an unknown id", async () => {
+    const provider = stubProvider(payload(eight));
+
+    // A client holding a retired style id should get a vaguer batch, not a 500.
+    await generateCandidates({ provider, ...args, style: "retired-style" });
+
+    expect(callsOf(provider)[0][0].user).toContain(
+      resolveStyle(undefined).constraint
+    );
+  });
+
+  it("tells the model which names are already on screen", async () => {
+    const provider = stubProvider(payload(eight));
+
+    await generateCandidates({
+      provider,
+      ...args,
+      excludeNames: ["Nameloop", "Brandwise"],
+    });
+
+    const { user } = callsOf(provider)[0][0];
+    expect(user).toContain("Nameloop");
+    expect(user).toContain("Brandwise");
+  });
+
+  it("offers every catalogued style to the prompt builder", async () => {
+    for (const style of NAME_STYLES) {
+      const provider = stubProvider(payload(eight));
+      await generateCandidates({ provider, ...args, style: style.id });
+      expect(callsOf(provider)[0][0].user).toContain(style.constraint);
+    }
   });
 });

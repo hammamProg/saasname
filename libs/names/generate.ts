@@ -1,5 +1,6 @@
 import { normalizeName } from "@/libs/names/normalize";
 import { LlmError, type LlmProvider } from "@/libs/llm/provider";
+import { resolveStyle, type NameStyleId } from "@/libs/names/styles";
 
 export type TargetPlatform = "ios" | "android" | "web" | "cross";
 
@@ -20,9 +21,16 @@ export type GeneratedCandidate = {
  *  ranking pass where its cost is justified. */
 export const GENERATION_MODEL = "deepseek-v4-flash";
 
-const REQUESTED_COUNT = 8;
-/** Below this we spend one more call trying to top the batch up. */
-const RETRY_BELOW = 5;
+/** Five, not eight. Eight forced the model to hedge across naming styles to
+ *  fill the list, which is what made batches read as incoherent. Five in one
+ *  constrained direction is a shortlist; the user widens by regenerating in a
+ *  different direction, not by getting more of everything at once. */
+export const BATCH_SIZE = 5;
+/** Below this we spend one more call trying to top the batch up.
+ *
+ *  Must stay below {@link BATCH_SIZE}. Setting it equal would make every
+ *  complete batch look short and fire a second call on every generation. */
+const RETRY_BELOW = 3;
 /** Below this even after the retry, the run has failed. */
 const MIN_ACCEPTABLE = 3;
 const MAX_NAME_LENGTH = 30;
@@ -57,16 +65,26 @@ const PLATFORM_GUIDANCE: Record<TargetPlatform, string> = {
 function buildUserPrompt(
   idea: string,
   seedName: string | undefined,
-  targetPlatform: TargetPlatform
+  targetPlatform: TargetPlatform,
+  style: NameStyleId | string | undefined,
+  excludeNames: string[] | undefined
 ): string {
   const lines = [
     `Idea: ${idea}`,
+    `Style: ${resolveStyle(style).constraint}`,
     `Target: ${targetPlatform}. ${PLATFORM_GUIDANCE[targetPlatform]}`,
-    `Return ${REQUESTED_COUNT}.`,
+    `Return ${BATCH_SIZE}.`,
   ];
 
   if (seedName?.trim()) {
     lines.splice(1, 0, `Similar in spirit to "${seedName.trim()}", but not it.`);
+  }
+
+  // Regenerating in a new direction should not hand back names the user has
+  // already read and passed over.
+  const exclude = excludeNames?.map((name) => name.trim()).filter(Boolean) ?? [];
+  if (exclude.length > 0) {
+    lines.push(`Not these: ${exclude.join(", ")}.`);
   }
 
   return lines.join("\n");
@@ -133,15 +151,19 @@ export async function generateCandidates({
   idea,
   seedName,
   targetPlatform,
+  style,
+  excludeNames,
 }: {
   provider: LlmProvider;
   idea: string;
   seedName?: string;
   targetPlatform: TargetPlatform;
+  style?: NameStyleId | string;
+  excludeNames?: string[];
 }): Promise<GeneratedCandidate[]> {
   const request = {
     system: SYSTEM_PROMPT,
-    user: buildUserPrompt(idea, seedName, targetPlatform),
+    user: buildUserPrompt(idea, seedName, targetPlatform, style, excludeNames),
     model: GENERATION_MODEL,
     json: true,
     maxOutputTokens: GENERATION_OUTPUT_BUDGET,
@@ -180,5 +202,5 @@ export async function generateCandidates({
     );
   }
 
-  return collected.slice(0, REQUESTED_COUNT);
+  return collected.slice(0, BATCH_SIZE);
 }

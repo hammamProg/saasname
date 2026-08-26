@@ -4,47 +4,27 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-  Check,
-  Globe,
   Loader2,
   Search,
   ShieldCheck,
   Sparkles,
   TriangleAlert,
 } from "lucide-react";
-import { AndroidIcon, AppleIcon } from "@/components/icons/BrandIcons";
 import apiClient, { ApiError } from "@/libs/api";
-import {
-  type GeneratedCandidate,
-  type TargetPlatform,
-} from "@/libs/names/generate";
+import { type GeneratedCandidate } from "@/libs/names/generate";
+import { DEFAULT_STYLE_ID, type NameStyleId } from "@/libs/names/styles";
+import AdvancedOptions, {
+  resolveTargetPlatform,
+  type PlatformChoice,
+} from "@/components/dashboard/generate/AdvancedOptions";
+import StylePicker from "@/components/dashboard/generate/StylePicker";
+import RegenerateChips from "@/components/dashboard/generate/RegenerateChips";
+import { trackGenerateStyleSelected } from "@/libs/analytics";
 import CandidateList from "@/components/dashboard/CandidateList";
 import SearchProgress from "@/components/dashboard/SearchProgress";
 import NamingAnimation from "@/components/dashboard/NamingAnimation";
 import StepHeader from "@/components/dashboard/RunStepper";
 import { cn } from "@/libs/cn";
-
-/** The surfaces a user picks from. `cross` is not offered directly -- it is
- *  what any multi-surface selection resolves to. */
-const PLATFORM_CHOICES = [
-  { id: "web", label: "Web", Icon: Globe },
-  { id: "ios", label: "iOS", Icon: AppleIcon },
-  { id: "android", label: "Android", Icon: AndroidIcon },
-] as const;
-
-type PlatformChoice = (typeof PLATFORM_CHOICES)[number]["id"];
-
-/** Maps the checklist onto the single enum the API and the scoring weights
- *  speak. One surface keeps that surface's weighting; two or more resolve to
- *  `cross`, the balanced profile. Picking iOS + Android and getting `cross`
- *  counts web signals a little more heavily than strictly necessary -- it errs
- *  toward more evidence, never toward a false "clear". */
-function resolveTargetPlatform(selected: Set<PlatformChoice>): TargetPlatform {
-  if (selected.size === 1) {
-    return [...selected][0] as TargetPlatform;
-  }
-  return "cross";
-}
 
 const IDEA_MIN_LENGTH = 10;
 const IDEA_MAX_LENGTH = 500;
@@ -77,62 +57,6 @@ function parseNames(raw: string): string[] {
  * `role="checkbox"` on a button is announced identically and has no native
  * chrome to leak, so there is nothing left to hide.
  */
-function PlatformChecklist({
-  selected,
-  onToggle,
-}: {
-  selected: Set<PlatformChoice>;
-  onToggle: (id: PlatformChoice) => void;
-}) {
-  return (
-    <fieldset className="space-y-2">
-      <legend className="mb-2 text-sm font-semibold">Where will it live?</legend>
-
-      <div className="grid gap-2 sm:grid-cols-3" role="group">
-        {PLATFORM_CHOICES.map((choice) => {
-          const checked = selected.has(choice.id);
-
-          return (
-            <button
-              key={choice.id}
-              type="button"
-              role="checkbox"
-              aria-checked={checked}
-              onClick={() => onToggle(choice.id)}
-              className={cn(
-                "flex items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-semibold transition-all",
-                checked
-                  ? "border-primary/50 bg-primary-soft text-primary shadow-sm"
-                  : "border-border bg-surface text-muted hover:border-primary/25 hover:text-foreground"
-              )}
-            >
-              <span
-                aria-hidden="true"
-                className={cn(
-                  "flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-md border transition-colors",
-                  checked
-                    ? "border-primary bg-primary text-white"
-                    : "border-border bg-card"
-                )}
-              >
-                {checked && <Check size={12} strokeWidth={3.5} />}
-              </span>
-              <choice.Icon size={16} className="shrink-0" />
-              <span>{choice.label}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      {selected.size === 0 && (
-        <p className="text-xs font-medium text-verdict-blocked">
-          Pick at least one — it decides how much each source counts.
-        </p>
-      )}
-    </fieldset>
-  );
-}
-
 /** What this run will cost against what is left. Previously the only signal
  *  was a 402 on submit that bounced the user to the credits page, which is a
  *  poor way to learn you cannot afford something you already committed to. */
@@ -171,6 +95,7 @@ export default function GenerateForm({
   const [mode, setMode] = useState<Mode>(initialMode);
   const [idea, setIdea] = useState("");
   const [seedName, setSeedName] = useState("");
+  const [style, setStyle] = useState<NameStyleId>(DEFAULT_STYLE_ID);
   const [directNames, setDirectNames] = useState("");
   const [platforms, setPlatforms] = useState<Set<PlatformChoice>>(
     () => new Set<PlatformChoice>(["web"])
@@ -213,14 +138,24 @@ export default function GenerateForm({
     setError(null);
   }
 
-  async function handleGenerate(event: React.FormEvent) {
-    event.preventDefault();
+  /** Generates a batch in one direction.
+   *
+   *  `isRetry` marks a regenerate from the chips: the names already on screen
+   *  are kept until the new batch lands and are passed as exclusions, so a
+   *  failed regenerate costs the user nothing they were still considering. A
+   *  first generation clears instead, so a failure cannot leave stale names
+   *  looking like the result of the request that just failed. */
+  async function runGeneration(styleId: NameStyleId, isRetry = false) {
     setLoading(true);
     setError(null);
-    // Clear the previous run so a failure cannot leave stale names on screen
-    // looking like the result of the request that just failed.
-    setCandidates(null);
-    setSelected(new Set());
+    setStyle(styleId);
+
+    const previous = candidates ?? [];
+
+    if (!isRetry) {
+      setCandidates(null);
+      setSelected(new Set());
+    }
 
     try {
       const { candidates: next } = await apiClient.post<{
@@ -229,6 +164,8 @@ export default function GenerateForm({
         idea: idea.trim(),
         seedName: seedName.trim() || undefined,
         targetPlatform,
+        style: styleId,
+        excludeNames: isRetry ? previous.map((c) => c.name) : undefined,
       });
 
       setCandidates(next);
@@ -242,6 +179,17 @@ export default function GenerateForm({
     } finally {
       setLoading(false);
     }
+  }
+
+  async function handleGenerate(event: React.FormEvent) {
+    event.preventDefault();
+    trackGenerateStyleSelected(style);
+    await runGeneration(style);
+  }
+
+  async function handleRegenerate(styleId: NameStyleId) {
+    trackGenerateStyleSelected(styleId);
+    await runGeneration(styleId, true);
   }
 
   /** Both paths end in the same POST; only where the names came from differs. */
@@ -288,6 +236,7 @@ export default function GenerateForm({
         ideaText: idea.trim(),
         seedName: seedName.trim() || undefined,
         targetPlatform,
+        style,
         candidates: candidates
           .filter((c) => selected.has(c.normalizedName))
           .map((c) => ({ name: c.name, rationale: c.rationale })),
@@ -415,6 +364,8 @@ export default function GenerateForm({
               />
             </div>
 
+            <StylePicker selected={style} onSelect={setStyle} />
+
             <div className="space-y-1.5">
               <label htmlFor="seedName" className="text-sm font-semibold">
                 A name you already like{" "}
@@ -430,7 +381,7 @@ export default function GenerateForm({
               />
             </div>
 
-            <PlatformChecklist selected={platforms} onToggle={togglePlatform} />
+            <AdvancedOptions selected={platforms} onToggle={togglePlatform} />
 
           </div>
         ) : (
@@ -460,7 +411,7 @@ export default function GenerateForm({
 
             </div>
 
-            <PlatformChecklist selected={platforms} onToggle={togglePlatform} />
+            <AdvancedOptions selected={platforms} onToggle={togglePlatform} />
 
           </div>
         )}
@@ -579,6 +530,14 @@ export default function GenerateForm({
                 : `Check ${selected.size} ${selected.size === 1 ? "name" : "names"}`}
             </button>
             <CostLine cost={selected.size} balance={balance} />
+          </div>
+
+          <div className="border-t border-border pt-5">
+            <RegenerateChips
+              current={style}
+              busy={loading || checking}
+              onRegenerate={handleRegenerate}
+            />
           </div>
         </div>
       )}

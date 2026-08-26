@@ -119,7 +119,7 @@ export default function AppSidebar({
           "flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-bold transition-all",
           actionActive
             ? isDark
-              ? "bg-white/10 text-white ring-1 ring-brand-cyan/30"
+              ? "bg-[#0E2A52] text-white ring-1 ring-brand-cyan/40"
               : "bg-primary-soft text-primary ring-1 ring-primary/20"
             : "btn-gradient"
         )}
@@ -137,7 +137,7 @@ export default function AppSidebar({
           <p
             className={cn(
               "px-3 pb-1 text-[10px] font-bold uppercase tracking-[0.12em]",
-              isDark ? "text-white/35" : "text-muted/70"
+              isDark ? "text-[#8FA6C6]" : "text-muted"
             )}
           >
             {group.label}
@@ -163,8 +163,8 @@ export default function AppSidebar({
                   "group relative flex items-center gap-3 rounded-lg py-2.5 pl-4 pr-3 text-sm font-medium transition-colors",
                   isDark
                     ? active
-                      ? "bg-white/8 text-white"
-                      : "text-white/60 hover:bg-white/5 hover:text-white"
+                      ? "bg-[#0E2A52] text-white"
+                      : "text-[#C7D6EA] hover:bg-[#0B2547] hover:text-white"
                     : active
                       ? "bg-primary-soft text-primary"
                       : "text-muted hover:bg-surface hover:text-foreground"
@@ -206,7 +206,7 @@ export default function AppSidebar({
                       creditBalance === 0
                         ? "bg-verdict-blocked/20 text-verdict-blocked"
                         : isDark
-                          ? "bg-white/10 text-white/70"
+                          ? "bg-[#12335F] text-[#C7D6EA]"
                           : "bg-surface text-muted"
                     )}
                   >

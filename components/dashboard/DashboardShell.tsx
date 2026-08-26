@@ -30,13 +30,13 @@ function SidebarChrome({
 }) {
   return (
     <>
-      <div className="flex items-center justify-between border-b border-brand-cyan/10 px-5 py-5">
+      <div className="flex items-center justify-between border-b border-[#12305C] px-5 py-5">
         <BrandLogo size="lg" href="/dashboard" onDark />
         {onClose && (
           <button
             type="button"
             aria-label="Close menu"
-            className="rounded-lg p-2 text-brand-cyan/70 transition-colors hover:bg-white/5 hover:text-brand-cyan lg:hidden"
+            className="rounded-lg p-2 text-[#C7D6EA] transition-colors hover:bg-[#0B2547] hover:text-white lg:hidden"
             onClick={onClose}
           >
             <X size={20} />
@@ -48,7 +48,7 @@ function SidebarChrome({
         <AppSidebar onNavigate={onNavigate} theme="dark" creditBalance={creditBalance} />
       </div>
 
-      <div className="border-t border-brand-cyan/10 p-4">
+      <div className="border-t border-[#12305C] p-4">
         <ButtonAccount variant="sidebar" />
       </div>
     </>
@@ -69,7 +69,7 @@ export default function DashboardShell({
     <DashboardAccessProvider hasAccess={hasAccess}>
       <div className="flex min-h-screen bg-background lg:h-screen lg:overflow-hidden">
       {/* Column 1 — desktop sidebar */}
-      <aside className="hidden w-[280px] shrink-0 flex-col border-r border-brand-cyan/10 bg-brand-ink lg:flex">
+      <aside className="hidden w-[280px] shrink-0 flex-col border-r border-[#12305C] bg-brand-ink lg:flex">
         <SidebarChrome creditBalance={creditBalance} />
       </aside>
 
@@ -86,7 +86,7 @@ export default function DashboardShell({
       {/* Mobile sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-[min(100vw-3rem,280px)] flex-col border-r border-brand-cyan/10 bg-brand-ink transition-transform duration-200 lg:hidden",
+          "fixed inset-y-0 left-0 z-50 flex w-[min(100vw-3rem,280px)] flex-col border-r border-[#12305C] bg-brand-ink transition-transform duration-200 lg:hidden",
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >

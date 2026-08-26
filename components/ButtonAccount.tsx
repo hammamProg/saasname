@@ -97,7 +97,7 @@ export default function ButtonAccount({ variant = "default" }: ButtonAccountProp
     "flex w-full items-center gap-3 px-3 py-2.5 text-left text-sm font-medium transition-colors",
     "disabled:cursor-not-allowed disabled:opacity-60",
     isSidebar
-      ? "text-brand-cyan/70 hover:bg-white/5 hover:text-brand-cyan"
+      ? "text-[#C7D6EA] hover:bg-[#0B2547] hover:text-white"
       : "text-muted hover:bg-surface hover:text-foreground"
   );
 
@@ -112,7 +112,7 @@ export default function ButtonAccount({ variant = "default" }: ButtonAccountProp
         className={cn(
           "flex items-center gap-3 rounded-xl text-sm font-semibold transition-colors",
           isSidebar
-            ? "w-full border border-brand-cyan/15 bg-brand-blue/15 px-3 py-2.5 text-brand-cyan hover:bg-brand-blue/25"
+            ? "w-full border border-[#1B3A66] bg-[#0E2A52] px-3 py-2.5 text-white hover:bg-[#12335F]"
             : "border-2 border-foreground bg-surface px-3 py-2 font-bold"
         )}
       >
@@ -158,7 +158,7 @@ export default function ButtonAccount({ variant = "default" }: ButtonAccountProp
           className={cn(
             "animate-popup absolute z-10 overflow-hidden rounded-xl p-1 shadow-xl",
             isSidebar
-              ? "bottom-full left-0 mb-2 w-full border border-brand-cyan/15 bg-brand-ink shadow-black/30"
+              ? "bottom-full left-0 mb-2 w-full border border-[#1B3A66] bg-brand-ink shadow-black/30"
               : "right-0 mt-2 w-48 border border-border bg-card"
           )}
         >

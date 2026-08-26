@@ -141,7 +141,7 @@ function CostLine({ cost, balance }: { cost: number; balance: number }) {
 
   if (short) {
     return (
-      <p className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs font-medium text-verdict-blocked">
+      <p className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 text-xs font-medium text-verdict-blocked">
         <TriangleAlert size={13} aria-hidden="true" className="shrink-0" />
         {cost} {cost === 1 ? "credit" : "credits"} needed, you have {balance}.
         <Link href="/dashboard/credits" className="font-bold underline">
@@ -152,7 +152,7 @@ function CostLine({ cost, balance }: { cost: number; balance: number }) {
   }
 
   return (
-    <p className="text-xs text-muted">
+    <p className="text-center text-xs text-muted">
       {cost} {cost === 1 ? "credit" : "credits"} · {balance - cost} left
       afterwards. Refunded if a check cannot be completed.
     </p>
@@ -466,14 +466,14 @@ export default function GenerateForm({
         )}
       </div>
 
-      <div className="flex flex-col items-center gap-2.5">
+      <div className="flex flex-col items-stretch gap-2.5">
         {mode === "generate" ? (
           <>
             <button
               type="submit"
               disabled={!canGenerate}
               className={cn(
-                "rounded-xl px-10 py-4 text-base font-bold transition-all",
+                "w-full rounded-xl px-10 py-4 text-base font-bold transition-all",
                 // The gradient is reserved for "this is ready to press". A
                 // permanently loud button teaches nothing; one that changes at
                 // the moment the form becomes valid does.
@@ -487,7 +487,9 @@ export default function GenerateForm({
               )}
               {loading ? "Generating…" : "Generate names"}
             </button>
-            <p className="text-xs text-muted">Free — credits are spent at the check.</p>
+            <p className="text-center text-xs text-muted">
+              Free — credits are spent at the check.
+            </p>
           </>
         ) : (
           <>
@@ -495,7 +497,7 @@ export default function GenerateForm({
               type="submit"
               disabled={!canCheckDirect}
               className={cn(
-                "rounded-xl px-10 py-4 text-base font-bold transition-all",
+                "w-full rounded-xl px-10 py-4 text-base font-bold transition-all",
                 canCheckDirect ? "btn-gradient animate-ready-pop" : "btn-primary"
               )}
             >
@@ -511,17 +513,17 @@ export default function GenerateForm({
                   : "Check names"}
             </button>
             {tooManyNames ? (
-              <p className="text-xs text-verdict-blocked">
+              <p className="text-center text-xs text-verdict-blocked">
                 Check at most {MAX_NAMES} names at once.
               </p>
             ) : nameTooLong ? (
-              <p className="text-xs text-verdict-blocked">
+              <p className="text-center text-xs text-verdict-blocked">
                 Each name must be {NAME_MAX_LENGTH} characters or fewer.
               </p>
             ) : parsedNames.length > 0 ? (
               <CostLine cost={parsedNames.length} balance={balance} />
             ) : (
-              <p className="text-xs text-muted">
+              <p className="text-center text-xs text-muted">
                 1 credit per name. You have {balance}.
               </p>
             )}

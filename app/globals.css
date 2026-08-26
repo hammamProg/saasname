@@ -165,11 +165,14 @@ body {
   box-shadow: 0 12px 28px rgba(0, 141, 247, 0.28);
 }
 
-/* Unlayered, so this beats any `disabled:*` utility a caller adds. A disabled
-   primary button must read as off, not as a washed-out live button. */
+/* Unlayered, so this beats any `disabled:*` utility a caller adds.
+   A disabled button still has to read as a button. The previous fill sat a
+   hair off the page background, so the control looked absent rather than
+   unavailable — which made enabling it look like something appearing instead
+   of something changing state. */
 .btn-primary:disabled {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: #E2EAF5;
+  border: 1px solid rgba(2, 27, 66, 0.14);
   color: var(--muted);
   box-shadow: none;
   transform: none;

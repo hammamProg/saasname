@@ -15,6 +15,7 @@ import LandingFinalCTA from "@/components/landing/LandingFinalCTA";
 import config from "@/config";
 import { getSEOTags } from "@/libs/seo";
 import { renderSchemaTags } from "@/libs/seo-schema";
+import { LANDING_FAQS } from "@/libs/landing-faqs";
 
 export const metadata = getSEOTags({
   title: "Find a SaaS name that is actually free to use",
@@ -32,7 +33,7 @@ export const metadata = getSEOTags({
 export default function Home() {
   return (
     <div className="landing-theme min-h-screen">
-      {renderSchemaTags()}
+      {renderSchemaTags(LANDING_FAQS)}
       <Suspense>
         <Header variant="landing" />
       </Suspense>

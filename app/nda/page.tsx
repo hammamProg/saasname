@@ -5,7 +5,7 @@ import LegalPage, { Section } from "@/components/LegalPage";
 import PrintButton from "@/components/PrintButton";
 
 export const metadata = getSEOTags({
-  title: `Non-Disclosure Agreement | ${config.appName}`,
+  title: "Non-Disclosure Agreement",
   description:
     "Our standing confidentiality undertaking covering every idea and name you submit.",
   canonicalUrlRelative: "/nda",

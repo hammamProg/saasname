@@ -5,7 +5,7 @@ import { getSEOTags } from "@/libs/seo";
 import LegalPage, { Section } from "@/components/LegalPage";
 
 export const metadata = getSEOTags({
-  title: `Confidentiality | ${config.appName}`,
+  title: "Confidentiality",
   description:
     "How your ideas and name reports are kept private, and exactly what leaves our systems.",
   canonicalUrlRelative: "/confidentiality",

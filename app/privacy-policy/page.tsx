@@ -4,7 +4,7 @@ import { getSEOTags } from "@/libs/seo";
 import LegalPage, { Section } from "@/components/LegalPage";
 
 export const metadata = getSEOTags({
-  title: `Privacy Policy | ${config.appName}`,
+  title: "Privacy Policy",
   description: "What we collect, why, who receives it, and how to have it deleted.",
   canonicalUrlRelative: "/privacy-policy",
 });

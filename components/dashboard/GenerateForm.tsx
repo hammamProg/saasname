@@ -19,6 +19,9 @@ import {
   type TargetPlatform,
 } from "@/libs/names/generate";
 import CandidateList from "@/components/dashboard/CandidateList";
+import SearchProgress from "@/components/dashboard/SearchProgress";
+import NamingAnimation from "@/components/dashboard/NamingAnimation";
+import RunStepper, { type RunStep } from "@/components/dashboard/RunStepper";
 import { cn } from "@/libs/cn";
 
 /** The surfaces a user picks from. `cross` is not offered directly -- it is
@@ -179,6 +182,12 @@ export default function GenerateForm({
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [run, setRun] = useState<{
+    searchId: string;
+    total: number;
+    candidates: Array<{ id: string; name: string }>;
+  } | null>(null);
+  const [finished, setFinished] = useState(false);
 
   const targetPlatform = resolveTargetPlatform(platforms);
   const noPlatform = platforms.size === 0;
@@ -246,12 +255,13 @@ export default function GenerateForm({
     setError(null);
 
     try {
-      const { searchId } = await apiClient.post<{ searchId: string }>(
-        "/searches",
-        payload
-      );
+      const started = await apiClient.post<{
+        searchId: string;
+        total: number;
+        candidates: Array<{ id: string; name: string }>;
+      }>("/searches", payload);
 
-      router.push(`/dashboard/searches/${searchId}`);
+      setRun(started);
       // The balance lives in the dashboard layout, and a layout does not
       // re-render on nested navigation -- without this the top bar would keep
       // showing the pre-spend number.
@@ -301,8 +311,46 @@ export default function GenerateForm({
     );
   }
 
+  const step: RunStep = finished
+    ? "done"
+    : run
+      ? "checking"
+      : loading
+        ? "generating"
+        : candidates && candidates.length > 0
+          ? "select"
+          : "idea";
+
+  const busy = loading || checking || run !== null;
+
   return (
     <section className="space-y-6">
+      <RunStepper current={step} direct={mode === "check"} />
+
+      {run ? (
+        <>
+          <SearchProgress
+            searchId={run.searchId}
+            total={run.total}
+            initialDone={0}
+            candidates={run.candidates}
+            onComplete={() => {
+              // Let the stepper land on its final state before the report
+              // replaces the page; otherwise the last step never renders.
+              setFinished(true);
+              window.setTimeout(
+                () => router.push(`/dashboard/searches/${run.searchId}`),
+                900
+              );
+            }}
+          />
+          <p className="text-center text-xs text-muted">
+            {finished
+              ? "Done — opening your report…"
+              : "Your report opens automatically when every source has answered."}
+          </p>
+        </>
+      ) : (
       <div className="card overflow-hidden">
         <div
           role="tablist"
@@ -320,6 +368,7 @@ export default function GenerateForm({
               type="button"
               role="tab"
               aria-selected={mode === tab.id}
+              disabled={busy}
               onClick={() => switchMode(tab.id)}
               className={cn(
                 "flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all",
@@ -334,7 +383,11 @@ export default function GenerateForm({
           ))}
         </div>
 
-        {mode === "generate" ? (
+        {loading ? (
+          <div className="px-6 pb-6 pt-2">
+            <NamingAnimation />
+          </div>
+        ) : mode === "generate" ? (
           <form onSubmit={handleGenerate} className="space-y-5 px-6 pb-6 pt-2">
             <div className="space-y-1.5">
               <div className="flex items-baseline justify-between gap-3">
@@ -470,6 +523,7 @@ export default function GenerateForm({
           </form>
         )}
       </div>
+      )}
 
       {error && (
         <p
@@ -480,7 +534,7 @@ export default function GenerateForm({
         </p>
       )}
 
-      {mode === "generate" && candidates && candidates.length > 0 && (
+      {mode === "generate" && !run && candidates && candidates.length > 0 && (
         <>
           <CandidateList
             candidates={candidates}

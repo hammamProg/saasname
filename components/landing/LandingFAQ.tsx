@@ -31,6 +31,11 @@ const faqs = [
       "No. Credits are bought in one-time packs, never expire, and nothing renews. There is no subscription to cancel. If a check fails on our side, the credit for that name goes back to your balance.",
   },
   {
+    question: "Who can see the ideas I type in?",
+    answer:
+      "You, and nobody else. Reports are readable only by your own account — enforced by the database, not just by our code — and they stay private until you choose to share one. We do not sell your ideas or use them to train anything. Checking a name does mean sending that name to the registries, registers, stores and search engines being checked, and generating names sends your idea description to the model that writes them; every provider that receives anything is listed on our Confidentiality page, and our NDA covers the whole lot in writing.",
+  },
+  {
     question: "Can I share a report?",
     answer:
       "Yes, and only if you choose to. Reports are private by default; sharing is opt-in per report and generates a link you can revoke. Shared pages are marked noindex so they stay out of search results.",

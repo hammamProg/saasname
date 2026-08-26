@@ -53,7 +53,11 @@ function prepareCandidates(input: CandidateInput[]) {
  */
 export async function createSearch(
   args: CreateSearchArgs
-): Promise<{ searchId: string; total: number }> {
+): Promise<{
+  searchId: string;
+  total: number;
+  candidates: Array<{ id: string; name: string }>;
+}> {
   const admin = createSupabaseAdmin();
 
   if (!admin) {
@@ -106,7 +110,7 @@ export async function createSearch(
         rationale: c.rationale ?? null,
       }))
     )
-    .select("id");
+    .select("id, name");
 
   if (candidateError || !rows) {
     throw new Error(`Failed to create candidates: ${candidateError?.message}`);
@@ -129,5 +133,12 @@ export async function createSearch(
     throw new Error(`Failed to create checks: ${checkError.message}`);
   }
 
-  return { searchId, total: checks.length };
+  return {
+    searchId,
+    total: checks.length,
+    candidates: rows.map((row) => ({
+      id: row.id as string,
+      name: row.name as string,
+    })),
+  };
 }

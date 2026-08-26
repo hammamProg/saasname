@@ -2,6 +2,7 @@ import { requireUser } from "@/libs/supabase/require-user";
 import { getCreditBalance } from "@/libs/credits/balance";
 import { getSEOTags } from "@/libs/seo";
 import GenerateForm from "@/components/dashboard/GenerateForm";
+import ConfidentialityNote from "@/components/dashboard/ConfidentialityNote";
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +34,8 @@ export default async function NewCheckPage({ searchParams }: NewCheckPageProps) 
           Every name is checked against six sources.
         </p>
       </div>
+
+      <ConfidentialityNote />
 
       <GenerateForm
         balance={balance}

@@ -399,3 +399,25 @@ body {
     animation: none;
   }
 }
+
+/* Legal pages ---------------------------------------------------------- */
+
+.legal-body ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+}
+
+.legal-body li {
+  margin-top: 0.375rem;
+}
+
+.legal-body strong {
+  color: var(--foreground);
+  font-weight: 700;
+}
+
+@media print {
+  .legal-body {
+    color: #000;
+  }
+}

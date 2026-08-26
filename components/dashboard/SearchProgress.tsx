@@ -76,12 +76,16 @@ export default function SearchProgress({
   total,
   initialDone,
   candidates = [],
+  onComplete,
 }: {
   searchId: string;
   total: number;
   initialDone: number;
   /** Names the feed by candidate, since events carry only the id. */
   candidates?: Array<{ id: string; name: string }>;
+  /** Set when the panel runs somewhere other than the report page, which has
+   *  no server render to refresh into. */
+  onComplete?: () => void;
 }) {
   const router = useRouter();
   const [done, setDone] = useState(initialDone);
@@ -93,6 +97,12 @@ export default function SearchProgress({
   const [startedAt] = useState(() => Date.now());
   const lastRefreshRef = useRef(0);
   const seqRef = useRef(0);
+  // Kept in a ref so a new callback identity does not tear down the stream.
+  const completeRef = useRef(onComplete);
+
+  useEffect(() => {
+    completeRef.current = onComplete;
+  }, [onComplete]);
 
   // One ticking clock for the whole panel rather than one per line.
   useEffect(() => {
@@ -141,6 +151,7 @@ export default function SearchProgress({
       // The stream carried progress; the report itself is re-read from the
       // database, which is the only thing that was ever authoritative.
       router.refresh();
+      completeRef.current?.();
     };
 
     source.onerror = () => {

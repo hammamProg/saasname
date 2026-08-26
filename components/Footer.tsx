@@ -72,6 +72,16 @@ export default function Footer({ variant = "default" }: FooterProps) {
                 Privacy policy
               </Link>
             </li>
+            <li>
+              <Link href="/confidentiality" className="hover:text-accent">
+                Confidentiality
+              </Link>
+            </li>
+            <li>
+              <Link href="/nda" className="hover:text-accent">
+                NDA
+              </Link>
+            </li>
           </ul>
         </div>
       </div>

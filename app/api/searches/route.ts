@@ -91,7 +91,7 @@ export async function POST(request: Request) {
       : undefined;
 
   try {
-    const { searchId } = await createSearch({
+    const { searchId, total, candidates: created } = await createSearch({
       userId: user.id,
       mode,
       ideaText,
@@ -100,7 +100,7 @@ export async function POST(request: Request) {
       candidates,
     });
 
-    return NextResponse.json({ searchId });
+    return NextResponse.json({ searchId, total, candidates: created });
   } catch (error) {
     // 402 is the one the client acts on: it routes to the buy-credits page
     // rather than showing a generic failure.

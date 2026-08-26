@@ -2,7 +2,16 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, Globe, Loader2, Search, ShieldCheck, Sparkles } from "lucide-react";
+import Link from "next/link";
+import {
+  Check,
+  Globe,
+  Loader2,
+  Search,
+  ShieldCheck,
+  Sparkles,
+  TriangleAlert,
+} from "lucide-react";
 import { AndroidIcon, AppleIcon } from "@/components/icons/BrandIcons";
 import apiClient, { ApiError } from "@/libs/api";
 import {
@@ -112,9 +121,42 @@ function PlatformChecklist({
   );
 }
 
-export default function GenerateForm() {
+/** What this run will cost against what is left. Previously the only signal
+ *  was a 402 on submit that bounced the user to the credits page, which is a
+ *  poor way to learn you cannot afford something you already committed to. */
+function CostLine({ cost, balance }: { cost: number; balance: number }) {
+  const short = cost > balance;
+
+  if (short) {
+    return (
+      <p className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs font-medium text-verdict-blocked">
+        <TriangleAlert size={13} aria-hidden="true" className="shrink-0" />
+        {cost} {cost === 1 ? "credit" : "credits"} needed, you have {balance}.
+        <Link href="/dashboard/credits" className="font-bold underline">
+          Top up
+        </Link>
+      </p>
+    );
+  }
+
+  return (
+    <p className="text-xs text-muted">
+      {cost} {cost === 1 ? "credit" : "credits"} · {balance - cost} left
+      afterwards. Refunded if a check cannot be completed.
+    </p>
+  );
+}
+
+export default function GenerateForm({
+  balance,
+  initialMode = "generate",
+}: {
+  balance: number;
+  /** Lets the dashboard link straight into the mode the user asked for. */
+  initialMode?: Mode;
+}) {
   const router = useRouter();
-  const [mode, setMode] = useState<Mode>("generate");
+  const [mode, setMode] = useState<Mode>(initialMode);
   const [idea, setIdea] = useState("");
   const [seedName, setSeedName] = useState("");
   const [directNames, setDirectNames] = useState("");
@@ -377,7 +419,8 @@ export default function GenerateForm() {
                   parsedNames.length === 0 ||
                   tooManyNames ||
                   nameTooLong ||
-                  noPlatform
+                  noPlatform ||
+                  parsedNames.length > balance
                 }
                 className="btn-primary rounded-xl px-5 py-2.5 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-60"
               >
@@ -392,13 +435,21 @@ export default function GenerateForm() {
                     ? `Check ${parsedNames.length} ${parsedNames.length === 1 ? "name" : "names"}`
                     : "Check names"}
               </button>
-              <p className="text-xs text-muted">
-                {tooManyNames
-                  ? `Check at most ${MAX_NAMES} names at once.`
-                  : nameTooLong
-                    ? `Each name must be ${NAME_MAX_LENGTH} characters or fewer.`
-                    : "1 credit per name. Refunded if a check cannot be completed."}
-              </p>
+              {tooManyNames ? (
+                <p className="text-xs text-verdict-blocked">
+                  Check at most {MAX_NAMES} names at once.
+                </p>
+              ) : nameTooLong ? (
+                <p className="text-xs text-verdict-blocked">
+                  Each name must be {NAME_MAX_LENGTH} characters or fewer.
+                </p>
+              ) : parsedNames.length > 0 ? (
+                <CostLine cost={parsedNames.length} balance={balance} />
+              ) : (
+                <p className="text-xs text-muted">
+                  1 credit per name. You have {balance}.
+                </p>
+              )}
             </div>
           </form>
         )}
@@ -432,7 +483,7 @@ export default function GenerateForm() {
             <button
               type="button"
               onClick={handleCheckGenerated}
-              disabled={checking || selected.size === 0}
+              disabled={checking || selected.size === 0 || selected.size > balance}
               className="btn-primary rounded-xl px-5 py-2.5 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-60"
             >
               {checking ? (
@@ -444,9 +495,7 @@ export default function GenerateForm() {
                 ? "Checking…"
                 : `Check ${selected.size} ${selected.size === 1 ? "name" : "names"}`}
             </button>
-            <p className="text-xs text-muted">
-              Costs 1 credit per name. Refunded if a check cannot be completed.
-            </p>
+            <CostLine cost={selected.size} balance={balance} />
           </div>
         </>
       )}

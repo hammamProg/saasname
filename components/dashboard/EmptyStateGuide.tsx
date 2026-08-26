@@ -1,4 +1,5 @@
-import { FileCheck2, Radar, Wand2 } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, FileCheck2, Radar, Wand2 } from "lucide-react";
 
 /** Shown until the first report exists. The alternative was leaving the lower
  *  half of the dashboard blank, which reads as a broken page rather than a
@@ -24,7 +25,16 @@ const steps = [
 export default function EmptyStateGuide() {
   return (
     <section aria-label="How it works" className="space-y-3">
-      <h2 className="text-lg font-bold">What happens next</h2>
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-lg font-bold">What happens next</h2>
+        <Link
+          href="/dashboard/new"
+          className="flex items-center gap-1 text-sm font-semibold text-primary transition-colors hover:text-primary-hover"
+        >
+          Start the first one
+          <ArrowRight size={14} aria-hidden="true" />
+        </Link>
+      </div>
       <div className="grid gap-4 sm:grid-cols-3">
         {steps.map((step, index) => (
           <div key={step.title} className="card p-5">

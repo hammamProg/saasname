@@ -72,8 +72,9 @@ fastship/
 | `/blog`, `/blog/[slug]` | `app/blog/` | Page | Public | Blog |
 | `/components` | `app/components/page.tsx` | Page | Public | Component showcase |
 | `/r/[token]` | `app/r/[token]/page.tsx` | Page | **Public** | Shared report. noindex. Readable only while `is_public` AND `share_token` are both set |
-| `/dashboard` | `app/dashboard/page.tsx` | Page | Protected | Generate names, credit balance |
-| `/dashboard/searches` | `app/dashboard/searches/page.tsx` | Page | Protected | Report history |
+| `/dashboard` | `app/dashboard/page.tsx` | Page | Protected | Overview only — summary tiles, recent reports. No form |
+| `/dashboard/new` | `app/dashboard/new/page.tsx` | Page | Protected | Where names are generated and checked. `?mode=check` opens the direct-check tab |
+| `/dashboard/searches` | `app/dashboard/searches/page.tsx` | Page | Protected | Clearance report history |
 | `/dashboard/searches/[id]` | `app/dashboard/searches/[id]/page.tsx` | Page | Protected | One report; drives the run while unfinished |
 | `/dashboard/credits` | `app/dashboard/credits/page.tsx` | Page | Protected | Buy credit packs |
 | `/dashboard/settings`, `/dashboard/account` | `app/dashboard/` | Page | Protected | Account |

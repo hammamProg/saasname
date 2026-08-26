@@ -7,7 +7,7 @@ import { getCreditPacks } from "@/libs/credits/packs";
 import { getSEOTags } from "@/libs/seo";
 import DashboardAccess from "@/components/DashboardAccess";
 import { DashboardOverview } from "@/components/dashboard/DashboardOverview";
-import GenerateForm from "@/components/dashboard/GenerateForm";
+import StartCheckCard from "@/components/dashboard/StartCheckCard";
 import DashboardStats from "@/components/dashboard/DashboardStats";
 import RecentReports, {
   type RecentReport,
@@ -89,7 +89,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         .from("searches")
         .select("id, idea_text, status, created_at, candidates(name, verdict)")
         .order("created_at", { ascending: false })
-        .limit(3),
+        .limit(5),
       supabase.from("searches").select("id", { count: "exact", head: true }),
       supabase.from("candidates").select("id", { count: "exact", head: true }),
       supabase
@@ -112,7 +112,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     <div className="space-y-8">
       <DashboardOverview displayName={displayName} hasReports={stats.reports > 0} />
       <DashboardStats stats={stats} />
-      <GenerateForm />
+      <StartCheckCard credits={stats.credits} />
       {reports.length > 0 ? (
         <RecentReports reports={reports} />
       ) : (

@@ -48,13 +48,13 @@ export default async function SearchesPage() {
         <div className="card flex flex-col items-center gap-3 p-10 text-center">
           <Search size={24} className="text-muted" aria-hidden="true" />
           <p className="text-sm text-muted">
-            No reports yet. Describe an idea on the dashboard to get started.
+            No reports yet. Name an idea, or check a name you already have.
           </p>
           <Link
-            href="/dashboard"
+            href="/dashboard/new"
             className="btn-primary rounded-xl px-4 py-2 text-sm font-bold"
           >
-            Go to dashboard
+            New name check
           </Link>
         </div>
       ) : (

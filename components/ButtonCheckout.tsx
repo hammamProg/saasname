@@ -8,6 +8,7 @@ import { getCreditPacks } from "@/libs/credits/packs";
 import { siteUrl } from "@/libs/seo";
 import { getPaddleCheckout, isPaddleClientConfigured } from "@/libs/paddle/client";
 import { useUser } from "@/components/Providers";
+import { trackPurchaseStarted } from "@/libs/analytics";
 
 type ButtonCheckoutProps = {
   extraStyle?: string;
@@ -66,6 +67,11 @@ export default function ButtonCheckout({
         setError("Paddle checkout is not available");
         return;
       }
+
+      trackPurchaseStarted(
+        resolvedPriceId,
+        getCreditPacks().find((pack) => pack.priceId === resolvedPriceId)?.credits ?? 0
+      );
 
       paddle.Checkout.open({
         items: [{ priceId: resolvedPriceId, quantity: 1 }],

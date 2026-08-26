@@ -5,6 +5,7 @@ import Link from "next/link";
 import config from "@/config";
 import { createClient } from "@/libs/supabase/client";
 import { getAuthCallbackUrl } from "@/libs/supabase/auth-redirect";
+import { trackSignUpStarted } from "@/libs/analytics";
 import { useAuthConfig } from "@/components/Providers";
 
 type AuthSignInFormProps = {
@@ -29,6 +30,8 @@ export default function AuthSignInForm({
       return;
     }
 
+    trackSignUpStarted("google");
+
     const supabase = createClient();
     await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -47,6 +50,7 @@ export default function AuthSignInForm({
 
     setStatus("loading");
     setErrorMessage("");
+    trackSignUpStarted("magic_link");
 
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithOtp({

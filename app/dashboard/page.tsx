@@ -14,6 +14,7 @@ import RecentReports, {
 } from "@/components/dashboard/RecentReports";
 import EmptyStateGuide from "@/components/dashboard/EmptyStateGuide";
 import { getCreditBalance } from "@/libs/credits/balance";
+import PurchaseTracker from "@/components/dashboard/PurchaseTracker";
 
 export const dynamic = "force-dynamic";
 
@@ -50,6 +51,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   if (!hasAccess || checkoutSuccess) {
     return (
       <div className="space-y-8">
+        {checkoutSuccess && <PurchaseTracker />}
         <section className="space-y-8">
           <div className="space-y-2">
             <p className="text-sm font-semibold uppercase tracking-wider text-primary">

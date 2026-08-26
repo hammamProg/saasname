@@ -6,6 +6,11 @@ import { ArrowRight, Globe, Loader2, Lock, Scale, Search } from "lucide-react";
 import { AppleIcon } from "@/components/icons/BrandIcons";
 import config from "@/config";
 import { cn } from "@/libs/cn";
+import {
+  trackDemoCheckRun,
+  trackDemoExampleClicked,
+  trackDemoVerdictShown,
+} from "@/libs/analytics";
 
 type Verdict = "clear" | "contested" | "blocked" | "unknown";
 
@@ -43,6 +48,27 @@ const VERDICT_LABELS: Record<Verdict, string> = {
   blocked: "taken",
   unknown: "unknown",
 };
+
+/** A known-taken name, so the first thing a visitor sees the tool do is catch
+ *  a real conflict. A "clear" example would demo the boring half. */
+const EXAMPLE_NAME = "Notion";
+
+const VERDICT_SEVERITY: Record<Verdict, number> = {
+  clear: 0,
+  unknown: 1,
+  contested: 2,
+  blocked: 3,
+};
+
+/** The headline verdict is the worst one found — one blocked source is enough
+ *  to make a name a bad idea, however clear the others are. */
+function worstVerdict(checks: DemoCheck[]): Verdict {
+  return checks.reduce<Verdict>(
+    (worst, check) =>
+      VERDICT_SEVERITY[check.verdict] > VERDICT_SEVERITY[worst] ? check.verdict : worst,
+    "clear"
+  );
+}
 
 /** One line per source, read from the same signals the real report renders. */
 function describe(check: DemoCheck): string {
@@ -89,20 +115,20 @@ export default function LandingDemo() {
     return () => timers.forEach(window.clearTimeout);
   }, [result]);
 
-  async function handleSubmit(event: React.FormEvent) {
-    event.preventDefault();
-    if (!name.trim() || loading) return;
+  async function runCheck(candidate: string) {
+    if (!candidate || loading) return;
 
     setLoading(true);
     setError(null);
     setResult(null);
     setRevealed(0);
+    trackDemoCheckRun(candidate.length);
 
     try {
       const response = await fetch("/api/demo", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim() }),
+        body: JSON.stringify({ name: candidate }),
       });
       const data = await response.json();
 
@@ -111,12 +137,25 @@ export default function LandingDemo() {
         return;
       }
 
-      setResult(data as DemoResult);
+      const demoResult = data as DemoResult;
+      setResult(demoResult);
+      trackDemoVerdictShown(worstVerdict(demoResult.checks));
     } catch {
       setError("Could not reach the checker. Try again.");
     } finally {
       setLoading(false);
     }
+  }
+
+  function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    void runCheck(name.trim());
+  }
+
+  function handleExample() {
+    trackDemoExampleClicked();
+    setName(EXAMPLE_NAME);
+    void runCheck(EXAMPLE_NAME);
   }
 
   const showTiles = loading || result !== null;
@@ -227,10 +266,23 @@ export default function LandingDemo() {
           )}
 
           {!showTiles && !error && (
-            <p className="text-xs leading-relaxed text-muted">
-              Runs a real check against domain registries, the US trademark
-              register and the App Store. Not a sample — these are live lookups.
-            </p>
+            <div className="space-y-3">
+              <p className="text-xs leading-relaxed text-muted">
+                Runs a real check against domain registries, the US trademark
+                register and the App Store. Not a sample — these are live lookups.
+              </p>
+              <p className="text-xs text-muted">
+                Nothing in mind?{" "}
+                <button
+                  type="button"
+                  onClick={handleExample}
+                  className="font-semibold text-brand-cyan underline underline-offset-2 hover:text-brand-blue"
+                >
+                  Try “{EXAMPLE_NAME}”
+                </button>{" "}
+                and watch it fail.
+              </p>
+            </div>
           )}
         </div>
       </div>

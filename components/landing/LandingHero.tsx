@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, AtSign, Check, Globe, Scale, Search, Sparkles } from "lucide-react";
+import { ArrowRight, Check, Globe, Scale, Sparkles } from "lucide-react";
 import {
   AppleIcon,
   GithubIcon,
@@ -7,6 +7,7 @@ import {
 } from "@/components/icons/BrandIcons";
 import config from "@/config";
 import MarketingBackdrop from "@/components/ui/MarketingBackdrop";
+import LandingDemo from "@/components/landing/LandingDemo";
 
 const trustBadges = [
   `${config.credits.signupGrant} free searches on signup`,
@@ -21,23 +22,6 @@ const sourceChips = [
   { name: "Play", Icon: GooglePlayIcon },
   { name: "Handles", Icon: GithubIcon },
 ];
-
-/** The sample report in the hero. Verdicts here mirror the real rollup
- *  vocabulary (clear / caution / taken) so the screenshot does not promise a
- *  UI the product does not have. */
-const sampleChecks = [
-  { icon: Globe, label: "Domains", detail: ".com · .io · .ai", state: "clear" },
-  { icon: Scale, label: "US trademark", detail: "No live mark", state: "clear" },
-  { icon: AppleIcon, label: "App stores", detail: "No app found", state: "clear" },
-  { icon: AtSign, label: "Handles", detail: "X taken", state: "caution" },
-  { icon: Search, label: "Web presence", detail: "3 weak results", state: "caution" },
-];
-
-const stateStyles: Record<string, string> = {
-  clear: "bg-emerald-500/15 text-emerald-400",
-  caution: "bg-amber-500/15 text-amber-400",
-  taken: "bg-red-500/15 text-red-400",
-};
 
 export default function LandingHero() {
   return (
@@ -88,60 +72,8 @@ export default function LandingHero() {
             </ul>
           </div>
 
-          <div className="animate-fade-up relative [animation-delay:150ms]">
-            <div className="absolute -inset-6 rounded-[2.5rem] bg-gradient-to-br from-brand-blue/25 via-brand-cyan/15 to-brand-violet/10 blur-3xl" />
-
-            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/40 shadow-2xl shadow-brand-blue/10 ring-1 ring-white/10 backdrop-blur-xl">
-              <div className="flex items-center gap-2 border-b border-white/10 bg-white/5 px-4 py-3">
-                <span className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
-                <span className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
-                <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
-                <span className="ml-2 text-xs font-medium text-muted">
-                  Clearance report
-                </span>
-              </div>
-
-              <div className="space-y-3 p-5">
-                <div className="rounded-xl border border-dashed border-brand-cyan/40 bg-brand-blue/10 p-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wider text-brand-cyan">
-                        Candidate
-                      </p>
-                      <p className="mt-1 text-lg font-semibold">Ledgerloop</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-2xl font-extrabold gradient-text">82</p>
-                      <p className="text-[10px] uppercase tracking-wider text-muted">
-                        Score
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {sampleChecks.map((item) => (
-                  <div
-                    key={item.label}
-                    className="flex items-center justify-between rounded-xl border border-white/8 bg-white/5 px-4 py-3"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-brand-blue/25 to-brand-cyan/20 text-accent">
-                        <item.icon size={16} />
-                      </span>
-                      <div>
-                        <p className="text-sm font-medium">{item.label}</p>
-                        <p className="text-xs text-muted">{item.detail}</p>
-                      </div>
-                    </div>
-                    <span
-                      className={`rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${stateStyles[item.state]}`}
-                    >
-                      {item.state}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
+          <div className="animate-fade-up [animation-delay:150ms]">
+            <LandingDemo />
 
             <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
               {sourceChips.map((chip, i) => (
@@ -157,7 +89,6 @@ export default function LandingHero() {
                 </div>
               ))}
             </div>
-
           </div>
         </div>
       </div>

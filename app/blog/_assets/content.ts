@@ -11,47 +11,98 @@ export type Article = {
 
 export const articles: Article[] = [
   {
-    slug: "supabase-waitlist-setup",
-    title: "Supabase Waitlist: Save Emails in 5 Minutes",
+    slug: "check-a-saas-name-before-you-commit",
+    title: "Six places to check a SaaS name before you commit",
     description:
-      "Set up a leads table, connect your API route, and start collecting signups from your landing page.",
-    content: `## Why a waitlist?
+      "The .com is the check everyone runs and the least conclusive one. Here is the full list, in the order that will actually save you.",
+    content: `Most founders check one thing — is the .com free — and treat the answer as
+the answer. It is the least conclusive of the six checks that matter, and it is
+not the one that ends up costing money.
 
-Before you launch, you need proof people want your product. A waitlist captures emails from your landing page and stores them in Supabase.
+## 1. The trademark register
 
-## Steps
+Run this first, not last. A live mark in your class is the only finding on this
+list that can force a rename after launch, and it is the one people skip because
+the search interfaces are unpleasant. Search the exact wordmark, and look at
+whether anything live sits in a software class.
 
-1. Create a Supabase project
-2. Run the migration in \`supabase/migrations/001_leads.sql\`
-3. Add env vars to \`.env.local\`
-4. Submit the form on your homepage
+## 2. The app stores
 
-That's it — emails flow to your database automatically.`,
+Both of them, separately. The App Store and Google Play routinely disagree, and a
+shipped app under your name is a problem whether or not you plan to ship one —
+it means someone is already trading under it.
+
+## 3. Domains, across more than the .com
+
+A taken .com is not fatal; plenty of good companies run on .io, .ai or .dev. What
+matters is the pattern. If every extension is taken, you are looking at a name
+someone is actively holding, and you will be negotiating rather than registering.
+
+## 4. Social handles
+
+Only where the answer means something. Some platforms return the same response
+for a taken handle and one that has never existed, which makes a check there
+worthless. Where a 404 genuinely distinguishes the two, it is a fast signal.
+
+## 5. Web search presence
+
+A free domain means little if page one already belongs to somebody. Search the
+exact phrase and ask whether you would be fighting for your own name.
+
+## 6. How it reads out loud
+
+The unglamorous one. Say it on a call, spell it for someone, type it from memory.
+A name that needs spelling every time is a tax you pay forever.
+
+## The order matters
+
+Check the things that can force a rename before the things that are merely
+inconvenient. Trademark and app stores first, domains and handles second,
+aesthetics last — because a beautiful name with a live mark on it is not a
+candidate, and finding that out in week one is free.`,
     image: "/docs/components/blog.jpg",
-    categories: ["Database", "Setup"],
-    author: "Marc Lou",
-    publishedAt: "November 30",
+    categories: ["Naming"],
+    author: "SaaSNa.me",
+    publishedAt: "August 26",
   },
   {
-    slug: "resend-transactional-emails",
-    title: "Resend Emails Explained With a Real-World Example",
+    slug: "the-com-being-free-doesnt-mean-the-name-is",
+    title: "The .com being free doesn't mean the name is",
     description:
-      "Send welcome emails, magic links, and notifications using the Resend API and the helpers in libs/.",
-    content: `## Two ways to send
+      "An unregistered domain is one weak signal. Here is what it does not tell you, and what a rename actually costs.",
+    content: `An unregistered .com feels like permission. It is not. It tells you one thing:
+nobody has paid ten dollars for that string. It tells you nothing about whether
+you can build a brand on it.
 
-**SMTP** — used for magic login links via NextAuth.
+## What a free domain does not rule out
 
-**Resend API** — use \`sendEmail()\` in \`libs/resend.ts\` for everything else.
+A live trademark. Trademarks are granted on use in a class of goods or services,
+not on domain registration. Somebody can hold a mark on the exact word, ship
+under it for years, and never register the .com.
 
-## Waitlist flow
+An app already in the stores. App names are not unique and are not tied to
+domains at all.
 
-When someone joins via \`ButtonLead\`, they get a welcome email and you get a notification at your support inbox.
+An established web presence. If a company ranks for the term and you do not, you
+will spend years being the second result for your own name.
 
-Verify your domain in Resend before going to production.`,
-    image: "/docs/components/featuresAccordion.jpg",
-    categories: ["Email", "Setup"],
-    author: "Marc Lou",
-    publishedAt: "November 24",
+## What a rename actually costs
+
+The domain is the cheap part. The expensive parts are the ones already pointing
+at the old name: the logo, the app store listing and its reviews, the inbound
+links, the integrations, the customers who bookmarked you, and the search
+authority you spent a year accumulating. That is the bill for finding out late.
+
+## The useful question
+
+Not "is it available" but "can I defend it". A name where the .com is taken by a
+parked page and everything else is clear is often a better bet than one where the
+.com is free and there is a live mark in your class. The first is a negotiation.
+The second is a rename.`,
+    image: "/docs/components/blog.jpg",
+    categories: ["Naming"],
+    author: "SaaSNa.me",
+    publishedAt: "August 26",
   },
 ];
 

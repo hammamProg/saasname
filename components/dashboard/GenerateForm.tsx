@@ -339,6 +339,10 @@ export default function GenerateForm({
           </p>
         </>
       ) : showShortlist ? null : (
+      <form
+        onSubmit={mode === "generate" ? handleGenerate : handleCheckDirect}
+        className="space-y-6"
+      >
       <div className="card overflow-hidden">
         <div
           hidden={loading}
@@ -378,7 +382,7 @@ export default function GenerateForm({
             <NamingAnimation />
           </div>
         ) : mode === "generate" ? (
-          <form onSubmit={handleGenerate} className="space-y-5 px-6 pb-6 pt-2">
+          <div className="space-y-5 px-6 pb-6 pt-2">
             <div className="space-y-1.5">
               <div className="flex items-baseline justify-between gap-3">
                 <label htmlFor="idea" className="text-sm font-semibold">
@@ -418,24 +422,9 @@ export default function GenerateForm({
 
             <PlatformChecklist selected={platforms} onToggle={togglePlatform} />
 
-            <div className="flex flex-wrap items-center gap-3 pt-1">
-              <button
-                type="submit"
-                disabled={loading || tooShort || noPlatform}
-                className="btn-primary rounded-xl px-5 py-2.5 text-sm font-bold"
-              >
-                {loading ? (
-                  <Loader2 size={16} className="animate-spin" aria-hidden="true" />
-                ) : (
-                  <Sparkles size={16} aria-hidden="true" />
-                )}
-                {loading ? "Generating…" : "Generate names"}
-              </button>
-              <p className="text-xs text-muted">Free — credits are spent at the check.</p>
-            </div>
-          </form>
+          </div>
         ) : (
-          <form onSubmit={handleCheckDirect} className="space-y-5 px-6 pb-6 pt-2">
+          <div className="space-y-5 px-6 pb-6 pt-2">
             <div className="space-y-1.5">
               <div className="flex items-baseline justify-between gap-3">
                 <label htmlFor="directNames" className="text-sm font-semibold">
@@ -463,49 +452,71 @@ export default function GenerateForm({
 
             <PlatformChecklist selected={platforms} onToggle={togglePlatform} />
 
-            <div className="flex flex-wrap items-center gap-3 pt-1">
-              <button
-                type="submit"
-                disabled={
-                  checking ||
-                  parsedNames.length === 0 ||
-                  tooManyNames ||
-                  nameTooLong ||
-                  noPlatform ||
-                  parsedNames.length > balance
-                }
-                className="btn-primary rounded-xl px-5 py-2.5 text-sm font-bold"
-              >
-                {checking ? (
-                  <Loader2 size={16} className="animate-spin" aria-hidden="true" />
-                ) : (
-                  <ShieldCheck size={16} aria-hidden="true" />
-                )}
-                {checking
-                  ? "Checking…"
-                  : parsedNames.length > 0
-                    ? `Check ${parsedNames.length} ${parsedNames.length === 1 ? "name" : "names"}`
-                    : "Check names"}
-              </button>
-              {tooManyNames ? (
-                <p className="text-xs text-verdict-blocked">
-                  Check at most {MAX_NAMES} names at once.
-                </p>
-              ) : nameTooLong ? (
-                <p className="text-xs text-verdict-blocked">
-                  Each name must be {NAME_MAX_LENGTH} characters or fewer.
-                </p>
-              ) : parsedNames.length > 0 ? (
-                <CostLine cost={parsedNames.length} balance={balance} />
-              ) : (
-                <p className="text-xs text-muted">
-                  1 credit per name. You have {balance}.
-                </p>
-              )}
-            </div>
-          </form>
+          </div>
         )}
       </div>
+
+      <div className="flex flex-col items-center gap-2.5">
+        {mode === "generate" ? (
+          <>
+            <button
+              type="submit"
+              disabled={loading || tooShort || noPlatform}
+              className="btn-primary rounded-xl px-10 py-4 text-base font-bold"
+            >
+              {loading ? (
+                <Loader2 size={18} className="animate-spin" aria-hidden="true" />
+              ) : (
+                <Sparkles size={18} aria-hidden="true" />
+              )}
+              {loading ? "Generating…" : "Generate names"}
+            </button>
+            <p className="text-xs text-muted">Free — credits are spent at the check.</p>
+          </>
+        ) : (
+          <>
+            <button
+              type="submit"
+              disabled={
+                checking ||
+                parsedNames.length === 0 ||
+                tooManyNames ||
+                nameTooLong ||
+                noPlatform ||
+                parsedNames.length > balance
+              }
+              className="btn-primary rounded-xl px-10 py-4 text-base font-bold"
+            >
+              {checking ? (
+                <Loader2 size={18} className="animate-spin" aria-hidden="true" />
+              ) : (
+                <ShieldCheck size={18} aria-hidden="true" />
+              )}
+              {checking
+                ? "Checking…"
+                : parsedNames.length > 0
+                  ? `Check ${parsedNames.length} ${parsedNames.length === 1 ? "name" : "names"}`
+                  : "Check names"}
+            </button>
+            {tooManyNames ? (
+              <p className="text-xs text-verdict-blocked">
+                Check at most {MAX_NAMES} names at once.
+              </p>
+            ) : nameTooLong ? (
+              <p className="text-xs text-verdict-blocked">
+                Each name must be {NAME_MAX_LENGTH} characters or fewer.
+              </p>
+            ) : parsedNames.length > 0 ? (
+              <CostLine cost={parsedNames.length} balance={balance} />
+            ) : (
+              <p className="text-xs text-muted">
+                1 credit per name. You have {balance}.
+              </p>
+            )}
+          </>
+        )}
+      </div>
+      </form>
       )}
 
       {error && (

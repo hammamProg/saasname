@@ -14,15 +14,19 @@ type DashboardShellProps = {
   /** Server-rendered credit balance, passed as a slot so the client shell does
    *  not have to fetch it. */
   credits?: React.ReactNode;
+  /** Rendered as a badge on the Credits nav row. */
+  creditBalance?: number;
   children: React.ReactNode;
 };
 
 function SidebarChrome({
   onNavigate,
   onClose,
+  creditBalance,
 }: {
   onNavigate?: () => void;
   onClose?: () => void;
+  creditBalance?: number;
 }) {
   return (
     <>
@@ -41,7 +45,7 @@ function SidebarChrome({
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        <AppSidebar onNavigate={onNavigate} theme="dark" />
+        <AppSidebar onNavigate={onNavigate} theme="dark" creditBalance={creditBalance} />
       </div>
 
       <div className="border-t border-brand-cyan/10 p-4">
@@ -54,6 +58,7 @@ function SidebarChrome({
 export default function DashboardShell({
   hasAccess,
   credits,
+  creditBalance,
   children,
 }: DashboardShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -65,7 +70,7 @@ export default function DashboardShell({
       <div className="flex min-h-screen bg-background lg:h-screen lg:overflow-hidden">
       {/* Column 1 — desktop sidebar */}
       <aside className="hidden w-[280px] shrink-0 flex-col border-r border-brand-cyan/10 bg-brand-ink lg:flex">
-        <SidebarChrome />
+        <SidebarChrome creditBalance={creditBalance} />
       </aside>
 
       {/* Mobile drawer overlay */}
@@ -85,7 +90,11 @@ export default function DashboardShell({
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <SidebarChrome onNavigate={closeMobile} onClose={closeMobile} />
+        <SidebarChrome
+          onNavigate={closeMobile}
+          onClose={closeMobile}
+          creditBalance={creditBalance}
+        />
       </aside>
 
       {/* Column 2 — main content */}

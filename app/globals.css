@@ -390,12 +390,35 @@ body {
   animation: pulse-ring 1.8s ease-out infinite;
 }
 
+/* A single pulse when a submit becomes pressable. It fires once on the
+   transition, not on a loop -- a button that keeps pulsing reads as an error
+   rather than as an invitation. */
+@keyframes ready-pop {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 30px rgba(0, 189, 252, 0.28);
+  }
+  45% {
+    transform: scale(1.035);
+    box-shadow: 0 0 46px rgba(0, 189, 252, 0.55);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 30px rgba(0, 189, 252, 0.28);
+  }
+}
+
+.animate-ready-pop {
+  animation: ready-pop 0.55s ease-out 1;
+}
+
 /* Respect a stated preference for less motion: the panel still reports
    progress, it just stops moving on its own. */
 @media (prefers-reduced-motion: reduce) {
   .animate-analysis-sweep,
   .animate-log-line-in,
-  .animate-pulse-ring {
+  .animate-pulse-ring,
+  .animate-ready-pop {
     animation: none;
   }
 }

@@ -310,6 +310,16 @@ export default function GenerateForm({
   }
 
   const busy = loading || checking || run !== null;
+  const canGenerate = !loading && !tooShort && !noPlatform;
+  const canCheckDirect =
+    !checking &&
+    parsedNames.length > 0 &&
+    !tooManyNames &&
+    !nameTooLong &&
+    !noPlatform &&
+    parsedNames.length <= balance;
+  const canCheckSelected =
+    !checking && selected.size > 0 && selected.size <= balance;
   const showShortlist =
     mode === "generate" && !run && !loading && !!candidates && candidates.length > 0;
 
@@ -461,8 +471,14 @@ export default function GenerateForm({
           <>
             <button
               type="submit"
-              disabled={loading || tooShort || noPlatform}
-              className="btn-primary rounded-xl px-10 py-4 text-base font-bold"
+              disabled={!canGenerate}
+              className={cn(
+                "rounded-xl px-10 py-4 text-base font-bold transition-all",
+                // The gradient is reserved for "this is ready to press". A
+                // permanently loud button teaches nothing; one that changes at
+                // the moment the form becomes valid does.
+                canGenerate ? "btn-gradient animate-ready-pop" : "btn-primary"
+              )}
             >
               {loading ? (
                 <Loader2 size={18} className="animate-spin" aria-hidden="true" />
@@ -477,15 +493,11 @@ export default function GenerateForm({
           <>
             <button
               type="submit"
-              disabled={
-                checking ||
-                parsedNames.length === 0 ||
-                tooManyNames ||
-                nameTooLong ||
-                noPlatform ||
-                parsedNames.length > balance
-              }
-              className="btn-primary rounded-xl px-10 py-4 text-base font-bold"
+              disabled={!canCheckDirect}
+              className={cn(
+                "rounded-xl px-10 py-4 text-base font-bold transition-all",
+                canCheckDirect ? "btn-gradient animate-ready-pop" : "btn-primary"
+              )}
             >
               {checking ? (
                 <Loader2 size={18} className="animate-spin" aria-hidden="true" />
@@ -549,8 +561,11 @@ export default function GenerateForm({
             <button
               type="button"
               onClick={handleCheckGenerated}
-              disabled={checking || selected.size === 0 || selected.size > balance}
-              className="btn-primary rounded-xl px-5 py-2.5 text-sm font-bold"
+              disabled={!canCheckSelected}
+              className={cn(
+                "rounded-xl px-5 py-2.5 text-sm font-bold transition-all",
+                canCheckSelected ? "btn-gradient" : "btn-primary"
+              )}
             >
               {checking ? (
                 <Loader2 size={16} className="animate-spin" aria-hidden="true" />

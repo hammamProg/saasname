@@ -1,8 +1,10 @@
-# ShipNow
+# SaaSNa.me
 
-Ship your startup in days, not weeks — a Next.js boilerplate with landing page, waitlist capture, and guides for auth, payments, and email.
+Find a SaaS name that is actually free to use. Describe an idea, get candidate
+names, and check each one against domain registries, the US trademark register,
+the App Store, Google Play, social handles, and web search — one credit per name.
 
-**Stack:** Next.js 16 · Tailwind CSS · Supabase · Resend · Paddle
+**Stack:** Next.js 16 · Tailwind CSS · Supabase · Resend · Paddle · DeepSeek
 
 ---
 

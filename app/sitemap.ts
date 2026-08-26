@@ -3,7 +3,9 @@ import { articles } from "@/app/blog/_assets/content";
 import { siteUrl } from "@/libs/seo";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const staticRoutes = ["", "/landing", "/blog", "/components", "/tos", "/privacy-policy"];
+  // The component showcase is a development reference, not a marketing page --
+  // it is excluded here and noindexed at the page level.
+  const staticRoutes = ["", "/blog", "/tos", "/privacy-policy"];
 
   const blogRoutes = articles.map((article) => `/blog/${article.slug}`);
 

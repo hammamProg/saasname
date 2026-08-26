@@ -87,7 +87,9 @@ FastShip uses `next-sitemap.config.js`. FastShip uses native Next.js routes:
 | `app/sitemap.ts` | `/sitemap.xml` |
 | `app/robots.ts` | `/robots.txt` |
 
-Routes included: `/`, `/landing`, `/blog`, `/components`, `/tos`, `/privacy-policy`, and all blog articles.
+Routes included: `/`, `/blog`, `/tos`, `/privacy-policy`, and all blog articles.
+`/components`, `/dashboard`, `/r/*`, `/auth/*` and `/api/*` are excluded from the
+sitemap and disallowed in `robots.txt`.
 
 After deploy, open `https://yourdomain.com/sitemap.xml` and submit it in Google Search Console.
 
@@ -98,7 +100,6 @@ After deploy, open `https://yourdomain.com/sitemap.xml` and submit it in Google 
 | Page | Canonical | Schema |
 |------|-----------|--------|
 | `/` | `/` | ✓ |
-| `/landing` | `/landing` | — |
 | `/tos` | `/tos` | — |
 | `/privacy-policy` | `/privacy-policy` | — |
 | `/blog` | `/blog` | — |

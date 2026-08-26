@@ -36,7 +36,7 @@ That's it — emails flow to your database automatically.`,
     slug: "resend-transactional-emails",
     title: "Resend Emails Explained With a Real-World Example",
     description:
-      "Send welcome emails, magic links, and notifications using the Resend API and ShipNow helpers.",
+      "Send welcome emails, magic links, and notifications using the Resend API and the helpers in libs/.",
     content: `## Two ways to send
 
 **SMTP** — used for magic login links via NextAuth.

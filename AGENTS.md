@@ -1,5 +1,5 @@
 <!-- BEGIN:project-context -->
-# ShipNow project context
+# SaaSNa.me project context
 
 **Before exploring the repo, read [`docs/AGENT_REFERENCE.md`](./docs/AGENT_REFERENCE.md)** — stack, routes, auth, env vars, conventions, and what's done vs planned.
 

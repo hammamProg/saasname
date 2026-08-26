@@ -72,7 +72,7 @@ export default function ComponentsShowcasePage() {
         </Link>
         <h1 className="section-heading mt-4 text-3xl font-extrabold">Component library</h1>
         <p className="mt-2 text-muted">
-          All ShipFast components implemented in ShipNow. Reference images from{" "}
+          All ShipFast components implemented here. Reference images from{" "}
           <a href="https://shipfa.st/docs/components" className="text-primary underline">
             shipfa.st/docs/components
           </a>

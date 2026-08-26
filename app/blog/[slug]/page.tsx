@@ -2,7 +2,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getArticle, articles } from "@/app/blog/_assets/content";
-import config from "@/config";
 import { getSEOTags } from "@/libs/seo";
 
 type Props = { params: Promise<{ slug: string }> };

@@ -2,14 +2,14 @@ import { X } from "lucide-react";
 import { SectionHeader } from "@/components/landing/shared";
 
 const painPoints = [
-  "Authentication setup",
-  "Database architecture",
-  "Payment integration",
-  "Email infrastructure",
-  "SEO configuration",
-  "User management",
-  "Subscription logic",
-  "Deployment setup",
+  ".com gone, and the squatter wants $4,000",
+  "A live US trademark in your exact class",
+  "An app on the App Store with the same name",
+  "The X handle is a dormant account from 2013",
+  "Page one of Google already belongs to someone else",
+  "GitHub org taken by an abandoned project",
+  "A Play Store listing you never thought to check",
+  "Six tabs, six sources, no answer you can trust",
 ];
 
 export default function LandingProblem() {
@@ -18,8 +18,8 @@ export default function LandingProblem() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <SectionHeader
           badge="The problem"
-          title="Stop Rebuilding The Same SaaS Foundation"
-          subtitle="Every new SaaS project starts with the same weeks of boilerplate. ShipNow eliminates the grind so you can focus on what makes your product unique."
+          title="The Name Is Never The Hard Part. Proving It's Free Is."
+          subtitle="You fall in love with a name in ten minutes, then lose an afternoon to registrar pages, trademark databases, and app stores — and still ship without knowing whether you're walking into a cease-and-desist."
         />
 
         <div className="mt-16 grid gap-8 lg:grid-cols-2 lg:gap-12">
@@ -40,11 +40,14 @@ export default function LandingProblem() {
           <div className="flex flex-col justify-center gap-6">
             <div className="glass-card border-red-500/20 p-6">
               <p className="text-xs font-semibold uppercase tracking-wider text-red-400">
-                Without ShipNow
+                Checking by hand
               </p>
-              <p className="mt-2 text-4xl font-extrabold tracking-tight">4–8 weeks</p>
+              <p className="mt-2 text-4xl font-extrabold tracking-tight">
+                ~40 minutes
+              </p>
               <p className="mt-2 text-sm text-muted">
-                Auth, payments, emails, database, dashboards — rebuilt from scratch every time.
+                Per name. Across six sources. And you still skip the trademark
+                search because the interface is from 2004.
               </p>
             </div>
 
@@ -52,13 +55,14 @@ export default function LandingProblem() {
               <div className="absolute -inset-px rounded-2xl bg-gradient-to-r from-brand-blue/25 via-brand-cyan/20 to-brand-violet/10 opacity-50 blur-sm" />
               <div className="relative">
                 <p className="text-xs font-semibold uppercase tracking-wider text-emerald-400">
-                  With ShipNow
+                  With a report
                 </p>
                 <p className="mt-2 text-4xl font-extrabold tracking-tight gradient-text">
-                  Launch today
+                  One page
                 </p>
                 <p className="mt-2 text-sm text-muted">
-                  Everything pre-wired. Clone, customize, and start talking to customers this week.
+                  Every source, every candidate, one verdict each — with a link
+                  to the evidence so you can check our work.
                 </p>
               </div>
             </div>

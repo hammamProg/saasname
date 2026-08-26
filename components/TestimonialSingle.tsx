@@ -5,7 +5,7 @@ export default function TestimonialSingle() {
     <figure className="mx-auto max-w-2xl text-center">
       <Rating value={5} className="justify-center text-xl" />
       <blockquote className="mt-6 text-2xl font-medium leading-relaxed">
-        &ldquo;I built my app in almost a week. ShipNow cut the BS — exactly what you need
+        &ldquo;I built my app in almost a week. It cut the BS — exactly what you need
         to build a small SaaS.&rdquo;
       </blockquote>
       <figcaption className="mt-6 flex items-center justify-center gap-3">

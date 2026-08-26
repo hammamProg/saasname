@@ -1,4 +1,6 @@
-import ButtonCheckout from "@/components/ButtonCheckout";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import config from "@/config";
 
 const particles = Array.from({ length: 20 }, (_, i) => ({
   id: i,
@@ -36,20 +38,22 @@ export default function LandingFinalCTA() {
 
       <div className="relative mx-auto max-w-4xl px-4 text-center sm:px-6">
         <h2 className="section-heading text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
-          Your Next SaaS Could Be{" "}
-          <span className="gradient-text">Live This Week.</span>
+          Settle the name{" "}
+          <span className="gradient-text">before you build the brand.</span>
         </h2>
         <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted sm:text-xl">
-          Stop rebuilding authentication, payments, emails, and dashboards. Start
-          building what makes your product unique.
+          Six sources, one report, one credit per name. Your first{" "}
+          {config.credits.signupGrant} searches are free.
         </p>
 
         <div className="mt-10 flex justify-center">
-          <ButtonCheckout
-            label="Get ShipNow Now"
-            source="landing"
-            extraStyle="btn-gradient px-10 py-4 text-base"
-          />
+          <Link
+            href={config.auth.loginUrl}
+            className="btn-gradient px-10 py-4 text-base"
+          >
+            Start free
+            <ArrowRight size={18} />
+          </Link>
         </div>
       </div>
     </section>

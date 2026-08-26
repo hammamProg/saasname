@@ -15,7 +15,7 @@ Follow the guides in order. Each step builds on the previous one.
 | 3 | [Database](./DATABASE.md) | Save waitlist emails with Supabase |
 | 4 | [Emails (Resend)](./EMAILS.md) | Transactional email + waitlist notifications |
 | 5 | [Components](./COMPONENTS.md) | Full ShipFast component library + showcase |
-| 6 | [Static page](./STATIC_PAGE.md) | SEO pages + example `/landing` route |
+| 6 | [Static page](./STATIC_PAGE.md) | SEO marketing pages |
 | 7 | [SEO](./SEO.md) | Metadata, sitemap, structured data |
 | 8 | [Auth (Supabase)](./AUTH.md) | Supabase Google Auth + magic links |
 | 9 | [API call](./API_CALL.md) | Protected API routes + profiles |

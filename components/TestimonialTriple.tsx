@@ -1,6 +1,6 @@
 const items = [
   {
-    quote: "ShipNow cuts the BS. I shipped my first SaaS in 3 weeks.",
+    quote: "This cuts the BS. I shipped my first SaaS in 3 weeks.",
     name: "Matthieu",
     role: "Built fuelthegains.com",
     initial: "M",

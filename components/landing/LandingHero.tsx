@@ -2,36 +2,46 @@ import Link from "next/link";
 import {
   ArrowRight,
   Check,
-  CreditCard,
-  Database,
-  Lock,
-  Mail,
+  Globe,
+  Scale,
+  Search,
+  Smartphone,
   Sparkles,
+  AtSign,
 } from "lucide-react";
-import ButtonCheckout from "@/components/ButtonCheckout";
+import config from "@/config";
 import MarketingBackdrop from "@/components/ui/MarketingBackdrop";
 
 const trustBadges = [
-  "Production Ready",
-  "Save 100+ Hours",
-  "Built for Real SaaS Businesses",
+  `${config.credits.signupGrant} free searches on signup`,
+  "No subscription",
+  "Credits never expire",
 ];
 
-const floatingLogos = [
-  { name: "Next.js", badge: "N" },
-  { name: "Supabase", badge: "S" },
-  { name: "Paddle", badge: "P" },
-  { name: "Stripe", badge: "S", soon: true },
-  { name: "Resend", badge: "R" },
+const sourceChips = [
+  { name: "RDAP", badge: "D" },
+  { name: "USPTO", badge: "T" },
+  { name: "App Store", badge: "A" },
+  { name: "Play", badge: "P" },
+  { name: "Handles", badge: "S" },
 ];
 
-const dashboardItems = [
-  { icon: Sparkles, label: "Create project", status: "Ready" },
-  { icon: Lock, label: "Authentication", status: "Connected" },
-  { icon: CreditCard, label: "Paddle payments", status: "Connected" },
-  { icon: Database, label: "Supabase database", status: "Connected" },
-  { icon: Mail, label: "Resend emails", status: "Connected" },
+/** The sample report in the hero. Verdicts here mirror the real rollup
+ *  vocabulary (clear / caution / taken) so the screenshot does not promise a
+ *  UI the product does not have. */
+const sampleChecks = [
+  { icon: Globe, label: "Domains", detail: ".com · .io · .ai", state: "clear" },
+  { icon: Scale, label: "US trademark", detail: "No live mark", state: "clear" },
+  { icon: Smartphone, label: "App stores", detail: "No app found", state: "clear" },
+  { icon: AtSign, label: "Handles", detail: "X taken", state: "caution" },
+  { icon: Search, label: "Web presence", detail: "3 weak results", state: "caution" },
 ];
+
+const stateStyles: Record<string, string> = {
+  clear: "bg-emerald-500/15 text-emerald-400",
+  caution: "bg-amber-500/15 text-amber-400",
+  taken: "bg-red-500/15 text-red-400",
+};
 
 export default function LandingHero() {
   return (
@@ -44,29 +54,31 @@ export default function LandingHero() {
           <div className="animate-fade-up space-y-8">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-accent backdrop-blur-sm">
               <Sparkles size={14} />
-              Production-ready SaaS starter kit
+              Name research for founders
             </div>
 
             <h1 className="section-heading text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl xl:text-7xl">
-              Launch Your SaaS in{" "}
-              <span className="gradient-text">Days. Not Months.</span>
+              Find a SaaS name that is{" "}
+              <span className="gradient-text">actually free to use.</span>
             </h1>
 
             <p className="max-w-xl text-lg leading-relaxed text-muted sm:text-xl">
-              ShipNow gives you a complete production-ready SaaS foundation with
-              authentication, payments, emails, database, SEO, and deployment
-              workflows already configured.
+              Describe your idea. {config.appName} writes candidate names and
+              checks each one against domain registries, the US trademark
+              register, both app stores, social handles, and web search — then
+              tells you, in plain English, which ones survive.
             </p>
 
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-              <ButtonCheckout
-                label="Get ShipNow"
-                source="landing"
-                extraStyle="btn-gradient px-8 py-3.5 text-sm"
-              />
-              <Link href="/dashboard" className="btn-ghost px-8 py-3.5 text-sm">
-                View Demo
+              <Link
+                href={config.auth.loginUrl}
+                className="btn-gradient px-8 py-3.5 text-sm"
+              >
+                Start with {config.credits.signupGrant} free searches
                 <ArrowRight size={16} />
+              </Link>
+              <Link href="#how-it-works" className="btn-ghost px-8 py-3.5 text-sm">
+                See how it works
               </Link>
             </div>
 
@@ -89,22 +101,29 @@ export default function LandingHero() {
                 <span className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
                 <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
                 <span className="ml-2 text-xs font-medium text-muted">
-                  ShipNow Launchpad
+                  Name report
                 </span>
               </div>
 
               <div className="space-y-3 p-5">
                 <div className="rounded-xl border border-dashed border-brand-cyan/40 bg-brand-blue/10 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-brand-cyan">
-                    New project
-                  </p>
-                  <p className="mt-1 font-semibold">my-saas-app</p>
-                  <p className="mt-1 text-xs text-muted">
-                    Create your SaaS foundation in one click
-                  </p>
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-brand-cyan">
+                        Candidate
+                      </p>
+                      <p className="mt-1 text-lg font-semibold">Ledgerloop</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-extrabold gradient-text">82</p>
+                      <p className="text-[10px] uppercase tracking-wider text-muted">
+                        Score
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
-                {dashboardItems.slice(1).map((item) => (
+                {sampleChecks.map((item) => (
                   <div
                     key={item.label}
                     className="flex items-center justify-between rounded-xl border border-white/8 bg-white/5 px-4 py-3"
@@ -113,35 +132,36 @@ export default function LandingHero() {
                       <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-brand-blue/25 to-brand-cyan/20 text-accent">
                         <item.icon size={16} />
                       </span>
-                      <span className="text-sm font-medium">{item.label}</span>
+                      <div>
+                        <p className="text-sm font-medium">{item.label}</p>
+                        <p className="text-xs text-muted">{item.detail}</p>
+                      </div>
                     </div>
-                    <span className="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-xs font-semibold text-emerald-400">
-                      {item.status}
+                    <span
+                      className={`rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${stateStyles[item.state]}`}
+                    >
+                      {item.state}
                     </span>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="pointer-events-none absolute -right-4 top-8 hidden flex-col gap-3 lg:flex">
-              {floatingLogos.map((logo, i) => (
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+              {sourceChips.map((chip, i) => (
                 <div
-                  key={logo.name}
+                  key={chip.name}
                   className="animate-float glass-card flex items-center gap-2 px-3 py-2 shadow-lg"
                   style={{ animationDelay: `${i * 0.8}s` }}
                 >
                   <span className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-brand-blue/30 to-brand-cyan/30 text-xs font-bold">
-                    {logo.badge}
+                    {chip.badge}
                   </span>
-                  <span className="text-xs font-medium">
-                    {logo.name}
-                    {logo.soon && (
-                      <span className="ml-1 text-[10px] text-muted">(Soon)</span>
-                    )}
-                  </span>
+                  <span className="text-xs font-medium">{chip.name}</span>
                 </div>
               ))}
             </div>
+
           </div>
         </div>
       </div>

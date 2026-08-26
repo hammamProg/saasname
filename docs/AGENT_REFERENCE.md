@@ -41,7 +41,6 @@ fastship/
 │   ├── blog/                     # Blog index + [slug] posts
 │   ├── components/               # Component showcase page
 │   ├── dashboard/                # Protected dashboard (auth required)
-│   ├── landing/                  # Example static marketing page
 │   ├── privacy-policy/
 │   ├── tos/
 │   ├── globals.css               # Tailwind v4 + theme tokens
@@ -70,7 +69,6 @@ fastship/
 | Route | File | Type | Auth | Description |
 |-------|------|------|------|-------------|
 | `/` | `app/page.tsx` | Page | Public | Landing page |
-| `/landing` | `app/landing/page.tsx` | Page | Public | Alternate marketing page |
 | `/blog`, `/blog/[slug]` | `app/blog/` | Page | Public | Blog |
 | `/components` | `app/components/page.tsx` | Page | Public | Component showcase |
 | `/r/[token]` | `app/r/[token]/page.tsx` | Page | **Public** | Shared report. noindex. Readable only while `is_public` AND `share_token` are both set |
@@ -259,7 +257,7 @@ renderSchemaTags(): JSX.Element
 | FAQ | `FAQ.tsx` | FAQ accordion |
 | Footer | `Footer.tsx` | Site footer |
 | ButtonLead | `ButtonLead.tsx` | Waitlist form → `/api/lead` |
-| ButtonCheckout | `ButtonCheckout.tsx` | Checkout CTA (Paddle stub) |
+| ButtonCheckout | `ButtonCheckout.tsx` | Opens Paddle checkout for a credit pack |
 | ButtonSignin | `ButtonSignin.tsx` | NextAuth sign-in |
 | ButtonAccount | `ButtonAccount.tsx` | User menu + logout |
 | ButtonGradient | `ButtonGradient.tsx` | Gradient button variant |
@@ -275,7 +273,35 @@ renderSchemaTags(): JSX.Element
 | BlogPreview | `BlogPreview.tsx` | Blog card preview |
 | Providers | `Providers.tsx` | `SessionProvider` wrapper |
 
-Default landing stack (`app/page.tsx`): Header → Hero → Problem → FeaturesAccordion → TestimonialTriple → Pricing → FAQ → CTA → Footer. Showcase: `/components`.
+### Landing page (`components/landing/`)
+
+The production landing page is composed from these sections, in this order:
+
+| Section | File | Notes |
+|---------|------|-------|
+| Hero | `LandingHero.tsx` | Sample report card. CTA is sign-in, not checkout |
+| Problem | `LandingProblem.tsx` | Cost of checking a name by hand |
+| What you get | `LandingSolution.tsx` | Feature grid, `#features` |
+| How it works | `LandingHowItWorks.tsx` | 3 steps, `#how-it-works` |
+| Report preview | `LandingReportPreview.tsx` | Client. Illustrative report, labelled as such |
+| Comparison | `LandingComparison.tsx` | By hand vs. one credit |
+| Benefits | `LandingFounderBenefits.tsx` | Why founders use it |
+| Sources | `LandingSources.tsx` | Client. Orbit of the six probes, `#sources` |
+| Pricing | `LandingPricing.tsx` | Server. All configured packs, live Paddle amounts, `#pricing` |
+| FAQ | `LandingFAQ.tsx` | Client, `#faq` |
+| Final CTA | `LandingFinalCTA.tsx` | Sign-in CTA |
+
+**No testimonials section.** There are no customers yet, and inventing quotes
+and revenue figures for a product that screens trademarks is not a trade worth
+making. Add it back when there is something real to quote.
+
+Copy is bound to `config.ts` (`appName`, `credits.signupGrant`) rather than
+hardcoded, so the free-credit count cannot drift between the landing page and
+the ledger. The old ShipFast marketing components (`Hero.tsx`, `Pricing.tsx`,
+`FAQ.tsx`, `Testimonial*.tsx`, …) are still present and still rendered by the
+`/components` showcase — they are a reference library, not the live page.
+
+Showcase: `/components` (noindexed, excluded from the sitemap).
 
 ---
 
@@ -293,10 +319,11 @@ Spec: `docs/superpowers/specs/2026-08-25-saasname-design.md`
 | 4 | Scoring rollup + LLM explanations | Done |
 | 5 | Best-effort probes (Play, trademark, socials) | Done |
 | 6 | Opt-in sharing, history | Done |
+| 7 | Product landing page | Done |
 
-**Not done:** the landing page still sells a Next.js boilerplate and carries
-~20 "ShipNow" mentions. Deliberate — it needs real product copy, not a
-find-and-replace.
+Phase 7 replaced the boilerplate marketing copy with product copy, dropped the
+recipe-demo `/landing` route and the fabricated testimonials, and excluded the
+component showcase from search indexing.
 
 ---
 
@@ -394,7 +421,7 @@ Migrations: paste SQL from `supabase/migrations/` into Supabase SQL Editor (no C
 | Add auth provider or session logic | `libs/auth.ts`, [AUTH.md](./AUTH.md) |
 | Protect a new route | Extend `proxy.ts` matcher + `getServerSession` in page |
 | SEO / metadata / sitemap | `libs/seo.ts`, `app/sitemap.ts`, [SEO.md](./SEO.md) |
-| New marketing page | Copy `app/landing/page.tsx` pattern, [STATIC_PAGE.md](./STATIC_PAGE.md) |
+| New marketing page | [STATIC_PAGE.md](./STATIC_PAGE.md) + `/components` showcase |
 | Database schema change | New file in `supabase/migrations/` |
 | Payments (Paddle) | **Not implemented** — env vars only |
 | Component reference | `/components` page, [COMPONENTS.md](./COMPONENTS.md) |

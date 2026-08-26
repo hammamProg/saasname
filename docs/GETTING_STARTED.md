@@ -161,7 +161,7 @@ Follow these guides in order:
 1. [Ship in 5 minutes](./SHIP_IN_5_MINUTES.md) — landing page + waitlist form
 2. [Database](./DATABASE.md) — save waitlist emails with Supabase
 3. [Emails (Resend)](./EMAILS.md) — welcome emails + notifications
-4. [Static page](./STATIC_PAGE.md) — SEO marketing pages + `/landing` example
+4. [Static page](./STATIC_PAGE.md) — SEO marketing pages
 5. [SEO](./SEO.md) — metadata, sitemap, Google indexing
 6. [Auth (Supabase)](./AUTH.md) — Supabase Google Auth + magic links
 7. [API call](./API_CALL.md) — protected `/api/user` + profiles

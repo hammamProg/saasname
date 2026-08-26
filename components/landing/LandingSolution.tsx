@@ -1,31 +1,80 @@
 import {
-  CreditCard,
-  Database,
-  LayoutDashboard,
-  Layers,
-  Lock,
-  Mail,
+  AtSign,
+  Apple,
+  FileText,
+  Globe,
+  History,
+  Play,
+  Scale,
   Search,
-  Shield,
+  Share2,
   Sparkles,
-  Wrench,
-  Zap,
+  Wand2,
+  Wallet,
 } from "lucide-react";
 import { SectionHeader } from "@/components/landing/shared";
 
 const features = [
-  { icon: Layers, title: "Next.js Fullstack Architecture", desc: "App Router, API routes, and server components ready to scale." },
-  { icon: Lock, title: "Supabase Authentication", desc: "Google OAuth and magic links with session management built in." },
-  { icon: Database, title: "Production Database Setup", desc: "Postgres schema, migrations, and RLS policies configured." },
-  { icon: CreditCard, title: "Paddle Payments", desc: "Checkout, webhooks, and subscription lifecycle handled." },
-  { icon: Sparkles, title: "Stripe Support Coming Soon", desc: "Stripe integration path planned for flexible billing." },
-  { icon: Mail, title: "Resend Email Infrastructure", desc: "Transactional emails and React email templates included." },
-  { icon: Search, title: "SEO Optimized Pages", desc: "Metadata, sitemap, and schema markup out of the box." },
-  { icon: Shield, title: "Protected Routes", desc: "Auth middleware and dashboard access control wired up." },
-  { icon: LayoutDashboard, title: "User Dashboard", desc: "Beautiful dashboard shell with sidebar navigation." },
-  { icon: Zap, title: "Subscription Management", desc: "Plans, checkout, and customer portal integration." },
-  { icon: Mail, title: "Email Templates", desc: "Waitlist, magic link, and notification templates ready." },
-  { icon: Wrench, title: "Admin Utilities", desc: "Setup guide, integrations panel, and launchpad workspace." },
+  {
+    icon: Wand2,
+    title: "Names from your idea",
+    desc: "Describe the product in a sentence and get 5–8 candidates. Generating is free — you only spend credits on checking.",
+  },
+  {
+    icon: Globe,
+    title: "Domains via RDAP",
+    desc: ".com, .io, .ai, .dev and .app queried against the registries themselves — not a reseller's upsell page.",
+  },
+  {
+    icon: Scale,
+    title: "US trademark screening",
+    desc: "Live marks on the USPTO register surfaced before you print stickers.",
+  },
+  {
+    icon: Apple,
+    title: "App Store",
+    desc: "Existing iOS apps trading under the same name.",
+  },
+  {
+    icon: Play,
+    title: "Google Play",
+    desc: "The Android listing everyone forgets to look at.",
+  },
+  {
+    icon: AtSign,
+    title: "Social handles",
+    desc: "GitHub, X, and LinkedIn — only where a 404 genuinely means free.",
+  },
+  {
+    icon: Search,
+    title: "Web presence",
+    desc: "Who already ranks for the name, and how strongly.",
+  },
+  {
+    icon: Sparkles,
+    title: "One verdict per name",
+    desc: "Signals roll up into clear, caution, or taken — plus a score you can sort by.",
+  },
+  {
+    icon: FileText,
+    title: "Plain-English explanation",
+    desc: "Why a name scored the way it did, written from the evidence, not from vibes.",
+  },
+  {
+    icon: Share2,
+    title: "Shareable reports",
+    desc: "Opt in to a public link when you want a co-founder or lawyer to weigh in.",
+  },
+  {
+    icon: History,
+    title: "Search history",
+    desc: "Every report you have run stays available. Names you rejected stay rejected for a reason.",
+  },
+  {
+    icon: Wallet,
+    title: "Credits, not a subscription",
+    desc: "One credit per candidate checked. Buy a pack, use it whenever. Nothing renews.",
+  },
 ];
 
 export default function LandingSolution() {
@@ -33,9 +82,9 @@ export default function LandingSolution() {
     <section id="features" className="relative py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeader
-          badge="The solution"
-          title="Everything You Need To Launch"
-          subtitle="A complete SaaS foundation — not a tutorial project. Every integration is production-ready."
+          badge="What you get"
+          title="Six Sources. One Report."
+          subtitle="Every check links to the evidence it came from, so a verdict is something you can verify rather than something you have to trust."
         />
 
         <div className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

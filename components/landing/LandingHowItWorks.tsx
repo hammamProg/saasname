@@ -1,37 +1,44 @@
-import { CreditCard, Rocket, ShoppingBag } from "lucide-react";
+import { FileCheck2, Radar, Wand2 } from "lucide-react";
+import config from "@/config";
 import { SectionHeader } from "@/components/landing/shared";
 
 const steps = [
   {
     step: "01",
-    icon: ShoppingBag,
-    title: "Buy ShipNow",
+    icon: Wand2,
+    title: "Describe the idea",
     description:
-      "One-time purchase. Your credits never expire and there is no subscription.",
+      "One sentence is enough. You get 5–8 candidate names back, free — generating costs no credits.",
     visual: (
       <div className="mt-6 space-y-2 rounded-xl border border-white/10 bg-black/30 p-4 font-mono text-xs">
-        <p className="text-emerald-400">✓ Checkout complete</p>
-        <p className="text-muted">Credits added to your balance</p>
-        <p className="text-brand-cyan">→ Download & clone repo</p>
+        <p className="text-muted">&gt; expense tracking for freelancers</p>
+        <p className="text-brand-cyan">Ledgerloop</p>
+        <p className="text-brand-cyan">Tallyhaus</p>
+        <p className="text-brand-cyan">Notchbook</p>
       </div>
     ),
   },
   {
     step: "02",
-    icon: Rocket,
-    title: "Create Your New SaaS Project",
+    icon: Radar,
+    title: "Pick the ones worth checking",
     description:
-      "Use the launchpad to configure auth, payments, database, and email in guided steps.",
+      "One credit per candidate. Results stream in as each source answers — you are not staring at a spinner.",
     visual: (
       <div className="mt-6 space-y-2">
-        {["Auth", "Database", "Payments", "Email"].map((item, i) => (
+        {[
+          ["Domains", "done"],
+          ["Trademark", "done"],
+          ["App stores", "done"],
+          ["Handles", "running"],
+        ].map(([item, state]) => (
           <div
             key={item}
             className="flex items-center justify-between rounded-lg border border-white/8 bg-white/5 px-3 py-2 text-xs"
           >
             <span>{item}</span>
-            <span className={i < 3 ? "text-emerald-400" : "text-muted"}>
-              {i < 3 ? "Connected" : "Setup…"}
+            <span className={state === "done" ? "text-emerald-400" : "text-muted"}>
+              {state === "done" ? "Checked" : "Checking…"}
             </span>
           </div>
         ))}
@@ -40,15 +47,17 @@ const steps = [
   },
   {
     step: "03",
-    icon: CreditCard,
-    title: "Launch & Get Paying Customers",
+    icon: FileCheck2,
+    title: "Read the verdict and go register",
     description:
-      "Deploy to production, start charging, and focus on your unique product features.",
+      "Clear, caution, or taken — with a short explanation and a link to the evidence behind every signal.",
     visual: (
       <div className="mt-6 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-center">
-        <p className="text-2xl font-extrabold text-emerald-400">$2,450</p>
-        <p className="mt-1 text-xs text-muted">First month revenue</p>
-        <p className="mt-3 text-xs font-semibold text-emerald-300">🚀 Live in production</p>
+        <p className="text-2xl font-extrabold text-emerald-400">Clear</p>
+        <p className="mt-1 text-xs text-muted">Ledgerloop · score 82</p>
+        <p className="mt-3 text-xs font-semibold text-emerald-300">
+          .com available · no live mark
+        </p>
       </div>
     ),
   },
@@ -56,12 +65,12 @@ const steps = [
 
 export default function LandingHowItWorks() {
   return (
-    <section className="relative py-20 sm:py-28">
+    <section id="how-it-works" className="relative py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeader
           badge="How it works"
-          title="From Purchase to Production in 3 Steps"
-          subtitle="No more months of setup. ShipNow gets you from zero to revenue-ready in days."
+          title="Idea to Verdict in Three Steps"
+          subtitle={`Your first ${config.credits.signupGrant} searches are on us — enough to settle a name before you spend anything.`}
         />
 
         <div className="mt-16 grid gap-8 lg:grid-cols-3">

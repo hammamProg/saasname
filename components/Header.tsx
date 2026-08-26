@@ -5,12 +5,12 @@ import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import HeaderAuth from "@/components/HeaderAuth";
 import BrandLogo from "@/components/BrandLogo";
-import ButtonCheckout from "@/components/ButtonCheckout";
+import config from "@/config";
 
 const links = [
-  { href: "#features", label: "Features" },
+  { href: "#how-it-works", label: "How it works" },
+  { href: "#features", label: "What we check" },
   { href: "#pricing", label: "Pricing" },
-  { href: "#testimonials", label: "Reviews" },
   { href: "#faq", label: "FAQ" },
 ];
 
@@ -54,11 +54,12 @@ export default function Header({ variant = "default" }: HeaderProps) {
             Dashboard
           </Link>
           {isLanding ? (
-            <ButtonCheckout
-              label="Get SaaSNa.me"
-              source="landing"
-              extraStyle="btn-gradient !px-5 !py-2.5 text-sm"
-            />
+            <Link
+              href={config.auth.loginUrl}
+              className="btn-gradient !px-5 !py-2.5 text-sm"
+            >
+              Start free
+            </Link>
           ) : (
             <HeaderAuth />
           )}
@@ -97,11 +98,13 @@ export default function Header({ variant = "default" }: HeaderProps) {
               Dashboard
             </Link>
             {isLanding ? (
-              <ButtonCheckout
-                label="Get SaaSNa.me"
-                source="landing"
-                extraStyle="btn-gradient w-full !py-2.5 text-sm"
-              />
+              <Link
+                href={config.auth.loginUrl}
+                className="btn-gradient w-full justify-center !py-2.5 text-sm"
+                onClick={() => setIsOpen(false)}
+              >
+                Start free
+              </Link>
             ) : (
               <HeaderAuth className="!w-full" />
             )}

@@ -12,7 +12,6 @@ Build SEO-optimized marketing pages quickly using FastShip components and the SE
 |-------|----------|---------|
 | Marketing components | `/components` | Hero, pricing, FAQ, etc. — see [Components](./COMPONENTS.md) |
 | SEO helper | `libs/seo.ts`, `libs/seo-schema.tsx` | `getSEOTags()` + `renderSchemaTags()` |
-| Example static page | `/landing` | Minimal single-section page from the tutorial |
 | Sitemap & robots | `app/sitemap.ts`, `app/robots.ts` | Generated at build time |
 
 ---
@@ -34,13 +33,13 @@ Customize copy in `/components` and `config.ts`. See [Ship in 5 minutes](./SHIP_
 For a focused page (waitlist, product teaser, niche landing), create a route under `/app`:
 
 ```tsx
-// app/landing/page.tsx
+// app/example/page.tsx
 import { getSEOTags } from "@/libs/seo";
 
 export const metadata = getSEOTags({
   title: "Food recipes you'll love",
   description: "Our AI generates recipes based on your preferences.",
-  canonicalUrlRelative: "/landing",
+  canonicalUrlRelative: "/example",
 });
 
 export default function LandingPage() {
@@ -53,7 +52,8 @@ export default function LandingPage() {
 }
 ```
 
-**Live example:** [http://localhost:3000/landing](http://localhost:3000/landing)
+The production landing page lives in `app/page.tsx` and composes the sections in
+`components/landing/`.
 
 ---
 

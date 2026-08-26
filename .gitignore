@@ -45,3 +45,4 @@ next-env.d.ts
 
 # Playwright MCP browser artifacts
 .playwright-mcp/
+!.env.example

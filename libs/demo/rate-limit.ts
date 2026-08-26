@@ -16,9 +16,15 @@ export type RateLimitResult =
   | { allowed: false; reason: "per_ip" | "global" };
 
 /** Salted digest, never the address itself. Counting requests from one source
- *  does not require keeping something that identifies the person. */
+ *  does not require keeping something that identifies the person.
+ *
+ *  The salt has its own variable rather than borrowing NEXTAUTH_SECRET: this
+ *  app authenticates through Supabase, so that name is a leftover, and tying a
+ *  live privacy control to a dead variable is how it ends up unset in
+ *  production. Unset falls back to a constant, which still prevents a plain
+ *  rainbow-table lookup of the address space but is worth setting properly. */
 export function hashIp(ip: string): string {
-  const salt = process.env.NEXTAUTH_SECRET ?? "saasname-demo";
+  const salt = process.env.DEMO_IP_SALT ?? "saasname-demo";
   return createHash("sha256").update(`${salt}:${ip}`).digest("hex");
 }
 

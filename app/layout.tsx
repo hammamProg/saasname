@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import config from "@/config";
 import { siteUrl } from "@/libs/seo";
@@ -30,6 +31,11 @@ export default async function RootLayout({
   const authEnabled = isAuthConfigured();
   const initialUser = authEnabled ? await getServerUser() : null;
 
+  // Unset in development and preview deploys, so local clicks never land in the
+  // production property. Rendering nothing is the difference between clean data
+  // and reports nobody trusts.
+  const gaId = process.env.NEXT_PUBLIC_GA_ID?.trim();
+
   return (
     <html lang="en" className={`${inter.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
@@ -37,6 +43,7 @@ export default async function RootLayout({
           {children}
         </Providers>
       </body>
+      {gaId ? <GoogleAnalytics gaId={gaId} /> : null}
     </html>
   );
 }

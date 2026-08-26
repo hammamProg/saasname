@@ -46,3 +46,6 @@ next-env.d.ts
 # Playwright MCP browser artifacts
 .playwright-mcp/
 !.env.example
+
+# marketing workspace (private drafts, research, assets)
+marketing/

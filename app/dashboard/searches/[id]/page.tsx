@@ -115,6 +115,10 @@ export default async function SearchReportPage({
           searchId={id}
           total={allChecks.length}
           initialDone={settled}
+          candidates={rows.map((candidate) => ({
+            id: candidate.id,
+            name: candidate.name,
+          }))}
         />
       )}
 

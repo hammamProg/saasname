@@ -339,3 +339,63 @@ body {
 .brand-icon-chip {
   background: linear-gradient(135deg, rgba(0, 141, 247, 0.35), rgba(0, 189, 252, 0.2));
 }
+
+/* Live analysis view -------------------------------------------------- */
+
+/* A sheen that travels across the tile currently being queried, so the
+   active source is obvious without a spinner on every card. */
+@keyframes analysis-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+/* Log lines arrive one at a time; sliding them in makes the feed read as a
+   stream rather than a list that keeps re-rendering. */
+@keyframes log-line-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 141, 247, 0.35);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(0, 141, 247, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 141, 247, 0);
+  }
+}
+
+.animate-analysis-sweep {
+  animation: analysis-sweep 1.6s ease-in-out infinite;
+}
+
+.animate-log-line-in {
+  animation: log-line-in 0.35s ease-out both;
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 1.8s ease-out infinite;
+}
+
+/* Respect a stated preference for less motion: the panel still reports
+   progress, it just stops moving on its own. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-analysis-sweep,
+  .animate-log-line-in,
+  .animate-pulse-ring {
+    animation: none;
+  }
+}

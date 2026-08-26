@@ -7,8 +7,13 @@ import { getCreditPacks } from "@/libs/credits/packs";
 import { getSEOTags } from "@/libs/seo";
 import DashboardAccess from "@/components/DashboardAccess";
 import { DashboardOverview } from "@/components/dashboard/DashboardOverview";
-import CreditBalance from "@/components/CreditBalance";
 import GenerateForm from "@/components/dashboard/GenerateForm";
+import DashboardStats from "@/components/dashboard/DashboardStats";
+import RecentReports, {
+  type RecentReport,
+} from "@/components/dashboard/RecentReports";
+import EmptyStateGuide from "@/components/dashboard/EmptyStateGuide";
+import { getCreditBalance } from "@/libs/credits/balance";
 
 export const dynamic = "force-dynamic";
 
@@ -75,11 +80,44 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     );
   }
 
+  // Counted server-side rather than derived from the fetched page: totals taken
+  // from a `limit`ed list silently stop growing once the user passes the limit.
+  // RLS scopes all three to this user.
+  const [{ data: searchRows }, reportCount, nameCount, clearCount, credits] =
+    await Promise.all([
+      supabase
+        .from("searches")
+        .select("id, idea_text, status, created_at, candidates(name, verdict)")
+        .order("created_at", { ascending: false })
+        .limit(3),
+      supabase.from("searches").select("id", { count: "exact", head: true }),
+      supabase.from("candidates").select("id", { count: "exact", head: true }),
+      supabase
+        .from("candidates")
+        .select("id", { count: "exact", head: true })
+        .eq("verdict", "clear"),
+      getCreditBalance(user.id),
+    ]);
+
+  const reports = (searchRows ?? []) as unknown as RecentReport[];
+
+  const stats = {
+    credits,
+    reports: reportCount.count ?? 0,
+    namesChecked: nameCount.count ?? 0,
+    namesClear: clearCount.count ?? 0,
+  };
+
   return (
     <div className="space-y-8">
-      <DashboardOverview displayName={displayName} />
+      <DashboardOverview displayName={displayName} hasReports={stats.reports > 0} />
+      <DashboardStats stats={stats} />
       <GenerateForm />
-      <CreditBalance userId={user.id} />
+      {reports.length > 0 ? (
+        <RecentReports reports={reports} />
+      ) : (
+        <EmptyStateGuide />
+      )}
     </div>
   );
 }

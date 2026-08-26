@@ -9,7 +9,7 @@ import type { Verdict } from "@/libs/scoring/verdict";
 export const dynamic = "force-dynamic";
 
 export const metadata = getSEOTags({
-  title: "Your reports",
+  title: "Clearance reports",
   description: "Every name check you have run.",
   canonicalUrlRelative: "/dashboard/searches",
 });
@@ -39,7 +39,7 @@ export default async function SearchesPage() {
     <div className="space-y-8">
       <div className="space-y-2">
         <h1 className="section-heading text-3xl font-extrabold md:text-4xl">
-          Your reports
+          Clearance reports
         </h1>
         <p className="text-muted">Every name check you have run.</p>
       </div>

@@ -10,8 +10,8 @@ import type { Verdict } from "@/libs/scoring/verdict";
 export const dynamic = "force-dynamic";
 
 export const metadata = getSEOTags({
-  title: "Shared name report",
-  description: "A SaaSNa.me name report shared with you.",
+  title: "Shared clearance report",
+  description: "A SaaSNa.me name clearance report shared with you.",
   // Shared links are unlisted, not published. Keeping them out of the index is
   // the difference between "anyone with the link" and "anyone".
   robots: { index: false, follow: false },
@@ -76,7 +76,7 @@ export default async function SharedReportPage({
         <div className="space-y-3">
           <BrandLogo size="md" />
           <h1 className="section-heading text-3xl font-extrabold md:text-4xl">
-            Name report
+            Clearance report
           </h1>
           {search.idea_text && <p className="text-muted">“{search.idea_text}”</p>}
         </div>

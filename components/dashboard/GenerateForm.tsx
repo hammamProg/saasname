@@ -2,40 +2,158 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, ShieldCheck, Sparkles } from "lucide-react";
+import { Check, Globe, Loader2, Search, ShieldCheck, Sparkles } from "lucide-react";
+import { AndroidIcon, AppleIcon } from "@/components/icons/BrandIcons";
 import apiClient, { ApiError } from "@/libs/api";
 import {
-  TARGET_PLATFORMS,
   type GeneratedCandidate,
   type TargetPlatform,
 } from "@/libs/names/generate";
 import CandidateList from "@/components/dashboard/CandidateList";
+import { cn } from "@/libs/cn";
 
-const PLATFORM_LABELS: Record<TargetPlatform, string> = {
-  ios: "iOS",
-  android: "Android",
-  web: "Web",
-  cross: "Web + mobile",
-};
+/** The surfaces a user picks from. `cross` is not offered directly -- it is
+ *  what any multi-surface selection resolves to. */
+const PLATFORM_CHOICES = [
+  { id: "web", label: "Web", Icon: Globe },
+  { id: "ios", label: "iOS", Icon: AppleIcon },
+  { id: "android", label: "Android", Icon: AndroidIcon },
+] as const;
+
+type PlatformChoice = (typeof PLATFORM_CHOICES)[number]["id"];
+
+/** Maps the checklist onto the single enum the API and the scoring weights
+ *  speak. One surface keeps that surface's weighting; two or more resolve to
+ *  `cross`, the balanced profile. Picking iOS + Android and getting `cross`
+ *  counts web signals a little more heavily than strictly necessary -- it errs
+ *  toward more evidence, never toward a false "clear". */
+function resolveTargetPlatform(selected: Set<PlatformChoice>): TargetPlatform {
+  if (selected.size === 1) {
+    return [...selected][0] as TargetPlatform;
+  }
+  return "cross";
+}
 
 const IDEA_MIN_LENGTH = 10;
 const IDEA_MAX_LENGTH = 500;
 const SEED_MAX_LENGTH = 50;
+const NAME_MAX_LENGTH = 30;
+/** Mirrors MAX_CANDIDATES in libs/searches/create.ts. The API rejects more;
+ *  this stops the user discovering that only after spending the click. */
+const MAX_NAMES = 8;
+
+type Mode = "generate" | "check";
+
+/** Splits the direct-check input on commas or whitespace and de-duplicates,
+ *  so "Ledgerloop, Tallyhaus" and "Ledgerloop Tallyhaus" both work. */
+function parseNames(raw: string): string[] {
+  const parts = raw
+    .split(/[,\n]+/)
+    .flatMap((part) => part.trim().split(/\s+/))
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  return [...new Set(parts)];
+}
+
+function PlatformChecklist({
+  selected,
+  onToggle,
+}: {
+  selected: Set<PlatformChoice>;
+  onToggle: (id: PlatformChoice) => void;
+}) {
+  return (
+    <fieldset className="space-y-1.5">
+      <legend className="text-sm font-semibold">Where will it live?</legend>
+      <div className="flex flex-wrap gap-2 pt-1">
+        {PLATFORM_CHOICES.map((choice) => {
+          const checked = selected.has(choice.id);
+
+          return (
+            <label
+              key={choice.id}
+              className={cn(
+                "flex cursor-pointer items-center gap-2 rounded-xl border px-3.5 py-2 text-sm font-medium transition-colors",
+                checked
+                  ? "border-primary/40 bg-primary-soft text-primary"
+                  : "border-border bg-surface text-muted hover:text-foreground"
+              )}
+            >
+              <input
+                type="checkbox"
+                className="sr-only"
+                checked={checked}
+                onChange={() => onToggle(choice.id)}
+              />
+              <span
+                aria-hidden="true"
+                className={cn(
+                  "flex h-4 w-4 items-center justify-center rounded border transition-colors",
+                  checked ? "border-primary bg-primary text-white" : "border-border bg-card"
+                )}
+              >
+                {checked && <Check size={11} strokeWidth={3.5} />}
+              </span>
+              <choice.Icon size={15} className="shrink-0" />
+              {choice.label}
+            </label>
+          );
+        })}
+      </div>
+      <p className="text-xs text-muted">
+        {selected.size === 0
+          ? "Pick at least one — it decides how much each source counts."
+          : selected.size > 1
+            ? "Multiple surfaces: every source is weighted evenly."
+            : "Sources are weighted for this surface."}
+      </p>
+    </fieldset>
+  );
+}
 
 export default function GenerateForm() {
   const router = useRouter();
+  const [mode, setMode] = useState<Mode>("generate");
   const [idea, setIdea] = useState("");
   const [seedName, setSeedName] = useState("");
-  const [targetPlatform, setTargetPlatform] = useState<TargetPlatform>("web");
+  const [directNames, setDirectNames] = useState("");
+  const [platforms, setPlatforms] = useState<Set<PlatformChoice>>(
+    () => new Set<PlatformChoice>(["web"])
+  );
   const [candidates, setCandidates] = useState<GeneratedCandidate[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
+  const targetPlatform = resolveTargetPlatform(platforms);
+  const noPlatform = platforms.size === 0;
   const tooShort = idea.trim().length < IDEA_MIN_LENGTH;
+  const parsedNames = parseNames(directNames);
+  const tooManyNames = parsedNames.length > MAX_NAMES;
+  const nameTooLong = parsedNames.some((name) => name.length > NAME_MAX_LENGTH);
 
-  async function handleSubmit(event: React.FormEvent) {
+  function togglePlatform(id: PlatformChoice) {
+    setPlatforms((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function switchMode(next: Mode) {
+    if (next === mode) return;
+    // Candidates belong to the mode that produced them; carrying them across
+    // would offer a "check" button for names the visible form no longer shows.
+    setMode(next);
+    setCandidates(null);
+    setSelected(new Set());
+    setError(null);
+  }
+
+  async function handleGenerate(event: React.FormEvent) {
     event.preventDefault();
     setLoading(true);
     setError(null);
@@ -66,24 +184,25 @@ export default function GenerateForm() {
     }
   }
 
-  async function handleCheck() {
-    if (!candidates) return;
-
+  /** Both paths end in the same POST; only where the names came from differs. */
+  async function startSearch(
+    payload: Record<string, unknown>,
+    onFailure: () => void
+  ) {
     setChecking(true);
     setError(null);
 
     try {
-      const { searchId } = await apiClient.post<{ searchId: string }>("/searches", {
-        mode: "generate",
-        ideaText: idea.trim(),
-        seedName: seedName.trim() || undefined,
-        targetPlatform,
-        candidates: candidates
-          .filter((c) => selected.has(c.normalizedName))
-          .map((c) => ({ name: c.name, rationale: c.rationale })),
-      });
+      const { searchId } = await apiClient.post<{ searchId: string }>(
+        "/searches",
+        payload
+      );
 
       router.push(`/dashboard/searches/${searchId}`);
+      // The balance lives in the dashboard layout, and a layout does not
+      // re-render on nested navigation -- without this the top bar would keep
+      // showing the pre-spend number.
+      router.refresh();
     } catch (caught) {
       // 402 means out of credits, which has a specific next step.
       if (caught instanceof ApiError && caught.status === 402) {
@@ -95,79 +214,195 @@ export default function GenerateForm() {
           ? caught.message
           : "Could not check these names right now. Please try again."
       );
-      setChecking(false);
+      onFailure();
     }
+  }
+
+  async function handleCheckGenerated() {
+    if (!candidates) return;
+
+    await startSearch(
+      {
+        mode: "generate",
+        ideaText: idea.trim(),
+        seedName: seedName.trim() || undefined,
+        targetPlatform,
+        candidates: candidates
+          .filter((c) => selected.has(c.normalizedName))
+          .map((c) => ({ name: c.name, rationale: c.rationale })),
+      },
+      () => setChecking(false)
+    );
+  }
+
+  async function handleCheckDirect(event: React.FormEvent) {
+    event.preventDefault();
+
+    await startSearch(
+      {
+        mode: "check",
+        targetPlatform,
+        candidates: parsedNames.map((name) => ({ name })),
+      },
+      () => setChecking(false)
+    );
   }
 
   return (
     <section className="space-y-6">
-      <form onSubmit={handleSubmit} className="card space-y-4 p-6">
-        <div className="space-y-1.5">
-          <label htmlFor="idea" className="text-sm font-semibold">
-            Describe your idea
-          </label>
-          <textarea
-            id="idea"
-            value={idea}
-            onChange={(event) => setIdea(event.target.value)}
-            maxLength={IDEA_MAX_LENGTH}
-            rows={3}
-            placeholder="A tool that checks whether a SaaS name is actually free to use."
-            className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm"
-          />
-          <p className="text-xs text-muted">
-            {idea.trim().length}/{IDEA_MAX_LENGTH}
-          </p>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <label htmlFor="seedName" className="text-sm font-semibold">
-              A name you already like <span className="text-muted">(optional)</span>
-            </label>
-            <input
-              id="seedName"
-              value={seedName}
-              onChange={(event) => setSeedName(event.target.value)}
-              maxLength={SEED_MAX_LENGTH}
-              className="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label htmlFor="platform" className="text-sm font-semibold">
-              Target platform
-            </label>
-            <select
-              id="platform"
-              value={targetPlatform}
-              onChange={(event) =>
-                setTargetPlatform(event.target.value as TargetPlatform)
-              }
-              className="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm"
-            >
-              {TARGET_PLATFORMS.map((platform) => (
-                <option key={platform} value={platform}>
-                  {PLATFORM_LABELS[platform]}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        <button
-          type="submit"
-          disabled={loading || tooShort}
-          className="btn-primary flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-60"
+      <div className="card overflow-hidden">
+        <div
+          role="tablist"
+          aria-label="How to start"
+          className="flex gap-1 border-b border-border bg-surface/60 p-1.5"
         >
-          {loading ? (
-            <Loader2 size={16} className="animate-spin" aria-hidden="true" />
-          ) : (
-            <Sparkles size={16} aria-hidden="true" />
-          )}
-          {loading ? "Generating…" : "Generate names"}
-        </button>
-      </form>
+          {(
+            [
+              { id: "generate", label: "Describe an idea", icon: Sparkles },
+              { id: "check", label: "Check a name I have", icon: Search },
+            ] as const
+          ).map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              role="tab"
+              aria-selected={mode === tab.id}
+              onClick={() => switchMode(tab.id)}
+              className={cn(
+                "flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors",
+                mode === tab.id
+                  ? "bg-card text-primary shadow-sm"
+                  : "text-muted hover:text-foreground"
+              )}
+            >
+              <tab.icon size={15} aria-hidden="true" />
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {mode === "generate" ? (
+          <form onSubmit={handleGenerate} className="space-y-4 p-6">
+            <div className="space-y-1.5">
+              <label htmlFor="idea" className="text-sm font-semibold">
+                Describe your idea
+              </label>
+              <textarea
+                id="idea"
+                value={idea}
+                onChange={(event) => setIdea(event.target.value)}
+                maxLength={IDEA_MAX_LENGTH}
+                rows={3}
+                placeholder="A tool that checks whether a SaaS name is actually free to use."
+                className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm transition-colors focus:border-primary/40 focus:outline-none"
+              />
+              <p className="text-xs text-muted">
+                {idea.trim().length}/{IDEA_MAX_LENGTH}
+                {tooShort && idea.length > 0 && (
+                  <span className="ml-2">
+                    · at least {IDEA_MIN_LENGTH} characters
+                  </span>
+                )}
+              </p>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <label htmlFor="seedName" className="text-sm font-semibold">
+                  A name you already like{" "}
+                  <span className="font-normal text-muted">(optional)</span>
+                </label>
+                <input
+                  id="seedName"
+                  value={seedName}
+                  onChange={(event) => setSeedName(event.target.value)}
+                  maxLength={SEED_MAX_LENGTH}
+                  placeholder="Ledgerloop"
+                  className="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm transition-colors focus:border-primary/40 focus:outline-none"
+                />
+              </div>
+
+              <PlatformChecklist selected={platforms} onToggle={togglePlatform} />
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3 pt-1">
+              <button
+                type="submit"
+                disabled={loading || tooShort || noPlatform}
+                className="btn-primary rounded-xl px-5 py-2.5 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {loading ? (
+                  <Loader2 size={16} className="animate-spin" aria-hidden="true" />
+                ) : (
+                  <Sparkles size={16} aria-hidden="true" />
+                )}
+                {loading ? "Generating…" : "Generate names"}
+              </button>
+              <p className="text-xs text-muted">
+                Generating is free. You spend credits only when you check.
+              </p>
+            </div>
+          </form>
+        ) : (
+          <form onSubmit={handleCheckDirect} className="space-y-4 p-6">
+            <div className="space-y-1.5">
+              <label htmlFor="directNames" className="text-sm font-semibold">
+                Names to check
+              </label>
+              <textarea
+                id="directNames"
+                value={directNames}
+                onChange={(event) => setDirectNames(event.target.value)}
+                rows={3}
+                placeholder="Ledgerloop, Tallyhaus, Notchbook"
+                className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm transition-colors focus:border-primary/40 focus:outline-none"
+              />
+              <p className="text-xs text-muted">
+                Separate with commas or spaces. Up to {MAX_NAMES} at a time.
+                {parsedNames.length > 0 && (
+                  <span className={cn("ml-2", tooManyNames && "text-verdict-blocked")}>
+                    · {parsedNames.length} entered
+                  </span>
+                )}
+              </p>
+            </div>
+
+            <PlatformChecklist selected={platforms} onToggle={togglePlatform} />
+
+            <div className="flex flex-wrap items-center gap-3 pt-1">
+              <button
+                type="submit"
+                disabled={
+                  checking ||
+                  parsedNames.length === 0 ||
+                  tooManyNames ||
+                  nameTooLong ||
+                  noPlatform
+                }
+                className="btn-primary rounded-xl px-5 py-2.5 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {checking ? (
+                  <Loader2 size={16} className="animate-spin" aria-hidden="true" />
+                ) : (
+                  <ShieldCheck size={16} aria-hidden="true" />
+                )}
+                {checking
+                  ? "Checking…"
+                  : parsedNames.length > 0
+                    ? `Check ${parsedNames.length} ${parsedNames.length === 1 ? "name" : "names"}`
+                    : "Check names"}
+              </button>
+              <p className="text-xs text-muted">
+                {tooManyNames
+                  ? `Check at most ${MAX_NAMES} names at once.`
+                  : nameTooLong
+                    ? `Each name must be ${NAME_MAX_LENGTH} characters or fewer.`
+                    : "1 credit per name. Refunded if a check cannot be completed."}
+              </p>
+            </div>
+          </form>
+        )}
+      </div>
 
       {error && (
         <p
@@ -178,7 +413,7 @@ export default function GenerateForm() {
         </p>
       )}
 
-      {candidates && candidates.length > 0 && (
+      {mode === "generate" && candidates && candidates.length > 0 && (
         <>
           <CandidateList
             candidates={candidates}
@@ -196,9 +431,9 @@ export default function GenerateForm() {
           <div className="flex flex-wrap items-center gap-3">
             <button
               type="button"
-              onClick={handleCheck}
+              onClick={handleCheckGenerated}
               disabled={checking || selected.size === 0}
-              className="btn-primary flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-60"
+              className="btn-primary rounded-xl px-5 py-2.5 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-60"
             >
               {checking ? (
                 <Loader2 size={16} className="animate-spin" aria-hidden="true" />

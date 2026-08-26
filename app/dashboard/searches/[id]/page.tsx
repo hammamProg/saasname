@@ -14,7 +14,7 @@ import { CORE_PROBES } from "@/libs/probes/registry";
 export const dynamic = "force-dynamic";
 
 export const metadata = getSEOTags({
-  title: "Name report",
+  title: "Clearance report",
   description: "What we found for your candidate names.",
 });
 
@@ -99,7 +99,7 @@ export default async function SearchReportPage({
           Back to dashboard
         </Link>
         <h1 className="section-heading text-3xl font-extrabold md:text-4xl">
-          Name report
+          Clearance report
         </h1>
         {search.idea_text && (
           <p className="text-muted">“{search.idea_text}”</p>

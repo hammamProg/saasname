@@ -1,12 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import { Globe, Scale, Search } from "lucide-react";
 import config from "@/config";
+import {
+  AppleIcon,
+  GithubIcon,
+  GooglePlayIcon,
+} from "@/components/icons/BrandIcons";
 import { SectionHeader } from "@/components/landing/shared";
 
 const sources = [
   {
     id: "rdap",
+    Icon: Globe,
     name: "RDAP",
     short: "RDAP",
     role: "Domain registries",
@@ -16,6 +23,7 @@ const sources = [
   },
   {
     id: "uspto",
+    Icon: Scale,
     name: "USPTO",
     short: "USPTO",
     role: "US trademark register",
@@ -25,6 +33,7 @@ const sources = [
   },
   {
     id: "appstore",
+    Icon: AppleIcon,
     name: "App Store",
     short: "iOS",
     role: "iOS listings",
@@ -34,6 +43,7 @@ const sources = [
   },
   {
     id: "play",
+    Icon: GooglePlayIcon,
     name: "Google Play",
     short: "Play",
     role: "Android listings",
@@ -43,6 +53,7 @@ const sources = [
   },
   {
     id: "socials",
+    Icon: GithubIcon,
     name: "Handles",
     short: "Social",
     role: "GitHub · X · LinkedIn",
@@ -52,6 +63,7 @@ const sources = [
   },
   {
     id: "web",
+    Icon: Search,
     name: "Web",
     short: "Web",
     role: "Search presence",
@@ -98,7 +110,7 @@ export default function LandingSources() {
                   key={item.id}
                   type="button"
                   onClick={() => setActive(item.id)}
-                  className={`absolute flex h-16 w-16 items-center justify-center rounded-xl border px-1 text-center text-[10px] font-bold leading-tight transition-all ${
+                  className={`absolute flex h-16 w-16 flex-col items-center justify-center gap-1 rounded-xl border px-1 text-center text-[10px] font-bold leading-tight transition-all ${
                     active === item.id
                       ? "scale-110 border-brand-cyan/50 bg-brand-blue/20 shadow-lg shadow-brand-blue/20"
                       : "border-white/10 bg-white/5 hover:border-white/20"
@@ -106,6 +118,7 @@ export default function LandingSources() {
                   style={{ transform: `translate(${x}px, ${y}px)` }}
                   title={item.name}
                 >
+                  <item.Icon size={18} />
                   {item.short}
                 </button>
               );

@@ -12,6 +12,9 @@ import { cn } from "@/libs/cn";
 
 type DashboardShellProps = {
   hasAccess: boolean;
+  /** Server-rendered credit balance, passed as a slot so the client shell does
+   *  not have to fetch it. */
+  credits?: React.ReactNode;
   children: React.ReactNode;
 };
 
@@ -25,7 +28,7 @@ function SidebarChrome({
   return (
     <>
       <div className="flex items-center justify-between border-b border-brand-cyan/10 px-5 py-5">
-        <BrandLogo size="lg" href="/dashboard" />
+        <BrandLogo size="lg" href="/dashboard" onDark />
         {onClose && (
           <button
             type="button"
@@ -49,7 +52,11 @@ function SidebarChrome({
   );
 }
 
-export default function DashboardShell({ hasAccess, children }: DashboardShellProps) {
+export default function DashboardShell({
+  hasAccess,
+  credits,
+  children,
+}: DashboardShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const closeMobile = () => setMobileOpen(false);
@@ -84,16 +91,31 @@ export default function DashboardShell({ hasAccess, children }: DashboardShellPr
 
       {/* Column 2 — main content */}
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center justify-between border-b border-border bg-card/80 px-4 py-3 backdrop-blur-sm lg:hidden">
-          <BrandLogo size="md" href="/dashboard" />
-          <button
-            type="button"
-            aria-label="Open menu"
-            className="rounded-lg p-2 text-primary transition-colors hover:bg-primary-soft"
-            onClick={() => setMobileOpen(true)}
-          >
-            <Menu size={22} />
-          </button>
+        {/* One top bar at every width. The balance lives here rather than in
+            the page body: it is an account fact, and it belongs next to the
+            action that spends it. */}
+        <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-border bg-card/80 px-4 py-3 backdrop-blur-md sm:px-6 lg:px-8">
+          <div className="flex min-w-0 items-center gap-3">
+            <button
+              type="button"
+              aria-label="Open menu"
+              className="rounded-lg p-2 text-primary transition-colors hover:bg-primary-soft lg:hidden"
+              onClick={() => setMobileOpen(true)}
+            >
+              <Menu size={22} />
+            </button>
+            <div className="lg:hidden">
+              <BrandLogo size="md" href="/dashboard" />
+            </div>
+            <Link
+              href="/"
+              className="hidden text-xs font-medium text-muted transition-colors hover:text-primary lg:inline"
+            >
+              ← Back to site
+            </Link>
+          </div>
+
+          {credits}
         </header>
 
         <main className="relative flex-1 overflow-y-auto bg-background">

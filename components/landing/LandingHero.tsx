@@ -1,14 +1,10 @@
 import Link from "next/link";
+import { ArrowRight, AtSign, Check, Globe, Scale, Search, Sparkles } from "lucide-react";
 import {
-  ArrowRight,
-  Check,
-  Globe,
-  Scale,
-  Search,
-  Smartphone,
-  Sparkles,
-  AtSign,
-} from "lucide-react";
+  AppleIcon,
+  GithubIcon,
+  GooglePlayIcon,
+} from "@/components/icons/BrandIcons";
 import config from "@/config";
 import MarketingBackdrop from "@/components/ui/MarketingBackdrop";
 
@@ -19,11 +15,11 @@ const trustBadges = [
 ];
 
 const sourceChips = [
-  { name: "RDAP", badge: "D" },
-  { name: "USPTO", badge: "T" },
-  { name: "App Store", badge: "A" },
-  { name: "Play", badge: "P" },
-  { name: "Handles", badge: "S" },
+  { name: "Domains", Icon: Globe },
+  { name: "USPTO", Icon: Scale },
+  { name: "App Store", Icon: AppleIcon },
+  { name: "Play", Icon: GooglePlayIcon },
+  { name: "Handles", Icon: GithubIcon },
 ];
 
 /** The sample report in the hero. Verdicts here mirror the real rollup
@@ -32,7 +28,7 @@ const sourceChips = [
 const sampleChecks = [
   { icon: Globe, label: "Domains", detail: ".com · .io · .ai", state: "clear" },
   { icon: Scale, label: "US trademark", detail: "No live mark", state: "clear" },
-  { icon: Smartphone, label: "App stores", detail: "No app found", state: "clear" },
+  { icon: AppleIcon, label: "App stores", detail: "No app found", state: "clear" },
   { icon: AtSign, label: "Handles", detail: "X taken", state: "caution" },
   { icon: Search, label: "Web presence", detail: "3 weak results", state: "caution" },
 ];
@@ -101,7 +97,7 @@ export default function LandingHero() {
                 <span className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
                 <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
                 <span className="ml-2 text-xs font-medium text-muted">
-                  Name report
+                  Clearance report
                 </span>
               </div>
 
@@ -154,8 +150,8 @@ export default function LandingHero() {
                   className="animate-float glass-card flex items-center gap-2 px-3 py-2 shadow-lg"
                   style={{ animationDelay: `${i * 0.8}s` }}
                 >
-                  <span className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-brand-blue/30 to-brand-cyan/30 text-xs font-bold">
-                    {chip.badge}
+                  <span className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-brand-blue/30 to-brand-cyan/30 text-brand-cyan">
+                    <chip.Icon size={14} />
                   </span>
                   <span className="text-xs font-medium">{chip.name}</span>
                 </div>

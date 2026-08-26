@@ -15,12 +15,8 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   applicationName: config.appName,
-  icons: {
-    icon: config.brand.logo,
-    apple: config.brand.logo,
-  },
   title: {
-    default: `${config.appName} — Launch Your SaaS in Days. Not Months.`,
+    default: `${config.appName} — ${config.appDescription}`,
     template: `%s | ${config.appName}`,
   },
   description: config.appDescription,

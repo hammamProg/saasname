@@ -21,7 +21,7 @@ import {
 import CandidateList from "@/components/dashboard/CandidateList";
 import SearchProgress from "@/components/dashboard/SearchProgress";
 import NamingAnimation from "@/components/dashboard/NamingAnimation";
-import RunStepper, { type RunStep } from "@/components/dashboard/RunStepper";
+import StepHeader from "@/components/dashboard/RunStepper";
 import { cn } from "@/libs/cn";
 
 /** The surfaces a user picks from. `cross` is not offered directly -- it is
@@ -124,13 +124,11 @@ function PlatformChecklist({
         })}
       </div>
 
-      <p className="text-xs text-muted">
-        {selected.size === 0
-          ? "Pick at least one — it decides how much each source counts."
-          : selected.size > 1
-            ? "Multiple surfaces: every source is weighted evenly."
-            : "Sources are weighted for this surface."}
-      </p>
+      {selected.size === 0 && (
+        <p className="text-xs font-medium text-verdict-blocked">
+          Pick at least one — it decides how much each source counts.
+        </p>
+      )}
     </fieldset>
   );
 }
@@ -311,22 +309,12 @@ export default function GenerateForm({
     );
   }
 
-  const step: RunStep = finished
-    ? "done"
-    : run
-      ? "checking"
-      : loading
-        ? "generating"
-        : candidates && candidates.length > 0
-          ? "select"
-          : "idea";
-
   const busy = loading || checking || run !== null;
+  const showShortlist =
+    mode === "generate" && !run && !loading && !!candidates && candidates.length > 0;
 
   return (
     <section className="space-y-6">
-      <RunStepper current={step} direct={mode === "check"} />
-
       {run ? (
         <>
           <SearchProgress
@@ -350,9 +338,10 @@ export default function GenerateForm({
               : "Your report opens automatically when every source has answered."}
           </p>
         </>
-      ) : (
+      ) : showShortlist ? null : (
       <div className="card overflow-hidden">
         <div
+          hidden={loading}
           role="tablist"
           aria-label="How to start"
           className="m-4 flex gap-1 rounded-xl border border-border bg-surface p-1"
@@ -384,7 +373,8 @@ export default function GenerateForm({
         </div>
 
         {loading ? (
-          <div className="px-6 pb-6 pt-2">
+          <div className="space-y-5 px-6 pb-6 pt-2">
+            <StepHeader step="generating" mode="generate" />
             <NamingAnimation />
           </div>
         ) : mode === "generate" ? (
@@ -424,9 +414,6 @@ export default function GenerateForm({
                 placeholder="Ledgerloop"
                 className="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm transition-colors focus:border-primary/40 focus:outline-none focus:ring-4 focus:ring-primary-soft"
               />
-              <p className="text-xs text-muted">
-                We steer the candidates toward its sound and shape.
-              </p>
             </div>
 
             <PlatformChecklist selected={platforms} onToggle={togglePlatform} />
@@ -444,9 +431,7 @@ export default function GenerateForm({
                 )}
                 {loading ? "Generating…" : "Generate names"}
               </button>
-              <p className="text-xs text-muted">
-                Generating is free. You spend credits only when you check.
-              </p>
+              <p className="text-xs text-muted">Free — credits are spent at the check.</p>
             </div>
           </form>
         ) : (
@@ -470,12 +455,10 @@ export default function GenerateForm({
                 value={directNames}
                 onChange={(event) => setDirectNames(event.target.value)}
                 rows={3}
-                placeholder="Ledgerloop, Tallyhaus, Notchbook"
+                placeholder="Ledgerloop, Tallyhaus, Notchbook — commas or spaces"
                 className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm leading-relaxed transition-colors focus:border-primary/40 focus:outline-none focus:ring-4 focus:ring-primary-soft"
               />
-              <p className="text-xs text-muted">
-                Separate with commas or spaces.
-              </p>
+
             </div>
 
             <PlatformChecklist selected={platforms} onToggle={togglePlatform} />
@@ -535,7 +518,9 @@ export default function GenerateForm({
       )}
 
       {mode === "generate" && !run && candidates && candidates.length > 0 && (
-        <>
+        <div className="card space-y-5 p-6">
+          <StepHeader step="select" mode="generate" />
+
           <CandidateList
             candidates={candidates}
             selected={selected}
@@ -567,7 +552,7 @@ export default function GenerateForm({
             </button>
             <CostLine cost={selected.size} balance={balance} />
           </div>
-        </>
+        </div>
       )}
     </section>
   );

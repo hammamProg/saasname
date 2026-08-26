@@ -49,9 +49,9 @@ export default function PrivacyPolicyPage() {
           </li>
         </ul>
         <p>
-          We do not collect payment card details. Paddle acts as merchant of
-          record and handles payment directly; we receive only the fact of a
-          transaction and what it entitles you to.
+          We do not collect payment card details. Our payment processor acts as
+          merchant of record and handles payment directly; we receive only the
+          fact of a transaction and what it entitles you to.
         </p>
       </Section>
 
@@ -66,8 +66,8 @@ export default function PrivacyPolicyPage() {
 
       <Section heading="Who receives it">
         <p>
-          Every provider that receives any part of your data, and exactly what it
-          receives, is listed on the{" "}
+          Every category of recipient, and exactly what each one receives, is
+          listed on the{" "}
           <Link
             href="/confidentiality"
             className="font-semibold text-primary hover:underline"

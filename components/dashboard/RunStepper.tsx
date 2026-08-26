@@ -1,74 +1,66 @@
-import { Check, Loader2 } from "lucide-react";
 import { cn } from "@/libs/cn";
 
 export type RunStep = "idea" | "generating" | "select" | "checking" | "done";
 
-const STEPS: Array<{ id: RunStep; label: string }> = [
-  { id: "idea", label: "Your idea" },
-  { id: "generating", label: "Naming" },
-  { id: "select", label: "Shortlist" },
-  { id: "checking", label: "Checking" },
-  { id: "done", label: "Verdict" },
-];
+const FLOW: Record<"generate" | "check", RunStep[]> = {
+  generate: ["idea", "generating", "select", "checking"],
+  // Naming and shortlisting never run for a pasted name; showing them would
+  // misstate where the user is.
+  check: ["idea", "checking"],
+};
 
-/** Direct checks skip naming and shortlisting entirely; showing steps that
- *  will never run would misrepresent where the user is. */
-const DIRECT_STEPS: RunStep[] = ["idea", "checking", "done"];
+const LABELS: Record<RunStep, string> = {
+  idea: "Your idea",
+  generating: "Naming your idea",
+  select: "Choose what to check",
+  checking: "Checking every source",
+  done: "Done",
+};
 
-export default function RunStepper({
-  current,
-  direct = false,
+/**
+ * A one-line header for the step that is currently on screen.
+ *
+ * Deliberately not a five-chip rail: the rail was on the page before anything
+ * had started, competing with the form for attention and describing four steps
+ * that had not happened. Each panel now states only where you are.
+ */
+export default function StepHeader({
+  step,
+  mode,
+  className,
 }: {
-  current: RunStep;
-  direct?: boolean;
+  step: RunStep;
+  mode: "generate" | "check";
+  className?: string;
 }) {
-  const steps = direct
-    ? STEPS.filter((step) => DIRECT_STEPS.includes(step.id))
-    : STEPS;
-  const currentIndex = steps.findIndex((step) => step.id === current);
+  const flow = FLOW[mode];
+  const index = flow.indexOf(step);
+
+  if (index < 0) return null;
 
   return (
-    <ol className="flex items-center gap-2" aria-label="Progress">
-      {steps.map((step, index) => {
-        const state =
-          index < currentIndex ? "done" : index === currentIndex ? "active" : "todo";
-
-        return (
-          <li key={step.id} className="flex min-w-0 flex-1 items-center gap-2">
-            <div
-              className={cn(
-                "flex min-w-0 items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors",
-                state === "active"
-                  ? "border-primary/40 bg-primary-soft text-primary"
-                  : state === "done"
-                    ? "border-verdict-clear/30 bg-verdict-clear/10 text-verdict-clear"
-                    : "border-border bg-surface text-muted"
-              )}
-            >
-              <span className="flex h-4 w-4 shrink-0 items-center justify-center">
-                {state === "done" ? (
-                  <Check size={12} strokeWidth={3} aria-hidden="true" />
-                ) : state === "active" && current !== "done" ? (
-                  <Loader2 size={12} className="animate-spin" aria-hidden="true" />
-                ) : (
-                  <span className="text-[10px] tabular-nums">{index + 1}</span>
-                )}
-              </span>
-              <span className="truncate">{step.label}</span>
-            </div>
-
-            {index < steps.length - 1 && (
-              <span
-                aria-hidden="true"
-                className={cn(
-                  "h-px min-w-2 flex-1 transition-colors",
-                  index < currentIndex ? "bg-verdict-clear/40" : "bg-border"
-                )}
-              />
+    <div className={cn("space-y-2", className)}>
+      <div className="flex items-baseline justify-between gap-3">
+        <p className="text-sm font-bold">{LABELS[step]}</p>
+        <p className="text-xs font-medium tabular-nums text-muted">
+          Step {index + 1} of {flow.length}
+        </p>
+      </div>
+      <div className="flex gap-1" aria-hidden="true">
+        {flow.map((id, position) => (
+          <span
+            key={id}
+            className={cn(
+              "h-1 flex-1 rounded-full transition-colors",
+              position < index
+                ? "bg-verdict-clear/60"
+                : position === index
+                  ? "bg-primary"
+                  : "bg-border"
             )}
-          </li>
-        );
-      })}
-    </ol>
+          />
+        ))}
+      </div>
+    </div>
   );
 }

@@ -29,18 +29,14 @@ export default async function NewCheckPage({ searchParams }: NewCheckPageProps) 
         <h1 className="section-heading text-3xl font-extrabold md:text-4xl">
           New name check
         </h1>
-        <p className="text-muted">
-          Describe an idea and we will name it, or paste names you already have.
-          Every name is checked against six sources.
-        </p>
       </div>
-
-      <ConfidentialityNote />
 
       <GenerateForm
         balance={balance}
         initialMode={params.mode === "check" ? "check" : "generate"}
       />
+
+      <ConfidentialityNote />
     </div>
   );
 }

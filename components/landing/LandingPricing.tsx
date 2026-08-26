@@ -126,7 +126,7 @@ export default async function LandingPricing() {
 
         <div className="mt-8 flex items-center justify-center gap-2 text-xs text-muted">
           <ShieldCheck size={14} className="text-accent" />
-          Secure checkout via Paddle · VAT handled at checkout
+          Secure checkout · VAT handled at checkout
         </div>
       </div>
     </section>

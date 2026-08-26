@@ -11,58 +11,60 @@ export const metadata = getSEOTags({
   canonicalUrlRelative: "/confidentiality",
 });
 
-/** Every row here maps to real code. If a probe is added or removed, this
- *  table is part of the change, not a nice-to-have afterwards. */
-const SUBPROCESSORS = [
+/**
+ * Recipients by category, not by vendor.
+ *
+ * Naming the sources we check is the product — a buyer needs to know a claim
+ * about .com came from the registry and not from a guess. Naming the suppliers
+ * behind our own infrastructure is not; it tells a reader nothing about how
+ * their idea is treated and everything about how the service is built.
+ * Describing recipients by category is an accepted form of this disclosure.
+ */
+const RECIPIENTS = [
   {
-    who: "Supabase",
+    who: "Our database and sign-in provider",
     what: "Your account, ideas, candidate names and reports",
-    why: "Database and authentication. Row-level security scopes every read to your user id.",
+    why: "Stores your work and keeps you signed in. Access is restricted to your account at the database level.",
   },
   {
-    who: "DeepSeek",
+    who: "The model that writes names",
     what: "Your idea description, and candidate names",
-    why: "Writes the candidate names, and the one-sentence summary on each report.",
+    why: "Turns your description into candidates, and writes the one-sentence summary on each report.",
   },
   {
-    who: "Domain registries (RDAP)",
+    who: "Domain registries",
     what: "Candidate names only",
-    why: "Availability for .com, .io, .ai, .dev and .app.",
+    why: "Availability for .com, .io, .ai, .dev and .app, answered by the registries themselves.",
   },
   {
-    who: "USPTO",
+    who: "The US trademark register",
     what: "Candidate names only",
-    why: "Live US trademark records for the exact wordmark.",
+    why: "Live records for the exact wordmark.",
   },
   {
-    who: "Apple, Google Play",
+    who: "The Apple App Store and Google Play",
     what: "Candidate names only",
-    why: "Existing apps trading under the name.",
+    why: "Apps already trading under the name.",
   },
   {
-    who: "GitHub, X, LinkedIn",
+    who: "GitHub, X and LinkedIn",
     what: "Candidate names only",
     why: "Whether the handle is free.",
   },
   {
-    who: "Firecrawl",
+    who: "Our web search provider",
     what: "Candidate names only",
-    why: "Who already ranks for the name in web search.",
+    why: "Who already ranks for the name.",
   },
   {
-    who: "Paddle",
+    who: "Our payment processor",
     what: "Your email and payment details",
-    why: "Merchant of record. We never see or store your card.",
+    why: "Takes payment as merchant of record. We never see or store your card.",
   },
   {
-    who: "Resend",
-    what: "Your email address",
-    why: "Sign-in links and account email.",
-  },
-  {
-    who: "Vercel",
-    what: "Request logs",
-    why: "Hosting.",
+    who: "Our email and hosting providers",
+    what: "Your email address, and ordinary request logs",
+    why: "Sign-in links, account email, and running the site.",
   },
 ];
 
@@ -70,7 +72,7 @@ const GUARANTEES = [
   {
     icon: Lock,
     title: "Only you can read your reports",
-    body: "Access is enforced by row-level security in the database itself, not by application code that could be bypassed. A query for someone else's report returns nothing.",
+    body: "Access is enforced by the database itself, not by application code that could be bypassed. A query for someone else's report returns nothing.",
   },
   {
     icon: Share2,
@@ -144,13 +146,13 @@ export default function ConfidentialityPage() {
         </ul>
       </Section>
 
-      <Section heading="Everyone who touches your data">
+      <Section heading="Who receives what">
         <div className="not-prose overflow-x-auto rounded-xl border border-border">
           <table className="w-full min-w-[560px] text-left text-sm">
             <thead>
               <tr className="border-b border-border bg-surface/60">
                 <th scope="col" className="px-4 py-3 font-semibold text-foreground">
-                  Provider
+                  Recipient
                 </th>
                 <th scope="col" className="px-4 py-3 font-semibold text-foreground">
                   Receives
@@ -161,7 +163,7 @@ export default function ConfidentialityPage() {
               </tr>
             </thead>
             <tbody>
-              {SUBPROCESSORS.map((row) => (
+              {RECIPIENTS.map((row) => (
                 <tr key={row.who} className="border-b border-border/60 last:border-0">
                   <td className="px-4 py-3 font-semibold text-foreground">{row.who}</td>
                   <td className="px-4 py-3">{row.what}</td>
@@ -172,19 +174,20 @@ export default function ConfidentialityPage() {
           </table>
         </div>
         <p className="text-sm">
-          Each provider handles what it receives under its own terms. We choose
-          them, and we are answerable for that choice — but we cannot promise
-          you what a third party has not promised us, so we do not.
+          Each recipient handles what it receives under its own terms. We choose
+          them and we are answerable for that choice — but we cannot promise you
+          what a third party has not promised us, so we do not. Named suppliers
+          are available to customers on request.
         </p>
       </Section>
 
       <Section heading="How access is actually enforced">
         <p>
-          Claims about privacy are cheap; the question is what stops it. Reports,
-          candidate names and individual checks each carry a database policy
-          restricting rows to the signed-in user&apos;s id. This runs inside
-          Postgres, below the application, so a bug in our code cannot hand you
-          someone else&apos;s report.
+          Claims about privacy are cheap; the question is what enforces them.
+          Reports, candidate names and individual checks each carry a database
+          rule restricting them to the account that created them. That rule runs
+          below the application, so a bug in our code cannot hand you someone
+          else&apos;s report.
         </p>
         <p>
           Sharing requires two separate conditions to be true at once — the

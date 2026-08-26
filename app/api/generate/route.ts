@@ -10,7 +10,9 @@ import {
 
 export const dynamic = "force-dynamic";
 /** Two model calls worst case at 15s each, plus overhead. */
-export const maxDuration = 40;
+/** Two provider calls at the 30s adapter timeout, plus parsing. Generation
+ *  retries once when the first batch comes back short. */
+export const maxDuration = 75;
 
 const IDEA_MIN_LENGTH = 10;
 const IDEA_MAX_LENGTH = 500;
@@ -94,8 +96,17 @@ export async function POST(request: Request) {
     );
 
     if (error instanceof LlmError) {
+      // A timeout is worth distinguishing: the user should retry immediately,
+      // whereas a provider outage means waiting. The upstream message itself
+      // stays server-side -- it can carry provider detail.
+      const timedOut = error.message.includes("timed out");
+
       return NextResponse.json(
-        { error: "Could not generate names right now. Please try again." },
+        {
+          error: timedOut
+            ? "Naming took longer than usual. Try again — it usually works on the second attempt."
+            : "Could not generate names right now. Please try again in a moment.",
+        },
         { status: 502 }
       );
     }

@@ -61,15 +61,15 @@ ${packs
   .map((pack) => `- ${pack.name}: ${pack.credits} credits. ${pack.description}`)
   .join("\n")}
 
-Live prices are shown at ${siteUrl}/#pricing and charged by Paddle as merchant
-of record.
+Live prices are shown at ${siteUrl}/#pricing and charged by our payment
+processor as merchant of record.
 
 ## Confidentiality
 
-Reports are readable only by the account that created them, enforced by
-row-level security in Postgres. Sharing is opt-in per report, revocable, and
-noindexed. Ideas are never sold or used to train models. Every third party that
-receives any data is listed at ${siteUrl}/confidentiality, and a standing NDA is
+Reports are readable only by the account that created them, enforced by the
+database below the application rather than by application code. Sharing is opt-in per report, revocable, and
+noindexed. Ideas are never sold or used to train models. Every category of recipient
+is listed at ${siteUrl}/confidentiality, and a standing NDA is
 published at ${siteUrl}/nda.
 
 ## Pages

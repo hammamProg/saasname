@@ -5,7 +5,12 @@ import {
 } from "@/libs/llm/provider";
 
 const DEEPSEEK_BASE_URL = "https://api.deepseek.com";
-const DEFAULT_TIMEOUT_MS = 15_000;
+/** Latency here is as unstable as the reasoning-token count that drives it.
+ *  The same prompt was measured at 4.5s, 5.7s and 6.3s for 259, 332 and 511
+ *  reasoning tokens; the documented ceiling of ~900 tokens lands well past 15s.
+ *  A cap near the median turns a slow-but-fine call into an error the user
+ *  sees, so this is set for the tail, not the median. */
+const DEFAULT_TIMEOUT_MS = 30_000;
 /** Upstream error bodies are truncated before they reach a log line. */
 const MAX_DETAIL_CHARS = 200;
 

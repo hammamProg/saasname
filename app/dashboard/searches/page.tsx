@@ -1,27 +1,17 @@
 import Link from "next/link";
-import { Search } from "lucide-react";
+import { FileSearch } from "lucide-react";
 import { createClient } from "@/libs/supabase/server";
 import { requireUser } from "@/libs/supabase/require-user";
 import { getSEOTags } from "@/libs/seo";
-import VerdictBadge from "@/components/dashboard/VerdictBadge";
-import type { Verdict } from "@/libs/scoring/verdict";
+import ReportsTable, { type ReportRow } from "@/components/dashboard/ReportsTable";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = getSEOTags({
-  title: "Clearance reports",
+  title: "Reports",
   description: "Every name check you have run.",
   canonicalUrlRelative: "/dashboard/searches",
 });
-
-type SearchRow = {
-  id: string;
-  idea_text: string | null;
-  status: string;
-  credits_spent: number;
-  created_at: string;
-  candidates: Array<{ name: string; verdict: Verdict | null }>;
-};
 
 export default async function SearchesPage() {
   await requireUser();
@@ -33,83 +23,47 @@ export default async function SearchesPage() {
     .order("created_at", { ascending: false })
     .limit(50);
 
-  const rows = (data ?? []) as unknown as SearchRow[];
+  const rows = (data ?? []) as unknown as ReportRow[];
 
   return (
     <div className="space-y-8">
-      <div className="space-y-2">
-        <h1 className="section-heading text-3xl font-extrabold md:text-4xl">
-          Clearance reports
-        </h1>
-        <p className="text-muted">Every name check you have run.</p>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="space-y-2">
+          <h1 className="section-heading text-3xl font-extrabold md:text-4xl">
+            Reports
+          </h1>
+          <p className="text-muted">
+            {rows.length === 0
+              ? "Every name check you run is kept here."
+              : `${rows.length} ${rows.length === 1 ? "report" : "reports"}, newest first.`}
+          </p>
+        </div>
+
+        <Link
+          href="/dashboard/new"
+          className="btn-primary rounded-xl px-4 py-2.5 text-sm font-bold"
+        >
+          New check
+        </Link>
       </div>
 
       {rows.length === 0 ? (
-        <div className="card flex flex-col items-center gap-3 p-10 text-center">
-          <Search size={24} className="text-muted" aria-hidden="true" />
-          <p className="text-sm text-muted">
+        <div className="card flex flex-col items-center gap-3 p-12 text-center">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-soft text-primary">
+            <FileSearch size={22} aria-hidden="true" />
+          </span>
+          <p className="max-w-sm text-sm text-muted">
             No reports yet. Name an idea, or check a name you already have.
           </p>
           <Link
             href="/dashboard/new"
-            className="btn-primary rounded-xl px-4 py-2 text-sm font-bold"
+            className="btn-primary mt-1 rounded-xl px-4 py-2 text-sm font-bold"
           >
             New name check
           </Link>
         </div>
       ) : (
-        <ul className="space-y-3">
-          {rows.map((row) => {
-            // Best verdict first so the row leads with the usable name, which
-            // is what someone scanning their history is looking for.
-            const best = row.candidates
-              .filter((c) => c.verdict === "clear")
-              .map((c) => c.name);
-
-            return (
-              <li key={row.id}>
-                <Link
-                  href={`/dashboard/searches/${row.id}`}
-                  className="card flex flex-col gap-2 p-5 transition-colors hover:border-primary/25"
-                >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <p className="min-w-0 flex-1 truncate text-sm font-semibold">
-                      {row.idea_text ?? "Direct name check"}
-                    </p>
-                    <time
-                      dateTime={row.created_at}
-                      className="shrink-0 text-xs text-muted"
-                    >
-                      {new Date(row.created_at).toLocaleDateString()}
-                    </time>
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-2">
-                    {row.status !== "complete" && row.status !== "failed" && (
-                      <span className="text-xs font-semibold text-primary">
-                        Still running…
-                      </span>
-                    )}
-                    {best.length > 0 ? (
-                      <>
-                        <VerdictBadge verdict="clear" size="sm" />
-                        <span className="text-xs text-muted">
-                          {best.slice(0, 3).join(", ")}
-                          {best.length > 3 ? ` +${best.length - 3}` : ""}
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-xs text-muted">
-                        {row.candidates.length}{" "}
-                        {row.candidates.length === 1 ? "name" : "names"} checked
-                      </span>
-                    )}
-                  </div>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+        <ReportsTable rows={rows} />
       )}
     </div>
   );

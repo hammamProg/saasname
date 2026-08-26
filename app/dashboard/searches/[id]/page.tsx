@@ -1,6 +1,4 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/libs/supabase/server";
 import { requireUser } from "@/libs/supabase/require-user";
 import { getSEOTags } from "@/libs/seo";
@@ -91,13 +89,6 @@ export default async function SearchReportPage({
   return (
     <div className="space-y-8">
       <div className="space-y-2">
-        <Link
-          href="/dashboard"
-          className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-foreground"
-        >
-          <ArrowLeft size={14} aria-hidden="true" />
-          Back to dashboard
-        </Link>
         <h1 className="section-heading text-3xl font-extrabold md:text-4xl">
           Clearance report
         </h1>

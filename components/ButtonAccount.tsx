@@ -2,13 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import {
-  ChevronDown,
-  CreditCard,
-  LayoutDashboard,
-  Loader2,
-  LogOut,
-} from "lucide-react";
+import { ChevronDown, CreditCard, Globe, Loader2, LogOut } from "lucide-react";
 import { createClient } from "@/libs/supabase/client";
 import { useUser } from "@/components/Providers";
 import ButtonSignin from "@/components/ButtonSignin";
@@ -169,13 +163,13 @@ export default function ButtonAccount({ variant = "default" }: ButtonAccountProp
           )}
         >
           <Link
-            href="/dashboard"
+            href="/"
             role="menuitem"
             className={cn(itemClass, "rounded-lg")}
             onClick={() => setOpen(false)}
           >
-            <LayoutDashboard size={18} className="shrink-0" aria-hidden="true" />
-            <span>Dashboard</span>
+            <Globe size={18} className="shrink-0" aria-hidden="true" />
+            <span>View site</span>
           </Link>
           <button
             type="button"

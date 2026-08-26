@@ -65,6 +65,15 @@ function parseNames(raw: string): string[] {
   return [...new Set(parts)];
 }
 
+/**
+ * A real checkbox group, without a real `<input type="checkbox">`.
+ *
+ * The input was previously hidden with `sr-only`, which clips to a 1px box.
+ * Safari renders form controls at their intrinsic size regardless of that
+ * clip, so every chip drew the native macOS checkbox next to the styled one.
+ * `role="checkbox"` on a button is announced identically and has no native
+ * chrome to leak, so there is nothing left to hide.
+ */
 function PlatformChecklist({
   selected,
   onToggle,
@@ -73,43 +82,45 @@ function PlatformChecklist({
   onToggle: (id: PlatformChoice) => void;
 }) {
   return (
-    <fieldset className="space-y-1.5">
-      <legend className="text-sm font-semibold">Where will it live?</legend>
-      <div className="flex flex-wrap gap-2 pt-1">
+    <fieldset className="space-y-2">
+      <legend className="mb-2 text-sm font-semibold">Where will it live?</legend>
+
+      <div className="grid gap-2 sm:grid-cols-3" role="group">
         {PLATFORM_CHOICES.map((choice) => {
           const checked = selected.has(choice.id);
 
           return (
-            <label
+            <button
               key={choice.id}
+              type="button"
+              role="checkbox"
+              aria-checked={checked}
+              onClick={() => onToggle(choice.id)}
               className={cn(
-                "flex cursor-pointer items-center gap-2 rounded-xl border px-3.5 py-2 text-sm font-medium transition-colors",
+                "flex items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-semibold transition-all",
                 checked
-                  ? "border-primary/40 bg-primary-soft text-primary"
-                  : "border-border bg-surface text-muted hover:text-foreground"
+                  ? "border-primary/50 bg-primary-soft text-primary shadow-sm"
+                  : "border-border bg-surface text-muted hover:border-primary/25 hover:text-foreground"
               )}
             >
-              <input
-                type="checkbox"
-                className="sr-only"
-                checked={checked}
-                onChange={() => onToggle(choice.id)}
-              />
               <span
                 aria-hidden="true"
                 className={cn(
-                  "flex h-4 w-4 items-center justify-center rounded border transition-colors",
-                  checked ? "border-primary bg-primary text-white" : "border-border bg-card"
+                  "flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-md border transition-colors",
+                  checked
+                    ? "border-primary bg-primary text-white"
+                    : "border-border bg-card"
                 )}
               >
-                {checked && <Check size={11} strokeWidth={3.5} />}
+                {checked && <Check size={12} strokeWidth={3.5} />}
               </span>
-              <choice.Icon size={15} className="shrink-0" />
-              {choice.label}
-            </label>
+              <choice.Icon size={16} className="shrink-0" />
+              <span>{choice.label}</span>
+            </button>
           );
         })}
       </div>
+
       <p className="text-xs text-muted">
         {selected.size === 0
           ? "Pick at least one — it decides how much each source counts."
@@ -296,7 +307,7 @@ export default function GenerateForm({
         <div
           role="tablist"
           aria-label="How to start"
-          className="flex gap-1 border-b border-border bg-surface/60 p-1.5"
+          className="m-4 flex gap-1 rounded-xl border border-border bg-surface p-1"
         >
           {(
             [
@@ -311,10 +322,10 @@ export default function GenerateForm({
               aria-selected={mode === tab.id}
               onClick={() => switchMode(tab.id)}
               className={cn(
-                "flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors",
+                "flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all",
                 mode === tab.id
-                  ? "bg-card text-primary shadow-sm"
-                  : "text-muted hover:text-foreground"
+                  ? "bg-card text-primary shadow-sm ring-1 ring-primary/15"
+                  : "text-muted hover:bg-card/50 hover:text-foreground"
               )}
             >
               <tab.icon size={15} aria-hidden="true" />
@@ -324,11 +335,18 @@ export default function GenerateForm({
         </div>
 
         {mode === "generate" ? (
-          <form onSubmit={handleGenerate} className="space-y-4 p-6">
+          <form onSubmit={handleGenerate} className="space-y-5 px-6 pb-6 pt-2">
             <div className="space-y-1.5">
-              <label htmlFor="idea" className="text-sm font-semibold">
-                Describe your idea
-              </label>
+              <div className="flex items-baseline justify-between gap-3">
+                <label htmlFor="idea" className="text-sm font-semibold">
+                  Describe your idea
+                </label>
+                <span className="text-xs tabular-nums text-muted">
+                  {tooShort && idea.length > 0
+                    ? `${IDEA_MIN_LENGTH - idea.trim().length} more characters`
+                    : `${idea.trim().length}/${IDEA_MAX_LENGTH}`}
+                </span>
+              </div>
               <textarea
                 id="idea"
                 value={idea}
@@ -336,42 +354,35 @@ export default function GenerateForm({
                 maxLength={IDEA_MAX_LENGTH}
                 rows={3}
                 placeholder="A tool that checks whether a SaaS name is actually free to use."
-                className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm transition-colors focus:border-primary/40 focus:outline-none"
+                className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm leading-relaxed transition-colors focus:border-primary/40 focus:outline-none focus:ring-4 focus:ring-primary-soft"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label htmlFor="seedName" className="text-sm font-semibold">
+                A name you already like{" "}
+                <span className="font-normal text-muted">(optional)</span>
+              </label>
+              <input
+                id="seedName"
+                value={seedName}
+                onChange={(event) => setSeedName(event.target.value)}
+                maxLength={SEED_MAX_LENGTH}
+                placeholder="Ledgerloop"
+                className="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm transition-colors focus:border-primary/40 focus:outline-none focus:ring-4 focus:ring-primary-soft"
               />
               <p className="text-xs text-muted">
-                {idea.trim().length}/{IDEA_MAX_LENGTH}
-                {tooShort && idea.length > 0 && (
-                  <span className="ml-2">
-                    · at least {IDEA_MIN_LENGTH} characters
-                  </span>
-                )}
+                We steer the candidates toward its sound and shape.
               </p>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <label htmlFor="seedName" className="text-sm font-semibold">
-                  A name you already like{" "}
-                  <span className="font-normal text-muted">(optional)</span>
-                </label>
-                <input
-                  id="seedName"
-                  value={seedName}
-                  onChange={(event) => setSeedName(event.target.value)}
-                  maxLength={SEED_MAX_LENGTH}
-                  placeholder="Ledgerloop"
-                  className="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm transition-colors focus:border-primary/40 focus:outline-none"
-                />
-              </div>
-
-              <PlatformChecklist selected={platforms} onToggle={togglePlatform} />
-            </div>
+            <PlatformChecklist selected={platforms} onToggle={togglePlatform} />
 
             <div className="flex flex-wrap items-center gap-3 pt-1">
               <button
                 type="submit"
                 disabled={loading || tooShort || noPlatform}
-                className="btn-primary rounded-xl px-5 py-2.5 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-60"
+                className="btn-primary rounded-xl px-5 py-2.5 text-sm font-bold"
               >
                 {loading ? (
                   <Loader2 size={16} className="animate-spin" aria-hidden="true" />
@@ -386,26 +397,31 @@ export default function GenerateForm({
             </div>
           </form>
         ) : (
-          <form onSubmit={handleCheckDirect} className="space-y-4 p-6">
+          <form onSubmit={handleCheckDirect} className="space-y-5 px-6 pb-6 pt-2">
             <div className="space-y-1.5">
-              <label htmlFor="directNames" className="text-sm font-semibold">
-                Names to check
-              </label>
+              <div className="flex items-baseline justify-between gap-3">
+                <label htmlFor="directNames" className="text-sm font-semibold">
+                  Names to check
+                </label>
+                <span
+                  className={cn(
+                    "text-xs tabular-nums",
+                    tooManyNames ? "font-semibold text-verdict-blocked" : "text-muted"
+                  )}
+                >
+                  {parsedNames.length}/{MAX_NAMES}
+                </span>
+              </div>
               <textarea
                 id="directNames"
                 value={directNames}
                 onChange={(event) => setDirectNames(event.target.value)}
                 rows={3}
                 placeholder="Ledgerloop, Tallyhaus, Notchbook"
-                className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm transition-colors focus:border-primary/40 focus:outline-none"
+                className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm leading-relaxed transition-colors focus:border-primary/40 focus:outline-none focus:ring-4 focus:ring-primary-soft"
               />
               <p className="text-xs text-muted">
-                Separate with commas or spaces. Up to {MAX_NAMES} at a time.
-                {parsedNames.length > 0 && (
-                  <span className={cn("ml-2", tooManyNames && "text-verdict-blocked")}>
-                    · {parsedNames.length} entered
-                  </span>
-                )}
+                Separate with commas or spaces.
               </p>
             </div>
 
@@ -422,7 +438,7 @@ export default function GenerateForm({
                   noPlatform ||
                   parsedNames.length > balance
                 }
-                className="btn-primary rounded-xl px-5 py-2.5 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-60"
+                className="btn-primary rounded-xl px-5 py-2.5 text-sm font-bold"
               >
                 {checking ? (
                   <Loader2 size={16} className="animate-spin" aria-hidden="true" />
@@ -484,7 +500,7 @@ export default function GenerateForm({
               type="button"
               onClick={handleCheckGenerated}
               disabled={checking || selected.size === 0 || selected.size > balance}
-              className="btn-primary rounded-xl px-5 py-2.5 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-60"
+              className="btn-primary rounded-xl px-5 py-2.5 text-sm font-bold"
             >
               {checking ? (
                 <Loader2 size={16} className="animate-spin" aria-hidden="true" />

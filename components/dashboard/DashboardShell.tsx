@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import BrandLogo from "@/components/BrandLogo";
 import ButtonAccount from "@/components/ButtonAccount";
@@ -107,12 +106,6 @@ export default function DashboardShell({
             <div className="lg:hidden">
               <BrandLogo size="md" href="/dashboard" />
             </div>
-            <Link
-              href="/"
-              className="hidden text-xs font-medium text-muted transition-colors hover:text-primary lg:inline"
-            >
-              ← Back to site
-            </Link>
           </div>
 
           {credits}
@@ -129,11 +122,6 @@ export default function DashboardShell({
           </div>
         </main>
 
-        <footer className="border-t border-border bg-card/50 px-4 py-3 lg:hidden">
-          <Link href="/" className="text-xs text-muted transition-colors hover:text-primary">
-            ← Back to marketing site
-          </Link>
-        </footer>
       </div>
       </div>
     </DashboardAccessProvider>

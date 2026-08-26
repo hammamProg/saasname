@@ -1,5 +1,3 @@
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import { requireUser } from "@/libs/supabase/require-user";
 import { getCreditBalance } from "@/libs/credits/balance";
 import { getSEOTags } from "@/libs/seo";
@@ -25,15 +23,8 @@ export default async function NewCheckPage({ searchParams }: NewCheckPageProps) 
   ]);
 
   return (
-    <div className="space-y-8">
+    <div className="mx-auto max-w-3xl space-y-8">
       <div className="space-y-2">
-        <Link
-          href="/dashboard"
-          className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted transition-colors hover:text-primary"
-        >
-          <ArrowLeft size={15} aria-hidden="true" />
-          Back to dashboard
-        </Link>
         <h1 className="section-heading text-3xl font-extrabold md:text-4xl">
           New name check
         </h1>

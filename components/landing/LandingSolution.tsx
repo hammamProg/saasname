@@ -93,7 +93,7 @@ export default function LandingSolution() {
               key={feature.title}
               className="glass-card glass-card-hover group p-6"
             >
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-brand-blue/25 via-brand-cyan/20 to-brand-violet/10 text-accent transition-transform group-hover:scale-110">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary-soft text-primary transition-transform group-hover:scale-110">
                 <feature.icon size={20} />
               </div>
               <h3 className="mt-4 font-bold leading-snug">{feature.title}</h3>

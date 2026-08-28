@@ -19,7 +19,12 @@ import AdvancedOptions, {
 } from "@/components/dashboard/generate/AdvancedOptions";
 import StylePicker from "@/components/dashboard/generate/StylePicker";
 import RegenerateChips from "@/components/dashboard/generate/RegenerateChips";
-import { trackGenerateStyleSelected } from "@/libs/analytics";
+import {
+  trackGenerateStyleSelected,
+  trackNameCheckStarted,
+  trackNameGenerationCompleted,
+  trackNameGenerationStarted,
+} from "@/libs/analytics";
 import CandidateList from "@/components/dashboard/CandidateList";
 import SearchProgress from "@/components/dashboard/SearchProgress";
 import NamingAnimation from "@/components/dashboard/NamingAnimation";
@@ -152,6 +157,8 @@ export default function GenerateForm({
 
     const previous = candidates ?? [];
 
+    trackNameGenerationStarted(styleId, targetPlatform, isRetry);
+
     if (!isRetry) {
       setCandidates(null);
       setSelected(new Set());
@@ -170,6 +177,7 @@ export default function GenerateForm({
 
       setCandidates(next);
       setSelected(new Set(next.map((c) => c.normalizedName)));
+      trackNameGenerationCompleted(styleId, targetPlatform, next.length);
     } catch (caught) {
       setError(
         caught instanceof ApiError
@@ -197,6 +205,10 @@ export default function GenerateForm({
     payload: Record<string, unknown>,
     onFailure: () => void
   ) {
+    const candidateCount = Array.isArray(payload.candidates) ? payload.candidates.length : 0;
+    const searchMode = payload.mode === "check" ? "check" : "generate";
+
+    trackNameCheckStarted(searchMode, targetPlatform, candidateCount);
     setChecking(true);
     setError(null);
 

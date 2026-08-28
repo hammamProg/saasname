@@ -1,7 +1,8 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { User } from "@supabase/supabase-js";
+import posthog from "posthog-js";
 import { createClient } from "@/libs/supabase/client";
 
 type AuthConfig = {
@@ -42,6 +43,7 @@ export default function Providers({
   // Auth being disabled is knowable during render, so the null user is derived
   // rather than written back through an effect on every mount.
   const [signedInUser, setSignedInUser] = useState<User | null>(initialUser);
+  const identifiedUserId = useRef<string | null>(null);
   const user = authEnabled ? signedInUser : null;
   const supabase = useMemo(() => {
     if (!authEnabled) {
@@ -55,14 +57,42 @@ export default function Providers({
       return;
     }
 
+    const identifyUser = (currentUser: User) => {
+      if (identifiedUserId.current === currentUser.id) {
+        return;
+      }
+
+      if (identifiedUserId.current) {
+        posthog.reset();
+      }
+
+      const name = currentUser.user_metadata.full_name;
+      posthog.identify(currentUser.id, {
+        email: currentUser.email,
+        ...(typeof name === "string" ? { name } : {}),
+      });
+      identifiedUserId.current = currentUser.id;
+    };
+
     supabase.auth.getUser().then(({ data: { user: currentUser } }) => {
       setSignedInUser(currentUser);
+      if (currentUser) {
+        identifyUser(currentUser);
+      }
     });
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSignedInUser(session?.user ?? null);
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      const currentUser = session?.user ?? null;
+      setSignedInUser(currentUser);
+
+      if (currentUser) {
+        identifyUser(currentUser);
+      } else if (event === "SIGNED_OUT") {
+        posthog.reset();
+        identifiedUserId.current = null;
+      }
     });
 
     return () => subscription.unsubscribe();

@@ -8,6 +8,7 @@ import { useUser } from "@/components/Providers";
 import ButtonSignin from "@/components/ButtonSignin";
 import apiClient, { ApiError } from "@/libs/api";
 import { cn } from "@/libs/cn";
+import { trackBillingPortalOpened, trackUserSignedOut } from "@/libs/analytics";
 
 type ButtonAccountProps = {
   variant?: "default" | "sidebar";
@@ -67,6 +68,7 @@ export default function ButtonAccount({ variant = "default" }: ButtonAccountProp
   const initial = name.charAt(0).toUpperCase();
 
   const handleSignOut = async () => {
+    trackUserSignedOut();
     const supabase = createClient();
     await supabase.auth.signOut();
     window.location.href = "/";
@@ -77,6 +79,7 @@ export default function ButtonAccount({ variant = "default" }: ButtonAccountProp
 
     try {
       const { url } = await apiClient.post<{ url: string }>("/paddle/portal", {});
+      trackBillingPortalOpened();
       window.location.href = url;
     } catch (error) {
       if (error instanceof ApiError && error.status === 404) {

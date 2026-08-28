@@ -17,7 +17,7 @@ const sources = [
     name: "RDAP",
     short: "RDAP",
     role: "Domain registries",
-    color: "from-cyan-500/25 to-blue-500/10",
+    color: "bg-sky-50",
     detail:
       "Availability for .com, .io, .ai, .dev and .app is read from the registries' own RDAP servers. A registry we cannot reach is reported as unknown rather than guessed as free.",
   },
@@ -27,7 +27,7 @@ const sources = [
     name: "USPTO",
     short: "USPTO",
     role: "US trademark register",
-    color: "from-violet-500/25 to-purple-500/10",
+    color: "bg-violet-50",
     detail:
       "Live marks matching the candidate are surfaced with a link to the record. This is a screening signal, not legal advice — a lawyer still clears the class.",
   },
@@ -37,7 +37,7 @@ const sources = [
     name: "App Store",
     short: "iOS",
     role: "iOS listings",
-    color: "from-white/20 to-white/5",
+    color: "bg-slate-50",
     detail:
       "Apps already shipping under the name. The one source founders remember only after they have printed the logo.",
   },
@@ -47,7 +47,7 @@ const sources = [
     name: "Google Play",
     short: "Play",
     role: "Android listings",
-    color: "from-emerald-500/25 to-green-500/10",
+    color: "bg-emerald-50",
     detail:
       "The Android half of the same question, checked separately because the two stores routinely disagree.",
   },
@@ -57,7 +57,7 @@ const sources = [
     name: "Handles",
     short: "Social",
     role: "GitHub · X · LinkedIn",
-    color: "from-blue-500/25 to-indigo-500/10",
+    color: "bg-indigo-50",
     detail:
       "Only platforms where a 404 genuinely distinguishes a free handle. Where a site answers identically for taken and free names, we report unknown instead of inventing an answer.",
   },
@@ -67,7 +67,7 @@ const sources = [
     name: "Web",
     short: "Web",
     role: "Search presence",
-    color: "from-amber-500/25 to-orange-500/10",
+    color: "bg-amber-50",
     detail:
       "Who already ranks for the term, and how strongly. A free domain means little if page one belongs to someone else.",
   },
@@ -87,14 +87,14 @@ export default function LandingSources() {
         />
 
         <div className="mt-16 grid gap-8 lg:grid-cols-2">
-          <div className="relative flex min-h-[320px] items-center justify-center rounded-2xl border border-white/10 bg-black/30 p-8">
+          <div className="relative flex min-h-[320px] items-center justify-center rounded-2xl border border-border bg-surface p-8">
             <div className="absolute inset-0 flex items-center justify-center" aria-hidden>
-              <div className="h-48 w-48 rounded-full border border-dashed border-white/10" />
-              <div className="absolute h-72 w-72 rounded-full border border-dashed border-white/5" />
+              <div className="h-48 w-48 rounded-full border border-dashed border-border" />
+              <div className="absolute h-72 w-72 rounded-full border border-dashed border-border" />
             </div>
 
-            <div className="relative z-10 flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-blue via-brand-cyan to-brand-violet p-px shadow-lg shadow-brand-blue/30">
-              <div className="flex h-full w-full items-center justify-center rounded-2xl bg-black px-2 text-center text-[11px] font-bold leading-tight">
+            <div className="relative z-10 flex h-24 w-24 items-center justify-center rounded-2xl border border-primary/25 bg-primary-soft p-px">
+              <div className="flex h-full w-full items-center justify-center rounded-2xl bg-card px-2 text-center text-[11px] font-bold leading-tight text-primary">
                 {config.appName}
               </div>
             </div>
@@ -112,8 +112,8 @@ export default function LandingSources() {
                   onClick={() => setActive(item.id)}
                   className={`absolute flex h-16 w-16 flex-col items-center justify-center gap-1 rounded-xl border px-1 text-center text-[10px] font-bold leading-tight transition-all ${
                     active === item.id
-                      ? "scale-110 border-brand-cyan/50 bg-brand-blue/20 shadow-lg shadow-brand-blue/20"
-                      : "border-white/10 bg-white/5 hover:border-white/20"
+                      ? "scale-110 border-primary/40 bg-primary-soft text-primary shadow-sm"
+                      : "border-border bg-card hover:border-primary/30"
                   }`}
                   style={{ transform: `translate(${x}px, ${y}px)` }}
                   title={item.name}
@@ -126,7 +126,7 @@ export default function LandingSources() {
           </div>
 
           <div className="flex flex-col justify-center">
-            <div className={`rounded-2xl bg-gradient-to-br ${selected.color} p-8 glass-card`}>
+            <div className={`rounded-2xl border border-border p-8 ${selected.color}`}>
               <p className="text-xs font-semibold uppercase tracking-wider text-accent">
                 Checked on every search
               </p>
@@ -143,8 +143,8 @@ export default function LandingSources() {
                   onClick={() => setActive(item.id)}
                   className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
                     active === item.id
-                      ? "border-brand-cyan/50 bg-brand-blue/15 text-foreground"
-                      : "border-white/10 text-muted hover:text-foreground"
+                      ? "border-primary/40 bg-primary-soft text-primary"
+                      : "border-border text-muted hover:text-foreground"
                   }`}
                 >
                   {item.name}

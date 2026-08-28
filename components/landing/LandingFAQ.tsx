@@ -17,7 +17,7 @@ export default function LandingFAQ() {
           subtitle="What the checks cover, and what they deliberately do not."
         />
 
-        <div className="mt-12 divide-y divide-white/10">
+        <div className="mt-12 divide-y divide-border">
           {LANDING_FAQS.map((faq, index) => {
             const isOpen = openIndex === index;
             return (

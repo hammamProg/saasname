@@ -29,7 +29,7 @@ export default function LandingProblem() {
                 key={point}
                 className="glass-card glass-card-hover flex items-start gap-3 p-4"
               >
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-red-500/15 text-red-400">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-600">
                   <X size={12} strokeWidth={3} />
                 </span>
                 <span className="text-sm font-medium">{point}</span>
@@ -38,8 +38,8 @@ export default function LandingProblem() {
           </div>
 
           <div className="flex flex-col justify-center gap-6">
-            <div className="glass-card border-red-500/20 p-6">
-              <p className="text-xs font-semibold uppercase tracking-wider text-red-400">
+            <div className="rounded-2xl border border-red-200 bg-red-50/50 p-6">
+              <p className="text-xs font-semibold uppercase tracking-wider text-red-600">
                 Checking by hand
               </p>
               <p className="mt-2 text-4xl font-extrabold tracking-tight">
@@ -51,10 +51,9 @@ export default function LandingProblem() {
               </p>
             </div>
 
-            <div className="relative glass-card border-emerald-500/25 p-6 shadow-lg shadow-emerald-500/10">
-              <div className="absolute -inset-px rounded-2xl bg-gradient-to-r from-brand-blue/25 via-brand-cyan/20 to-brand-violet/10 opacity-50 blur-sm" />
+            <div className="relative rounded-2xl border border-emerald-200 bg-emerald-50/60 p-6">
               <div className="relative">
-                <p className="text-xs font-semibold uppercase tracking-wider text-emerald-400">
+                <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700">
                   With a report
                 </p>
                 <p className="mt-2 text-4xl font-extrabold tracking-tight gradient-text">

@@ -32,7 +32,7 @@ export default function LandingHero() {
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid items-center gap-16 lg:grid-cols-2 lg:gap-12">
           <div className="animate-fade-up space-y-8">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-accent backdrop-blur-sm">
+            <div className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-accent backdrop-blur-sm">
               <Sparkles size={14} />
               Name research for founders
             </div>
@@ -65,7 +65,7 @@ export default function LandingHero() {
             <ul className="flex flex-wrap gap-x-6 gap-y-2 pt-2">
               {trustBadges.map((badge) => (
                 <li key={badge} className="flex items-center gap-2 text-sm text-muted">
-                  <Check size={16} className="shrink-0 text-brand-cyan" />
+                  <Check size={16} className="shrink-0 text-primary" />
                   {badge}
                 </li>
               ))}
@@ -76,13 +76,12 @@ export default function LandingHero() {
             <LandingDemo />
 
             <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-              {sourceChips.map((chip, i) => (
+              {sourceChips.map((chip) => (
                 <div
                   key={chip.name}
-                  className="animate-float glass-card flex items-center gap-2 px-3 py-2 shadow-lg"
-                  style={{ animationDelay: `${i * 0.8}s` }}
-                >
-                  <span className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-brand-blue/30 to-brand-cyan/30 text-brand-cyan">
+                  className="glass-card flex items-center gap-2 px-3 py-2"
+                                  >
+                  <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary-soft text-primary">
                     <chip.Icon size={14} />
                   </span>
                   <span className="text-xs font-medium">{chip.name}</span>

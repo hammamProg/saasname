@@ -13,13 +13,13 @@ export default function Footer({ variant = "default" }: FooterProps) {
     <footer
       className={
         isLanding
-          ? "border-t border-brand-cyan/10 bg-brand-ink/80 py-12"
-          : "border-t border-border bg-surface py-12"
+          ? "border-t border-border bg-background py-12"
+          : "border-t border-border bg-background py-12"
       }
     >
       <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:grid-cols-3 sm:px-6 lg:px-8">
         <div>
-          <BrandLogo size="sm" onDark />
+          <BrandLogo size="sm" />
           <p className="mt-3 text-sm text-muted">
             Launch your SaaS in days, not months
           </p>

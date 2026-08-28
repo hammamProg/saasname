@@ -22,19 +22,19 @@ export default function MarketingBackdrop({
       <div aria-hidden className={cn("pointer-events-none absolute -z-10", sizeClass, className)}>
         <div
           className={cn(
-            "absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(7,122,125,0.28),transparent_62%)]",
+            "absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(10,110,209,0.10),transparent_62%)]",
             !cover && height
           )}
         />
         <div
           className={cn(
-            "absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(122,226,207,0.12),transparent_52%)]",
+            "absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(98,46,248,0.06),transparent_52%)]",
             !cover && height
           )}
         />
         <div
           className={cn(
-            "absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(253,235,158,0.08),transparent_45%)]",
+            "absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(0,189,252,0.06),transparent_45%)]",
             !cover && height
           )}
         />
@@ -46,14 +46,14 @@ export default function MarketingBackdrop({
     <div aria-hidden className={cn("pointer-events-none absolute -z-10", sizeClass, className)}>
       <div
         className={cn(
-          "absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(7,122,125,0.14),transparent_55%)]",
+          "absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(10,110,209,0.08),transparent_55%)]",
           !cover && height
         )}
       />
       <div
         className={cn(
           "absolute inset-0 opacity-80",
-          "[background-image:linear-gradient(to_right,rgba(7,122,125,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(122,226,207,0.08)_1px,transparent_1px)]",
+          "[background-image:linear-gradient(to_right,rgba(8,32,63,0.045)_1px,transparent_1px),linear-gradient(to_bottom,rgba(8,32,63,0.045)_1px,transparent_1px)]",
           "[background-size:4rem_4rem]",
           cover
             ? "[mask-image:radial-gradient(ellipse_80%_80%_at_50%_0%,#000_40%,transparent_100%)]"

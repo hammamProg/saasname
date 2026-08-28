@@ -26,12 +26,12 @@ export default function Header({ variant = "default" }: HeaderProps) {
     <header
       className={
         isLanding
-          ? "sticky top-0 z-50 border-b border-brand-cyan/10 bg-brand-ink/90 backdrop-blur-xl"
+          ? "sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-xl"
           : "border-b border-border/70 bg-background"
       }
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-        <BrandLogo size="lg" onDark />
+        <BrandLogo size="lg" />
 
         <div className="hidden items-center gap-8 md:flex">
           {links.map((link) => (
@@ -79,7 +79,7 @@ export default function Header({ variant = "default" }: HeaderProps) {
         <div
           className={`border-t px-4 py-4 backdrop-blur-xl md:hidden ${
             isLanding
-              ? "border-brand-cyan/10 bg-brand-ink/95"
+              ? "border-border bg-background/95"
               : "border-border bg-background/95"
           }`}
         >

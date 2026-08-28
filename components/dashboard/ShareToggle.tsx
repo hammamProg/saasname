@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Check, Link2, Loader2 } from "lucide-react";
 import apiClient, { ApiError } from "@/libs/api";
+import { trackReportLinkCopied, trackReportSharingUpdated } from "@/libs/analytics";
 
 export default function ShareToggle({
   searchId,
@@ -31,6 +32,7 @@ export default function ShareToggle({
       );
       setToken(shareToken);
       setCopied(false);
+      trackReportSharingUpdated(next);
     } catch (caught) {
       setError(
         caught instanceof ApiError ? caught.message : "Could not update sharing."
@@ -43,6 +45,7 @@ export default function ShareToggle({
   async function copy() {
     if (!shareUrl) return;
     await navigator.clipboard.writeText(shareUrl);
+    trackReportLinkCopied();
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }

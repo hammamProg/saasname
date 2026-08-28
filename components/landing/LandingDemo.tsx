@@ -36,10 +36,10 @@ const SOURCES = [
 ] as const;
 
 const VERDICT_STYLES: Record<Verdict, string> = {
-  clear: "border-verdict-clear/30 bg-verdict-clear/10 text-verdict-clear",
-  contested: "border-verdict-contested/30 bg-verdict-contested/10 text-verdict-contested",
-  blocked: "border-verdict-blocked/30 bg-verdict-blocked/10 text-verdict-blocked",
-  unknown: "border-white/10 bg-white/5 text-verdict-unknown",
+  clear: "border-emerald-200 bg-emerald-50 text-emerald-800",
+  contested: "border-amber-200 bg-amber-50 text-amber-800",
+  blocked: "border-red-200 bg-red-50 text-red-800",
+  unknown: "border-border bg-surface text-muted",
 };
 
 const VERDICT_LABELS: Record<Verdict, string> = {
@@ -162,10 +162,8 @@ export default function LandingDemo() {
 
   return (
     <div className="relative">
-      <div className="absolute -inset-6 rounded-[2.5rem] bg-gradient-to-br from-brand-blue/25 via-brand-cyan/15 to-brand-violet/10 blur-3xl" />
-
-      <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/40 shadow-2xl shadow-brand-blue/10 ring-1 ring-white/10 backdrop-blur-xl">
-        <div className="flex items-center justify-between gap-3 border-b border-white/10 bg-white/5 px-5 py-3">
+      <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-[0_18px_48px_rgba(8,32,63,0.08)]">
+        <div className="flex items-center justify-between gap-3 border-b border-border bg-surface px-5 py-3">
           <p className="text-sm font-bold">Try it now</p>
           <p className="text-xs font-medium text-muted">No account needed</p>
         </div>
@@ -178,7 +176,7 @@ export default function LandingDemo() {
               maxLength={30}
               placeholder="Type any name…"
               aria-label="Name to check"
-              className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-foreground placeholder:text-muted focus:border-brand-cyan/40 focus:outline-none"
+              className="min-w-0 flex-1 rounded-xl border border-border bg-surface px-4 py-3 text-sm text-foreground placeholder:text-muted focus:border-primary/50 focus:outline-none"
             />
             <button
               type="submit"
@@ -195,7 +193,7 @@ export default function LandingDemo() {
           </form>
 
           {error && (
-            <p className="rounded-xl border border-verdict-contested/30 bg-verdict-contested/10 px-4 py-3 text-xs text-verdict-contested">
+            <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800">
               {error}
             </p>
           )}
@@ -213,13 +211,13 @@ export default function LandingDemo() {
                       "relative flex items-center gap-3 overflow-hidden rounded-xl border px-4 py-3 transition-colors",
                       isRevealed
                         ? VERDICT_STYLES[check.verdict]
-                        : "border-white/10 bg-white/5 text-muted"
+                        : "border-border bg-surface text-muted"
                     )}
                   >
                     {!isRevealed && (
                       <span
                         aria-hidden="true"
-                        className="animate-analysis-sweep pointer-events-none absolute inset-y-0 w-16 bg-gradient-to-r from-transparent via-white/25 to-transparent"
+                        className="animate-analysis-sweep pointer-events-none absolute inset-y-0 w-16 bg-gradient-to-r from-transparent via-primary/10 to-transparent"
                       />
                     )}
                     <source.Icon size={15} className="relative shrink-0" />
@@ -241,9 +239,9 @@ export default function LandingDemo() {
           )}
 
           {result && revealed >= result.checks.length && (
-            <div className="space-y-3 rounded-xl border border-dashed border-brand-cyan/30 bg-brand-blue/10 p-4">
+            <div className="space-y-3 rounded-xl border border-dashed border-primary/30 bg-primary-soft p-4">
               <p className="flex items-start gap-2 text-xs leading-relaxed text-muted">
-                <Lock size={13} className="mt-0.5 shrink-0 text-brand-cyan" aria-hidden="true" />
+                <Lock size={13} className="mt-0.5 shrink-0 text-primary" aria-hidden="true" />
                 <span>
                   <span className="font-semibold text-foreground">
                     Three more sources are in the full report:
@@ -276,7 +274,7 @@ export default function LandingDemo() {
                 <button
                   type="button"
                   onClick={handleExample}
-                  className="font-semibold text-brand-cyan underline underline-offset-2 hover:text-brand-blue"
+                  className="font-semibold text-primary underline underline-offset-2 hover:text-primary-hover"
                 >
                   Try “{EXAMPLE_NAME}”
                 </button>{" "}

@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { trackWaitlistJoined } from "@/libs/analytics";
 
 type ButtonLeadProps = {
   extraStyle?: string;
@@ -23,6 +24,7 @@ export default function ButtonLead({ extraStyle = "" }: ButtonLeadProps) {
       });
       const data = await response.json().catch(() => ({}));
       if (response.status === 409 || response.ok) {
+        trackWaitlistJoined();
         setStatus("success");
         setEmail("");
         return;

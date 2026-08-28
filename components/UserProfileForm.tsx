@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import apiClient, { ApiError } from "@/libs/api";
+import { trackProfileUpdated } from "@/libs/analytics";
 
 type Profile = {
   id: string;
@@ -40,6 +41,7 @@ export default function UserProfileForm() {
       const { data } = await apiClient.post<{ data: Profile }>("/user", { email });
       setEmail(data.email ?? email);
       setMessage("Profile saved.");
+      trackProfileUpdated();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Could not save profile.");
     } finally {

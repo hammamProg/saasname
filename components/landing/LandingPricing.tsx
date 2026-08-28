@@ -49,16 +49,15 @@ export default async function LandingPricing() {
             return (
               <article
                 key={pack.id}
-                className={`relative overflow-hidden rounded-3xl border bg-black/40 p-8 backdrop-blur-xl ${
+                className={`relative overflow-hidden rounded-3xl border bg-card p-8 ${
                   pack.isFeatured
-                    ? "border-brand-cyan/30 shadow-2xl shadow-brand-blue/15"
-                    : "border-white/10"
+                    ? "border-primary/35 shadow-lg shadow-primary/10"
+                    : "border-border"
                 }`}
               >
                 {pack.isFeatured && (
                   <>
-                    <div className="absolute -right-20 -top-20 h-40 w-40 rounded-full bg-brand-blue/20 blur-3xl" />
-                    <span className="absolute right-6 top-6 rounded-full bg-brand-blue/20 px-3 py-1 text-xs font-semibold text-accent">
+                    <span className="absolute right-6 top-6 rounded-full bg-primary-soft px-3 py-1 text-xs font-semibold text-primary">
                       Most popular
                     </span>
                   </>
@@ -100,7 +99,7 @@ export default async function LandingPricing() {
                   <ul className="mt-8 space-y-3">
                     {pack.features.map((feature) => (
                       <li key={feature.name} className="flex items-center gap-3 text-sm">
-                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-400">
+                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-700">
                           <Check size={12} strokeWidth={3} />
                         </span>
                         {feature.name}

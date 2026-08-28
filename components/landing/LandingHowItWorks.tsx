@@ -10,11 +10,11 @@ const steps = [
     description:
       "One sentence is enough. You get 5–8 candidate names back, free — generating costs no credits.",
     visual: (
-      <div className="mt-6 space-y-2 rounded-xl border border-white/10 bg-black/30 p-4 font-mono text-xs">
+      <div className="mt-6 space-y-2 rounded-xl border border-border bg-surface p-4 font-mono text-xs">
         <p className="text-muted">&gt; expense tracking for freelancers</p>
-        <p className="text-brand-cyan">Ledgerloop</p>
-        <p className="text-brand-cyan">Tallyhaus</p>
-        <p className="text-brand-cyan">Notchbook</p>
+        <p className="text-primary">Ledgerloop</p>
+        <p className="text-primary">Tallyhaus</p>
+        <p className="text-primary">Notchbook</p>
       </div>
     ),
   },
@@ -34,10 +34,10 @@ const steps = [
         ].map(([item, state]) => (
           <div
             key={item}
-            className="flex items-center justify-between rounded-lg border border-white/8 bg-white/5 px-3 py-2 text-xs"
+            className="flex items-center justify-between rounded-lg border border-border bg-surface px-3 py-2 text-xs"
           >
             <span>{item}</span>
-            <span className={state === "done" ? "text-emerald-400" : "text-muted"}>
+            <span className={state === "done" ? "text-emerald-600" : "text-muted"}>
               {state === "done" ? "Checked" : "Checking…"}
             </span>
           </div>
@@ -52,10 +52,10 @@ const steps = [
     description:
       "Clear, caution, or taken — with a short explanation and a link to the evidence behind every signal.",
     visual: (
-      <div className="mt-6 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-center">
-        <p className="text-2xl font-extrabold text-emerald-400">Clear</p>
+      <div className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-center">
+        <p className="text-2xl font-extrabold text-emerald-700">Clear</p>
         <p className="mt-1 text-xs text-muted">Ledgerloop · score 82</p>
-        <p className="mt-3 text-xs font-semibold text-emerald-300">
+        <p className="mt-3 text-xs font-semibold text-emerald-600">
           .com available · no live mark
         </p>
       </div>
@@ -79,8 +79,8 @@ export default function LandingHowItWorks() {
               key={item.step}
               className="glass-card glass-card-hover relative overflow-hidden p-8"
             >
-              <span className="text-5xl font-extrabold text-white/5">{item.step}</span>
-              <div className="mt-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-brand-blue/25 to-brand-cyan/20 text-accent">
+              <span className="text-5xl font-extrabold text-primary/15">{item.step}</span>
+              <div className="mt-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary-soft text-primary">
                 <item.icon size={22} />
               </div>
               <h3 className="mt-6 text-xl font-bold">{item.title}</h3>

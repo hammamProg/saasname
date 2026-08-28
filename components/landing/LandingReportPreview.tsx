@@ -6,9 +6,9 @@ import { SectionHeader } from "@/components/landing/shared";
 type Row = { label: string; detail: string; state: "clear" | "caution" | "taken" };
 
 const stateStyles: Record<Row["state"], string> = {
-  clear: "bg-emerald-500/15 text-emerald-400",
-  caution: "bg-amber-500/15 text-amber-400",
-  taken: "bg-red-500/15 text-red-400",
+  clear: "bg-emerald-50 text-emerald-700",
+  caution: "bg-amber-50 text-amber-700",
+  taken: "bg-red-50 text-red-700",
 };
 
 /** An illustrative report, not a recorded one. The vocabulary matches the real
@@ -83,8 +83,8 @@ export default function LandingReportPreview() {
           subtitle="Every row comes from a source you can open. Nothing is inferred, and nothing is hidden behind a score."
         />
 
-        <div className="mt-12 overflow-hidden rounded-2xl border border-white/10 bg-black/50 shadow-2xl shadow-brand-blue/10">
-          <div className="flex gap-1 overflow-x-auto border-b border-white/10 bg-white/5 p-2">
+        <div className="mt-12 overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+          <div className="flex gap-1 overflow-x-auto border-b border-border bg-surface p-2">
             {candidates.map((candidate) => (
               <button
                 key={candidate.id}
@@ -92,7 +92,7 @@ export default function LandingReportPreview() {
                 onClick={() => setActiveId(candidate.id)}
                 className={`shrink-0 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                   activeId === candidate.id
-                    ? "bg-gradient-to-r from-brand-blue/25 to-brand-cyan/20 text-foreground"
+                    ? "bg-primary-soft text-primary"
                     : "text-muted hover:text-foreground"
                 }`}
               >
@@ -101,7 +101,7 @@ export default function LandingReportPreview() {
             ))}
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 px-6 py-5">
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border px-6 py-5">
             <div>
               <h3 className="text-2xl font-extrabold">{active.name}</h3>
               <p className="mt-1 max-w-xl text-sm leading-relaxed text-muted">
@@ -121,7 +121,7 @@ export default function LandingReportPreview() {
             </div>
           </div>
 
-          <ul className="divide-y divide-white/5">
+          <ul className="divide-y divide-border">
             {active.rows.map((row) => (
               <li
                 key={row.label}

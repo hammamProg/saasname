@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Check, Globe, Scale, Sparkles } from "lucide-react";
+import { ArrowRight, Check, Globe, Scale } from "lucide-react";
 import {
   AppleIcon,
   GithubIcon,
@@ -9,11 +9,10 @@ import config from "@/config";
 import MarketingBackdrop from "@/components/ui/MarketingBackdrop";
 import LandingDemo from "@/components/landing/LandingDemo";
 
-const trustBadges = [
-  `${config.credits.signupGrant} free searches on signup`,
-  "No subscription",
-  "Credits never expire",
-];
+/** Two claims the product actually honours, and that a subscription-weary
+ *  founder is scanning for. The free-search count is already in the CTA, so
+ *  repeating it here would spend a line saying nothing new. */
+const trustBadges = ["No subscription", "Credits never expire"];
 
 const sourceChips = [
   { name: "Domains", Icon: Globe },
@@ -25,31 +24,26 @@ const sourceChips = [
 
 export default function LandingHero() {
   return (
-    <section className="relative overflow-hidden pb-24 pt-16 sm:pb-32 sm:pt-20 lg:pt-28">
+    <section className="relative overflow-hidden pb-20 pt-14 sm:pb-24 sm:pt-16 lg:pt-20">
       <MarketingBackdrop variant="hero" dark />
       <div className="landing-grid-bg pointer-events-none absolute inset-x-0 top-0 h-[600px]" aria-hidden />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid items-center gap-16 lg:grid-cols-2 lg:gap-12">
-          <div className="animate-fade-up space-y-8">
-            <div className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-accent backdrop-blur-sm">
-              <Sparkles size={14} />
-              Name research for founders
-            </div>
-
-            <h1 className="section-heading text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl xl:text-7xl">
-              Find a SaaS name that is{" "}
-              <span className="gradient-text">actually free to use.</span>
+        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+          <div className="animate-fade-up space-y-6">
+            {/* Capped so the line breaks after "you can" rather than running to
+                four ragged lines at the widest breakpoint. */}
+            <h1 className="section-heading max-w-[15ch] text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
+              Find a name you can{" "}
+              <span className="gradient-text">actually own.</span>
             </h1>
 
-            <p className="max-w-xl text-lg leading-relaxed text-muted sm:text-xl">
-              Describe your idea. {config.appName} writes candidate names and
-              checks each one against domain registries, the US trademark
-              register, both app stores, social handles, and web search — then
-              tells you, in plain English, which ones survive.
+            <p className="max-w-md text-lg leading-relaxed text-muted">
+              Describe your idea. We check domains, trademarks, app stores and
+              handles before you commit.
             </p>
 
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5">
               <Link
                 href={config.auth.loginUrl}
                 className="btn-gradient px-8 py-3.5 text-sm"
@@ -57,15 +51,18 @@ export default function LandingHero() {
                 Start with {config.credits.signupGrant} free searches
                 <ArrowRight size={16} />
               </Link>
-              <Link href="#how-it-works" className="btn-ghost px-8 py-3.5 text-sm">
+              <Link
+                href="#how-it-works"
+                className="text-sm font-medium text-muted underline-offset-4 transition-colors hover:text-foreground hover:underline"
+              >
                 See how it works
               </Link>
             </div>
 
-            <ul className="flex flex-wrap gap-x-6 gap-y-2 pt-2">
+            <ul className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted">
               {trustBadges.map((badge) => (
-                <li key={badge} className="flex items-center gap-2 text-sm text-muted">
-                  <Check size={16} className="shrink-0 text-primary" />
+                <li key={badge} className="flex items-center gap-2">
+                  <Check size={15} className="shrink-0 text-primary" />
                   {badge}
                 </li>
               ))}
@@ -75,12 +72,13 @@ export default function LandingHero() {
           <div className="animate-fade-up [animation-delay:150ms]">
             <LandingDemo />
 
+            {/* These carry the source list that used to sit in the subhead. */}
             <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
               {sourceChips.map((chip) => (
                 <div
                   key={chip.name}
                   className="glass-card flex items-center gap-2 px-3 py-2"
-                                  >
+                >
                   <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary-soft text-primary">
                     <chip.Icon size={14} />
                   </span>

@@ -3,14 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import {
-  Coins,
-  LayoutDashboard,
-  Loader2,
-  Search,
-  Settings,
-  Sparkles,
-} from "lucide-react";
+import { Coins, Compass, Loader2, Settings } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/libs/cn";
 
@@ -39,8 +32,7 @@ const NAV_GROUPS: Array<{ label: string; items: NavItem[] }> = [
   {
     label: "Workspace",
     items: [
-      { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
-      { href: "/dashboard/searches", label: "Reports", icon: Search, exact: false },
+      { href: "/dashboard", label: "Discover", icon: Compass, exact: true },
     ],
   },
   {
@@ -57,12 +49,6 @@ const NAV_GROUPS: Array<{ label: string; items: NavItem[] }> = [
     ],
   },
 ];
-
-const PRIMARY_ACTION = {
-  href: "/dashboard/new",
-  label: "New check",
-  icon: Sparkles,
-};
 
 function isActive(pathname: string, href: string, exact: boolean) {
   if (exact) {
@@ -101,37 +87,8 @@ export default function AppSidebar({
     });
   }
 
-  const actionActive = isActive(pathname, PRIMARY_ACTION.href, false);
-  const actionPending = pendingHref === PRIMARY_ACTION.href;
-
   return (
     <nav className={cn("flex flex-col gap-6 px-3 py-4", className)}>
-      {/* Starting a check is the job, not a place to go. It gets the one
-          button, above the destinations. */}
-      <Link
-        href={PRIMARY_ACTION.href}
-        prefetch
-        onClick={(event) => {
-          event.preventDefault();
-          handleNavigate(PRIMARY_ACTION.href);
-        }}
-        className={cn(
-          "flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-bold transition-all",
-          actionActive
-            ? isDark
-              ? "bg-[#0E2A52] text-white ring-1 ring-brand-cyan/40"
-              : "bg-primary-soft text-primary ring-1 ring-primary/20"
-            : "btn-gradient"
-        )}
-      >
-        {actionPending ? (
-          <Loader2 size={16} className="shrink-0 animate-spin" aria-hidden="true" />
-        ) : (
-          <PRIMARY_ACTION.icon size={16} className="shrink-0" aria-hidden="true" />
-        )}
-        {PRIMARY_ACTION.label}
-      </Link>
-
       {NAV_GROUPS.map((group) => (
         <div key={group.label} className="space-y-1">
           <p
@@ -171,7 +128,7 @@ export default function AppSidebar({
                 )}
               >
                 {/* A rail rather than a filled pill: it marks the current row
-                    without competing with the primary action above it. */}
+                    without competing with the label and icon. */}
                 <span
                   aria-hidden="true"
                   className={cn(

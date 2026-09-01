@@ -1,125 +1,60 @@
-import { Suspense } from "react";
-import { createClient } from "@/libs/supabase/server";
 import { requireUser } from "@/libs/supabase/require-user";
-import { getProfileAccess } from "@/libs/access";
-import { getPriceRecord } from "@/libs/paddle/prices";
-import { getCreditPacks } from "@/libs/credits/packs";
+import { getUserPreferences } from "@/libs/trends/preferences";
+import { getForYouFeed, getRisingFastFeed } from "@/libs/trends/feed";
 import { getSEOTags } from "@/libs/seo";
-import DashboardAccess from "@/components/DashboardAccess";
-import { DashboardOverview } from "@/components/dashboard/DashboardOverview";
-import StartCheckCard from "@/components/dashboard/StartCheckCard";
-import DashboardStats from "@/components/dashboard/DashboardStats";
-import RecentReports, {
-  type RecentReport,
-} from "@/components/dashboard/RecentReports";
-import EmptyStateGuide from "@/components/dashboard/EmptyStateGuide";
-import { getCreditBalance } from "@/libs/credits/balance";
-import PurchaseTracker from "@/components/dashboard/PurchaseTracker";
+import CategoryPicker from "@/components/dashboard/CategoryPicker";
+import TrendCard from "@/components/dashboard/TrendCard";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = getSEOTags({
-  title: "Dashboard",
-  description: "Your SaaSNa.me workspace.",
+  title: "Discover",
+  description: "Your personalized trend radar.",
   canonicalUrlRelative: "/dashboard",
 });
 
-type DashboardPageProps = {
-  searchParams: Promise<{ checkout?: string }>;
-};
-
-export default async function DashboardPage({ searchParams }: DashboardPageProps) {
+export default async function DashboardPage() {
   const user = await requireUser();
-  const supabase = await createClient();
-  const params = await searchParams;
+  const preferences = await getUserPreferences(user.id);
 
-  const [{ data: profile }, access, prices] = await Promise.all([
-    supabase.from("profiles").select("email").eq("id", user.id).maybeSingle(),
-    getProfileAccess(user.id),
-    getPriceRecord(getCreditPacks().map((pack) => pack.priceId)),
-  ]);
-
-  const metadata = user.user_metadata as {
-    full_name?: string;
-    name?: string;
-  };
-  const displayName = metadata.full_name ?? metadata.name ?? "there";
-  const hasAccess = access?.has_access ?? false;
-  const checkoutSuccess = params.checkout === "success";
-  const email = profile?.email ?? user.email ?? "";
-
-  if (!hasAccess || checkoutSuccess) {
+  if (!preferences) {
     return (
       <div className="space-y-8">
-        {checkoutSuccess && <PurchaseTracker />}
-        <section className="space-y-8">
-          <div className="space-y-2">
-            <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-              {checkoutSuccess ? "Checkout complete" : "Billing"}
-            </p>
-            <h1 className="section-heading text-3xl font-extrabold md:text-4xl">
-              {checkoutSuccess ? "Almost there…" : `Hi, ${displayName}`}
-            </h1>
-            <p className="text-muted">Signed in as {email}</p>
-          </div>
-
-          <Suspense
-            fallback={
-              <div className="rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted">
-                Loading checkout…
-              </div>
-            }
-          >
-            <DashboardAccess
-              initialHasAccess={hasAccess}
-              initialAccess={access}
-              displayName={displayName}
-              prices={prices}
-            />
-          </Suspense>
-        </section>
+        <CategoryPicker />
       </div>
     );
   }
 
-  // Counted server-side rather than derived from the fetched page: totals taken
-  // from a `limit`ed list silently stop growing once the user passes the limit.
-  // RLS scopes all three to this user.
-  const [{ data: searchRows }, reportCount, nameCount, clearCount, credits] =
-    await Promise.all([
-      supabase
-        .from("searches")
-        .select("id, idea_text, status, created_at, candidates(name, verdict)")
-        .order("created_at", { ascending: false })
-        .limit(5),
-      supabase.from("searches").select("id", { count: "exact", head: true }),
-      supabase.from("candidates").select("id", { count: "exact", head: true }),
-      supabase
-        .from("candidates")
-        .select("id", { count: "exact", head: true })
-        .eq("verdict", "clear"),
-      getCreditBalance(user.id),
-    ]);
-
-  const reports = (searchRows ?? []) as unknown as RecentReport[];
-
-  const stats = {
-    credits,
-    reports: reportCount.count ?? 0,
-    namesChecked: nameCount.count ?? 0,
-    namesClear: clearCount.count ?? 0,
-  };
+  const [forYou, risingFast] = await Promise.all([
+    getForYouFeed(user.id, preferences.selectedCategories),
+    getRisingFastFeed(user.id),
+  ]);
 
   return (
-    <div className="space-y-8">
-      <DashboardOverview displayName={displayName} hasReports={stats.reports > 0} />
-      <DashboardStats stats={stats} />
-      <StartCheckCard credits={stats.credits} />
-      {reports.length > 0 ? (
-        <RecentReports reports={reports} />
-      ) : (
-        <EmptyStateGuide />
-      )}
+    <div className="space-y-10">
+      <section className="space-y-4">
+        <h1 className="section-heading text-3xl font-extrabold md:text-4xl">For you</h1>
+        {forYou.length === 0 ? (
+          <p className="text-muted">
+            No published trends match your interests yet — check back soon.
+          </p>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2">
+            {forYou.map((trend) => (
+              <TrendCard key={trend.id} trend={trend} />
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="space-y-4">
+        <h2 className="section-heading text-2xl font-extrabold">Rising fast</h2>
+        <div className="grid gap-4 md:grid-cols-2">
+          {risingFast.map((trend) => (
+            <TrendCard key={trend.id} trend={trend} />
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

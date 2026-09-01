@@ -59,12 +59,14 @@ export async function runDailySnapshotAndScore(): Promise<{ topicsProcessed: num
         sourceCount: new Set(rows.map((row) => row.source_provider)).size,
       };
 
-      const { data: previousRows } = await supabase
+      const { data: previousRows, error: previousError } = await supabase
         .from("topic_snapshots")
         .select("signal_count, engagement_sum")
         .eq("topic_id", topic.id)
         .order("snapshot_date", { ascending: false })
         .limit(1);
+
+      if (previousError) throw new Error(previousError.message);
 
       const previous = previousRows?.[0]
         ? {
@@ -76,7 +78,7 @@ export async function runDailySnapshotAndScore(): Promise<{ topicsProcessed: num
 
       const { trendScore, confidenceScore, stage } = computeTrendScore(current, previous);
 
-      await supabase.from("topic_snapshots").upsert(
+      const { error: upsertError } = await supabase.from("topic_snapshots").upsert(
         {
           topic_id: topic.id,
           snapshot_date: today,
@@ -88,11 +90,13 @@ export async function runDailySnapshotAndScore(): Promise<{ topicsProcessed: num
         { onConflict: "topic_id,snapshot_date" }
       );
 
+      if (upsertError) throw new Error(upsertError.message);
+
       const shouldPublish =
         confidenceScore >= PUBLISH_CONFIDENCE_THRESHOLD &&
         current.sourceCount >= PUBLISH_MIN_SOURCES;
 
-      await supabase
+      const { error: updateError } = await supabase
         .from("topics")
         .update({
           trend_score: trendScore,
@@ -102,6 +106,8 @@ export async function runDailySnapshotAndScore(): Promise<{ topicsProcessed: num
           ...(shouldPublish ? { editorial_status: "published", is_public: true } : {}),
         })
         .eq("id", topic.id);
+
+      if (updateError) throw new Error(updateError.message);
 
       processed += 1;
     } catch (topicError) {

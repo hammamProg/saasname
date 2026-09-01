@@ -7,6 +7,8 @@ const state = vi.hoisted(() => ({
   previousSnapshot: null as { signal_count: number; engagement_sum: number } | null,
   upsertedSnapshot: null as Record<string, unknown> | null,
   updatedTopic: null as Record<string, unknown> | null,
+  updatedTopicIds: [] as string[],
+  upsertError: null as { message: string } | null,
 }));
 
 function fromMock(table: string) {
@@ -14,8 +16,9 @@ function fromMock(table: string) {
     return {
       select: () => ({ limit: async () => ({ data: state.topics, error: null }) }),
       update: (values: Record<string, unknown>) => ({
-        eq: async () => {
+        eq: async (_column: string, id: string) => {
           state.updatedTopic = values;
+          state.updatedTopicIds.push(id);
           return { error: null };
         },
       }),
@@ -36,6 +39,9 @@ function fromMock(table: string) {
         }),
       }),
       upsert: async (values: Record<string, unknown>) => {
+        if (state.upsertError) {
+          return { error: state.upsertError };
+        }
         state.upsertedSnapshot = values;
         return { error: null };
       },
@@ -58,6 +64,8 @@ beforeEach(() => {
   state.previousSnapshot = null;
   state.upsertedSnapshot = null;
   state.updatedTopic = null;
+  state.updatedTopicIds = [];
+  state.upsertError = null;
 });
 
 describe("runDailySnapshotAndScore", () => {
@@ -74,5 +82,34 @@ describe("runDailySnapshotAndScore", () => {
       confidence_score: expect.any(Number),
       stage: expect.any(String),
     });
+  });
+
+  it("catches and logs a write failure for one topic without aborting the rest of the run", async () => {
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    state.topics = [{ id: "topic-1" }, { id: "topic-2" }];
+    state.upsertError = { message: "constraint violation" };
+
+    const result = await runDailySnapshotAndScore();
+
+    // Both topics fail the upsert in this scenario, so neither is counted as
+    // processed and neither's topic row gets updated — but the loop still
+    // ran to completion for both without throwing, and the failure was
+    // logged rather than silently swallowed.
+    expect(result).toEqual({ topicsProcessed: 0 });
+    expect(state.updatedTopicIds).toEqual([]);
+    expect(consoleErrorSpy).toHaveBeenCalledTimes(2);
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      "[snapshot]",
+      "topic-1",
+      "constraint violation"
+    );
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      "[snapshot]",
+      "topic-2",
+      "constraint violation"
+    );
+
+    consoleErrorSpy.mockRestore();
   });
 });

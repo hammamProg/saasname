@@ -48,10 +48,22 @@ export default function TrendCard({ trend }: { trend: TrendCardData }) {
         </span>
       </div>
 
-      <div className="mt-4 flex items-center gap-4 text-xs text-muted">
+      {trend.categoryName && (
+        <span className="mt-2 inline-block text-xs font-semibold uppercase tracking-wide text-muted">
+          {trend.categoryName}
+        </span>
+      )}
+
+      <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-muted">
         <span>Trend score {Math.round(trend.trendScore)}</span>
         <span>Confidence {Math.round(trend.confidenceScore)}</span>
+        <span>Momentum {Math.round(trend.momentum)}</span>
+        <span>
+          {trend.sourceCount} {trend.sourceCount === 1 ? "source" : "sources"}
+        </span>
       </div>
+
+      <p className="mt-2 text-xs text-muted">{trend.whyRecommended}</p>
 
       <div className="mt-4 flex gap-2">
         <button

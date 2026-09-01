@@ -67,6 +67,7 @@ export const githubConnector: Connector = {
               stars: item.stargazers_count,
               forks: item.forks_count,
             },
+            rawMetrics: item as unknown as Record<string, unknown>,
             categoryHint: category,
           });
         }

@@ -71,6 +71,7 @@ export const hackerNewsConnector: Connector = {
           score: item.score ?? 0,
           comments: item.descendants ?? 0,
         },
+        rawMetrics: item as unknown as Record<string, unknown>,
       });
     }
 

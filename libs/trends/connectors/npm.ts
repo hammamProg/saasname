@@ -47,6 +47,7 @@ export const npmConnector: Connector = {
             title: entry.package.name,
             textExcerpt: entry.package.description,
             engagementMetrics: { popularity: entry.score.detail.popularity },
+            rawMetrics: entry as unknown as Record<string, unknown>,
             categoryHint: category,
           });
         }

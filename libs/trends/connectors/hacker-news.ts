@@ -15,13 +15,25 @@ type HnItem = {
 };
 
 async function fetchItem(id: number): Promise<HnItem | null> {
-  const response = await fetch(`${BASE_URL}/item/${id}.json`);
+  try {
+    const response = await fetch(`${BASE_URL}/item/${id}.json`);
 
-  if (!response.ok) {
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = (await response.json()) as unknown;
+
+    // Minimal runtime validation of response shape
+    if (typeof (data as Record<string, unknown>).id !== "number") {
+      return null;
+    }
+
+    return data as HnItem;
+  } catch {
+    // Network error, timeout, DNS failure, etc. — gracefully degrade
     return null;
   }
-
-  return (await response.json()) as HnItem;
 }
 
 export const hackerNewsConnector: Connector = {
@@ -34,7 +46,14 @@ export const hackerNewsConnector: Connector = {
       throw new Error(`Hacker News topstories returned ${response.status}`);
     }
 
-    const ids = ((await response.json()) as number[]).slice(0, MAX_ITEMS);
+    const data = (await response.json()) as unknown;
+
+    // Minimal validation: ensure it's an array
+    if (!Array.isArray(data)) {
+      throw new Error("Hacker News topstories returned non-array response");
+    }
+
+    const ids = (data as number[]).slice(0, MAX_ITEMS);
     const items = await Promise.all(ids.map(fetchItem));
     const signals: RawSignal[] = [];
 

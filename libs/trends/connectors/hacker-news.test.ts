@@ -61,4 +61,29 @@ describe("hackerNewsConnector", () => {
 
     expect(signals).toEqual([]);
   });
+
+  it("handles network-level errors (rejected fetch) gracefully", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => [1, 2] })
+      // Item 1: network error (fetch rejects)
+      .mockRejectedValueOnce(new Error("Network timeout"))
+      // Item 2: success
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          id: 2,
+          title: "Ask HN: something",
+          time: 1893456100,
+          score: 5,
+        }),
+      });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const signals = await hackerNewsConnector.fetchSignals();
+
+    // Should return only the successful item, skipping the network error
+    expect(signals).toHaveLength(1);
+    expect(signals[0].externalId).toBe("2");
+  });
 });

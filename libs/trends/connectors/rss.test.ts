@@ -36,8 +36,21 @@ describe("rssConnector", () => {
   it("skips a feed that fails to parse rather than throwing", async () => {
     parseURL
       .mockRejectedValueOnce(new Error("bad feed"))
+      .mockResolvedValueOnce({
+        items: [
+          {
+            title: "Survives",
+            link: "https://example.com/survives",
+            contentSnippet: "still here",
+            isoDate: "2026-08-31T00:00:00.000Z",
+            guid: "https://example.com/survives",
+          },
+        ],
+      })
       .mockResolvedValue({ items: [] });
 
-    await expect(rssConnector.fetchSignals()).resolves.toBeDefined();
+    const signals = await rssConnector.fetchSignals();
+
+    expect(signals.some((s) => s.title === "Survives")).toBe(true);
   });
 });

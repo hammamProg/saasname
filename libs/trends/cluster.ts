@@ -43,6 +43,21 @@ export async function clusterUnclusteredSignals(): Promise<{
     throw new Error(`Failed to load unclustered signals: ${error.message}`);
   }
 
+  // Fetched once per pipeline run (not per-signal) to resolve a connector's
+  // `category_hint` slug to the `categories.id` uuid `topics.category_id`
+  // expects. Not every connector sets a hint, so lookups can legitimately miss.
+  const { data: categoryRows, error: categoryError } = await supabase
+    .from("categories")
+    .select("id, slug");
+
+  if (categoryError) {
+    throw new Error(`Failed to load categories: ${categoryError.message}`);
+  }
+
+  const categoryIdBySlug = new Map(
+    (categoryRows ?? []).map((row) => [row.slug as string, row.id as string])
+  );
+
   let clustered = 0;
   let newTopics = 0;
 
@@ -63,13 +78,34 @@ export async function clusterUnclusteredSignals(): Promise<{
 
       if (best && best.similarity >= MERGE_THRESHOLD) {
         topicId = best.id;
+
+        // Record the new name variant. Duplicates are harmless no-ops via
+        // the `(topic_id, alias_text)` unique constraint, so an unconditional
+        // upsert is simpler than a canonical-name comparison first.
+        // NOTE: the matched topic's embedding centroid is intentionally left
+        // untouched here — recomputing/averaging it on merge is deferred;
+        // see design doc step 3 for the limitation.
+        const { error: aliasError } = await supabase
+          .from("topic_aliases")
+          .upsert(
+            { topic_id: topicId, alias_text: signal.title },
+            { onConflict: "topic_id,alias_text", ignoreDuplicates: true }
+          );
+
+        if (aliasError) {
+          console.error("[cluster] alias insert failed", signal.id, aliasError.message);
+        }
       } else {
+        const categoryId = signal.category_hint
+          ? (categoryIdBySlug.get(signal.category_hint) ?? null)
+          : null;
+
         const { data: created, error: insertError } = await supabase
           .from("topics")
           .insert({
             slug: slugify(signal.title),
             canonical_name: signal.title,
-            category_id: null,
+            category_id: categoryId,
             embedding,
             editorial_status: "needs_review",
           })

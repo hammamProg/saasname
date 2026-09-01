@@ -47,7 +47,7 @@ describe("createOpenAiProvider", () => {
     });
 
     expect(out).toBe("hello");
-    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
     expect(url).toBe("https://api.openai.com/v1/chat/completions");
     expect((init.headers as Record<string, string>).Authorization).toBe(`Bearer ${KEY}`);
     expect(JSON.parse(init.body as string).response_format).toEqual({

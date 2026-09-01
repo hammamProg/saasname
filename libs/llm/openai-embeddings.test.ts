@@ -41,4 +41,34 @@ describe("embedText", () => {
 
     await expect(embedText("hello")).rejects.toThrow(LlmError);
   });
+
+  it("redacts the API key from non-2xx error messages", async () => {
+    const apiKey = "sk-test";
+    vi.stubEnv("OPENAI_API_KEY", apiKey);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: false,
+        status: 401,
+        text: async () => `Invalid API key: ${apiKey}`,
+      }) as unknown as Response)
+    );
+
+    const error = await embedText("hello").catch((e) => e);
+    expect(error).toBeInstanceOf(LlmError);
+    expect(error.message).toContain("[redacted]");
+    expect(error.message).not.toContain(apiKey);
+  });
+
+  it("converts network errors to LlmError", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        throw new TypeError("Network error");
+      })
+    );
+
+    const error = await embedText("hello").catch((e) => e);
+    expect(error).toBeInstanceOf(LlmError);
+  });
 });

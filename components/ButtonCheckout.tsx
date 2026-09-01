@@ -80,7 +80,7 @@ export default function ButtonCheckout({
         },
         customer: user.email ? { email: user.email } : undefined,
         settings: {
-          successUrl: `${siteUrl}${config.auth.callbackUrl}?checkout=success`,
+          successUrl: `${siteUrl}/dashboard/credits?checkout=success`,
         },
       });
     } catch (checkoutError) {

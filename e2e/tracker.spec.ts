@@ -19,7 +19,10 @@ const TRACKER = readFileSync(
   "utf8",
 );
 
-const SITE_ID = "4735c4e1-6ee4-43ac-94d0-d6a240faca03";
+// A deliberately fake uuid. Fixtures must not carry a real site id:
+// it reads like production config, and anyone running the suite would
+// be looking at a live record while debugging a test.
+const SITE_ID = "00000000-0000-4000-8000-000000000001";
 const ORIGIN = "https://collector.test";
 const PAGE_URL = "https://customer-site.test/pricing";
 

@@ -23,6 +23,13 @@ export type PlanLimits = {
   followLimit: number | null;
   /** How many of the highest-scoring trends are locked. 0 means none. */
   lockedTopN: number;
+  /** Websites the user may track in the analytics product. `null` means
+   *  unlimited. */
+  siteLimit: number | null;
+  /** Analytics events accepted per calendar month across all of a user's
+   *  sites. Over-quota beacons are dropped at ingest rather than rejected: a
+   *  traffic spike must never make a customer's install look broken. */
+  monthlyEventLimit: number;
 };
 
 export const PLAN_LIMITS: Record<PlanId, PlanLimits> = {
@@ -31,12 +38,16 @@ export const PLAN_LIMITS: Record<PlanId, PlanLimits> = {
     risingFastLimit: 6,
     followLimit: 3,
     lockedTopN: 3,
+    siteLimit: 1,
+    monthlyEventLimit: 10_000,
   },
   pro: {
     forYouLimit: 24,
     risingFastLimit: 12,
     followLimit: null,
     lockedTopN: 0,
+    siteLimit: 10,
+    monthlyEventLimit: 1_000_000,
   },
 };
 

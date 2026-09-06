@@ -1,7 +1,11 @@
 import config from "@/config";
 
+/** One source of truth for the origin. Previously this rebuilt a URL from
+ *  `domainName`, which is the bare brand domain and therefore the apex - so
+ *  canonical tags advertised an origin that only ever 308s elsewhere. */
 export const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ?? `https://${config.domainName}`;
+  process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, "") ||
+  config.productionUrl;
 
 type SEOTags = {
   title?: string;

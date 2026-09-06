@@ -3,7 +3,12 @@ const config = {
   appDescription:
     "Catch the trend before it's crowded — emerging opportunities clustered from Hacker News, GitHub, npm, PyPI, arXiv, Hugging Face, Stack Overflow and search demand, ranked by signal strength and backed by linked evidence.",
   domainName: "saasna.me",
-  productionUrl: "https://saasna.me",
+  // The canonical origin, and it must match what the host actually serves.
+  // Vercel serves www and 308-redirects the apex to it, so every absolute URL
+  // built from this - canonical tags, the analytics install snippet - has to
+  // be www or it redirects. A redirected fetch or beacon changes origin
+  // mid-flight and is then blocked by CORS.
+  productionUrl: "https://www.saasna.me",
   supportEmail: "support@saasna.me",
   brand: {
     logo: "/brand/saasname-logo.png",

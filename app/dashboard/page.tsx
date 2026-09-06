@@ -33,7 +33,7 @@ export default async function DashboardPage() {
   ]);
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-10">
       <div className="space-y-2">
         <h1 className="section-heading text-3xl font-extrabold md:text-4xl">
           Worth building on
@@ -44,7 +44,7 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      <section className="space-y-4">
+      <section className="space-y-3">
         <div className="flex items-baseline justify-between gap-4">
           <h2 className="section-heading text-2xl font-extrabold">
             In your categories
@@ -67,7 +67,7 @@ export default async function DashboardPage() {
       </section>
 
       {risingFast.length > 0 && (
-        <section className="space-y-4">
+        <section className="space-y-3">
           <div className="flex items-baseline justify-between gap-4">
             <h2 className="section-heading text-2xl font-extrabold">
               Rising fast

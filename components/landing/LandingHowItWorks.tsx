@@ -37,10 +37,10 @@ export default function LandingHowItWorks() {
               key={step.number}
               className="rounded-2xl border border-border bg-card p-7"
             >
-              <span className="gradient-text text-3xl font-extrabold tracking-tight">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-foreground text-sm font-bold text-background">
                 {step.number}
               </span>
-              <h3 className="mt-3 text-lg font-bold">{step.title}</h3>
+              <h3 className="mt-4 text-lg font-bold">{step.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted">
                 {step.body}
               </p>

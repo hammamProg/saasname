@@ -59,7 +59,7 @@ export default function TrendCard({ trend }: { trend: TrendCardData }) {
   // presentation only, never the access control.
   if (trend.isLocked) {
     return (
-      <div className="relative overflow-hidden rounded-2xl border border-primary/25 bg-card p-6">
+      <div className="relative overflow-hidden rounded-2xl border border-primary/25 bg-card p-5 transition-shadow hover:shadow-[0_12px_28px_-16px_rgba(26,26,26,0.18)]">
         <div aria-hidden className="select-none blur-sm">
           <p className="text-lg font-bold">{trend.name}</p>
           <p className="mt-1 text-sm text-muted">{trend.description}</p>
@@ -94,7 +94,7 @@ export default function TrendCard({ trend }: { trend: TrendCardData }) {
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-6">
+    <div className="rounded-2xl border border-border bg-card p-5 transition-shadow hover:shadow-[0_12px_28px_-16px_rgba(26,26,26,0.18)]">
       <div className="flex items-start justify-between gap-4">
         <div>
           <Link href={`/dashboard/trends/${trend.slug}`} className="text-lg font-bold hover:underline">

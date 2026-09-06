@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { SnippetVariant } from "@/libs/webstats/snippet";
 
 /** Install snippet with framework tabs, copy-to-clipboard, and a live check
@@ -22,6 +22,11 @@ export default function InstallSnippet({
   const [copied, setCopied] = useState(false);
   const [installed, setInstalled] = useState(initiallyInstalled);
   const [givenUp, setGivenUp] = useState(false);
+  /* Completed checks. Drives the visible count and re-keys the sweep ring, so
+     one revolution is one real request rather than a decorative loop. Kept out
+     of the effect's dependencies on purpose — it must not restart the timer. */
+  const [checks, setChecks] = useState(0);
+  const attemptsRef = useRef(0);
 
   const variant = variants.find((v) => v.id === active) ?? variants[0];
 
@@ -29,22 +34,23 @@ export default function InstallSnippet({
     if (installed || givenUp) return;
 
     let cancelled = false;
-    let attempts = 0;
 
     async function poll() {
       // Polling a background tab is pure waste: nobody is watching, and the
       // check costs a database round trip each time.
       if (document.visibilityState !== "visible") return;
 
-      attempts += 1;
+      attemptsRef.current += 1;
 
       // Someone who pastes the snippet sees the flip within seconds. Someone
       // who leaves this tab open for an hour should not still be polling —
       // they can reload. Fifteen minutes at five seconds.
-      if (attempts > 180) {
+      if (attemptsRef.current > 180) {
         setGivenUp(true);
         return;
       }
+
+      if (!cancelled) setChecks((n) => n + 1);
 
       try {
         const response = await fetch(`/api/webstats/sites/${siteId}/status`, {
@@ -87,16 +93,56 @@ export default function InstallSnippet({
         <h2 className="section-heading text-lg font-extrabold">Install</h2>
 
         {installed ? (
-          <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-            ✓ Receiving data
+          <span className="animate-popup inline-flex items-center gap-2 rounded-full bg-[color-mix(in_srgb,var(--verdict-clear)_14%,transparent)] px-3 py-1.5 text-xs font-semibold text-[#04996A]">
+            <svg viewBox="0 0 24 24" className="size-3.5" aria-hidden="true">
+              <path
+                d="M4 12.5l5.2 5.2L20 7"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            Receiving data
           </span>
         ) : givenUp ? (
-          <span className="rounded-full bg-border/40 px-3 py-1 text-xs font-semibold text-muted">
-            Stopped checking — reload to resume
+          <span className="inline-flex items-center gap-2 rounded-full bg-surface px-3 py-1.5 text-xs font-semibold text-muted">
+            <span className="size-1.5 rounded-full bg-muted" aria-hidden="true" />
+            Paused — reload to keep checking
           </span>
         ) : (
-          <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
-            Waiting for your first pageview…
+          <span
+            className="inline-flex items-center gap-2 rounded-full bg-accent-soft px-3 py-1.5 text-xs font-semibold text-accent"
+            aria-live="polite"
+          >
+            {/* One revolution is one request. `key` restarts the sweep on each
+                real check, so the arc is a readout of the polling loop rather
+                than an idle animation running beside it. */}
+            <svg viewBox="0 0 24 24" className="size-3.5 -rotate-90" aria-hidden="true">
+              <circle
+                cx="12"
+                cy="12"
+                r="9"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                opacity="0.2"
+              />
+              <circle
+                key={checks}
+                className="animate-poll-sweep"
+                cx="12"
+                cy="12"
+                r="9"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeDasharray="56.5"
+              />
+            </svg>
+            Listening for your first pageview
           </span>
         )}
       </div>
@@ -135,6 +181,22 @@ export default function InstallSnippet({
           {copied ? "Copied" : "Copy"}
         </button>
       </div>
+
+      {/* The count is what makes the ring believable. An animation alone can
+          keep moving after the loop behind it has died; a number that climbs
+          cannot. */}
+      {!installed && !givenUp && checks > 0 ? (
+        <p className="text-xs text-muted">
+          Checked {checks} {checks === 1 ? "time" : "times"} · paste the snippet
+          and load any page on your site
+        </p>
+      ) : null}
+
+      {installed ? (
+        <p className="text-xs text-muted">
+          Your first pageview arrived. Reports build from here.
+        </p>
+      ) : null}
     </div>
   );
 }

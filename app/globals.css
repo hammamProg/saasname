@@ -411,6 +411,23 @@ body {
   animation: ready-pop 0.55s ease-out 1;
 }
 
+/* One sweep is one poll of the install check. This is deliberately not a
+   spinner: nothing is busy between checks, so a spinner would claim work that
+   is not happening. The arc restarts when the client actually re-checks, which
+   makes its position an honest answer to "is this still looking?" */
+@keyframes poll-sweep {
+  from {
+    stroke-dashoffset: 56.5;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-poll-sweep {
+  animation: poll-sweep 5s linear;
+}
+
 /* Respect a stated preference for less motion: the panel still reports
    progress, it just stops moving on its own. */
 @media (prefers-reduced-motion: reduce) {
@@ -419,6 +436,13 @@ body {
   .animate-pulse-ring,
   .animate-ready-pop {
     animation: none;
+  }
+
+  /* A ring frozen mid-sweep reads as broken, so it rests complete instead.
+     The check count below it still reports progress. */
+  .animate-poll-sweep {
+    animation: none;
+    stroke-dashoffset: 0;
   }
 }
 

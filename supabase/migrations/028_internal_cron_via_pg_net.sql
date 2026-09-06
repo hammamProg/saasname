@@ -54,10 +54,13 @@ begin
     return null;
   end if;
 
-  -- The production origin is public information (it is in config.ts and every
-  -- canonical URL), so it is inlined rather than stored as a secret.
+  -- Canonical host, not the apex. The origin is public information (it is in
+  -- config.ts and every canonical URL) so it is inlined rather than stored as
+  -- a secret, but it must be the host that actually serves: the Authorization
+  -- header does not survive the apex's 308 to www, so the call arrives
+  -- unauthenticated and is rejected.
   select net.http_get(
-    url := 'https://saasna.me' || path,
+    url := 'https://www.saasna.me' || path,
     headers := jsonb_build_object(
       'Authorization', 'Bearer ' || secret,
       'User-Agent', 'saasname-pg-cron'

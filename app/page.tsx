@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import LandingHero from "@/components/landing/LandingHero";
 import LandingHowItWorks from "@/components/landing/LandingHowItWorks";
 import LandingTrendAnatomy from "@/components/landing/LandingTrendAnatomy";
+import LandingSourcesStrip from "@/components/landing/LandingSourcesStrip";
 import LandingPricing from "@/components/landing/LandingPricing";
 import LandingFAQ from "@/components/landing/LandingFAQ";
 import LandingFinalCTA from "@/components/landing/LandingFinalCTA";
@@ -36,6 +37,7 @@ export default function Home() {
         <LandingHero />
         <LandingHowItWorks />
         <LandingTrendAnatomy />
+        <LandingSourcesStrip />
         <LandingPricing />
         <LandingFAQ />
         <LandingFinalCTA />

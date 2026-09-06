@@ -1,21 +1,6 @@
 import { SectionHeader } from "@/components/landing/shared";
 import TrendCardSample from "@/components/landing/TrendCardSample";
 
-/** The trust section, with the source list folded in as a compact strip
- *  rather than its own section — the fact that there are nine sources matters,
- *  a card each for them does not. */
-const SOURCES = [
-  "Hacker News",
-  "GitHub",
-  "npm",
-  "PyPI",
-  "arXiv",
-  "Hugging Face",
-  "Stack Overflow",
-  "Publisher feeds",
-  "Search demand",
-];
-
 const annotations = [
   {
     label: "Strength",
@@ -59,24 +44,6 @@ export default function LandingTrendAnatomy() {
               </div>
             ))}
           </dl>
-        </div>
-
-        <div className="mt-14 rounded-2xl border border-border bg-surface p-7 text-center">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted">
-            Reading every day
-          </p>
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
-            {SOURCES.map((source) => (
-              <span key={source} className="text-sm font-medium">
-                {source}
-              </span>
-            ))}
-          </div>
-          <p className="mt-4 text-xs text-muted">
-            One source moving alone is noise, and we label it that way — a
-            single-source trend stays low-confidence until something unrelated
-            confirms it.
-          </p>
         </div>
       </div>
     </section>

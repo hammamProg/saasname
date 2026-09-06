@@ -42,12 +42,21 @@ export const SAMPLE_TREND: SampleTrend = {
 export default function TrendCardSample({
   trend = SAMPLE_TREND,
   className,
+  frameless = false,
 }: {
   trend?: SampleTrend;
   className?: string;
+  /** Skips the card's own border/shadow/radius so it can sit inside an
+   *  external frame (the hero's browser-chrome mockup). */
+  frameless?: boolean;
 }) {
   return (
-    <div className={cn("glass-card overflow-hidden p-6 sm:p-7", className)}>
+    <div
+      className={cn(
+        frameless ? "p-6 sm:p-7" : "glass-card overflow-hidden p-6 sm:p-7",
+        className
+      )}
+    >
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">

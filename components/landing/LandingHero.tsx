@@ -58,8 +58,13 @@ export default function LandingHero() {
             </ul>
           </div>
 
-          <div className="animate-fade-up [animation-delay:150ms]">
-            <TrendCardSample />
+          <div className="animate-fade-up overflow-hidden rounded-2xl border border-border bg-card shadow-[0_24px_60px_-24px_rgba(26,26,26,0.25)] [animation-delay:150ms]">
+            <div className="flex items-center gap-1.5 border-b border-border bg-surface px-4 py-3">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#FF5F57]" aria-hidden />
+              <span className="h-2.5 w-2.5 rounded-full bg-[#FEBC2E]" aria-hidden />
+              <span className="h-2.5 w-2.5 rounded-full bg-[#28C840]" aria-hidden />
+            </div>
+            <TrendCardSample frameless />
           </div>
         </div>
       </div>

@@ -1,7 +1,14 @@
 import { createSupabaseAdmin } from "@/libs/supabase";
 import { createOpenAiProvider, isOpenAiConfigured } from "@/libs/llm/openai";
+import { numberFromEnv } from "@/libs/trends/env";
 
-const MODEL = "gpt-4.1-mini";
+/** Overridable so the model can be changed without a deploy — the default is
+ *  a small, cheap chat model, and summaries are one sentence each. */
+const MODEL = process.env.TRENDS_SUMMARY_MODEL?.trim() || "gpt-4.1-mini";
+
+/** Topics summarized per run. Bounded so the nightly cron stays inside its
+ *  maxDuration; raise it for a one-off backlog pass. */
+const SUMMARY_BATCH_SIZE = numberFromEnv("TRENDS_SUMMARY_BATCH_SIZE", 50);
 const SYSTEM_PROMPT =
   "You write one-sentence, plain-language trend summaries from evidence titles. " +
   "Never state a fact not implied by the titles given. Respond as JSON: " +
@@ -40,7 +47,7 @@ export async function summarizeTopicsNeedingSummary(): Promise<{ summarized: num
     .from("topics")
     .select("id, canonical_name")
     .is("description", null)
-    .limit(50);
+    .limit(SUMMARY_BATCH_SIZE);
 
   if (error) {
     throw new Error(`Failed to load topics needing summary: ${error.message}`);

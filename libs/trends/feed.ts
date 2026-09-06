@@ -1,4 +1,6 @@
 import { createClient } from "@/libs/supabase/server";
+import { limitsForPlan, type PlanId } from "@/libs/plans";
+import { lockedTopicIds } from "@/libs/trends/locked-topics";
 
 export type TrendCardData = {
   id: string;
@@ -14,7 +16,32 @@ export type TrendCardData = {
   momentum: number;
   sourceCount: number;
   whyRecommended: string;
+  /** Rendered as a locked teaser. The substance (name, description) is
+   *  redacted server-side rather than merely blurred in CSS — a blur is
+   *  bypassed by reading the DOM, so a paywall implemented in styling is not
+   *  a paywall. Metadata is deliberately kept so the card can still show what
+   *  kind of thing is being held back. */
+  isLocked: boolean;
 };
+
+const LOCKED_NAME = "Locked trend";
+const LOCKED_DESCRIPTION =
+  "One of the strongest signals in your categories right now.";
+
+/** Strips the substance from a locked card before it leaves the server. */
+function redactLocked(card: TrendCardData): TrendCardData {
+  if (!card.isLocked) {
+    return card;
+  }
+
+  return {
+    ...card,
+    name: LOCKED_NAME,
+    description: LOCKED_DESCRIPTION,
+    // The slug is the detail-page address, so it must not leak either.
+    slug: "",
+  };
+}
 
 type TopicRow = {
   id: string;
@@ -155,7 +182,8 @@ function toCardData(
   momentumByTopic: Map<string, number>,
   sourceCountByTopicMap: Map<string, number>,
   categoryNames: Map<string, string>,
-  whyRecommended: string
+  whyRecommended: string,
+  isLocked: boolean
 ): TrendCardData {
   return {
     id: row.id,
@@ -171,6 +199,7 @@ function toCardData(
     momentum: momentumByTopic.get(row.id) ?? 0,
     sourceCount: sourceCountByTopicMap.get(row.id) ?? 0,
     whyRecommended,
+    isLocked,
   };
 }
 
@@ -178,25 +207,31 @@ async function enrichRows(
   supabase: Awaited<ReturnType<typeof createClient>>,
   rows: TopicRow[],
   followed: Set<string>,
-  whyFor: (row: TopicRow, categoryNames: Map<string, string>) => string
+  whyFor: (row: TopicRow, categoryNames: Map<string, string>) => string,
+  plan: PlanId
 ): Promise<TrendCardData[]> {
   const topicIds = rows.map((row) => row.id);
   const categoryIds = [...new Set(rows.map((row) => row.category_id).filter(Boolean))] as string[];
 
-  const [momentumByTopic, sourceCountByTopicMap, categoryNames] = await Promise.all([
-    latestMomentumByTopic(supabase, topicIds),
-    sourceCountByTopic(supabase, topicIds),
-    categoryNamesByIds(supabase, categoryIds),
-  ]);
+  const [momentumByTopic, sourceCountByTopicMap, categoryNames, locked] =
+    await Promise.all([
+      latestMomentumByTopic(supabase, topicIds),
+      sourceCountByTopic(supabase, topicIds),
+      categoryNamesByIds(supabase, categoryIds),
+      lockedTopicIds(plan),
+    ]);
 
   return rows.map((row) =>
-    toCardData(
-      row,
-      followed,
-      momentumByTopic,
-      sourceCountByTopicMap,
-      categoryNames,
-      whyFor(row, categoryNames)
+    redactLocked(
+      toCardData(
+        row,
+        followed,
+        momentumByTopic,
+        sourceCountByTopicMap,
+        categoryNames,
+        whyFor(row, categoryNames),
+        locked.has(row.id)
+      )
     )
   );
 }
@@ -207,9 +242,11 @@ async function enrichRows(
  *  feed. */
 export async function getForYouFeed(
   userId: string,
-  selectedCategories: string[]
+  selectedCategories: string[],
+  plan: PlanId = "free"
 ): Promise<TrendCardData[]> {
   const supabase = await createClient();
+  const limits = limitsForPlan(plan);
   const [hidden, followed] = await Promise.all([
     hiddenTopicIds(supabase, userId),
     followedTopicIds(supabase, userId),
@@ -228,22 +265,34 @@ export async function getForYouFeed(
     query = query.not("id", "in", `(${hidden.join(",")})`);
   }
 
-  const { data, error } = await query.order("trend_score", { ascending: false }).limit(FEED_LIMIT);
+  const { data, error } = await query
+    .order("trend_score", { ascending: false })
+    .limit(limits.forYouLimit);
 
   if (error) {
     throw new Error(`Failed to load For You feed: ${error.message}`);
   }
 
-  return enrichRows(supabase, (data ?? []) as TopicRow[], followed, (row, categoryNames) => {
-    const categoryName = row.category_id ? categoryNames.get(row.category_id) : undefined;
-    return categoryName ? `You follow ${categoryName}` : "Matches your interests";
-  });
+  return enrichRows(
+    supabase,
+    (data ?? []) as TopicRow[],
+    followed,
+    (row, categoryNames) => {
+      const categoryName = row.category_id ? categoryNames.get(row.category_id) : undefined;
+      return categoryName ? `You follow ${categoryName}` : "Matches your interests";
+    },
+    plan
+  );
 }
 
 /** Unfiltered by category on purpose — the exploration slot that prevents
  *  the filter-bubble narrowing the design doc calls out. */
-export async function getRisingFastFeed(userId: string): Promise<TrendCardData[]> {
+export async function getRisingFastFeed(
+  userId: string,
+  plan: PlanId = "free"
+): Promise<TrendCardData[]> {
   const supabase = await createClient();
+  const limits = limitsForPlan(plan);
   const [hidden, followed] = await Promise.all([
     hiddenTopicIds(supabase, userId),
     followedTopicIds(supabase, userId),
@@ -258,11 +307,19 @@ export async function getRisingFastFeed(userId: string): Promise<TrendCardData[]
     query = query.not("id", "in", `(${hidden.join(",")})`);
   }
 
-  const { data, error } = await query.order("trend_score", { ascending: false }).limit(10);
+  const { data, error } = await query
+    .order("trend_score", { ascending: false })
+    .limit(limits.risingFastLimit);
 
   if (error) {
     throw new Error(`Failed to load Rising Fast feed: ${error.message}`);
   }
 
-  return enrichRows(supabase, (data ?? []) as TopicRow[], followed, () => "Trending across sources");
+  return enrichRows(
+    supabase,
+    (data ?? []) as TopicRow[],
+    followed,
+    () => "Trending across sources",
+    plan
+  );
 }

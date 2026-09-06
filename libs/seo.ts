@@ -21,7 +21,7 @@ export function getSEOTags({
   openGraph,
   robots,
 }: SEOTags = {}): import("next").Metadata {
-  const defaultTitle = `${config.appName} — find a SaaS name that is actually free`;
+  const defaultTitle = `${config.appName} — catch the trend before it's crowded`;
   const resolvedTitle = title ?? defaultTitle;
   const resolvedDescription = description ?? config.appDescription;
   const canonicalPath = canonicalUrlRelative ?? "/";
@@ -31,9 +31,9 @@ export function getSEOTags({
     description: resolvedDescription,
     keywords: keywords ?? [
       config.appName,
-      "SaaS name checker",
-      "business name availability",
-      "domain and trademark check",
+      "trend discovery",
+      "emerging tech trends",
+      "what to build next",
     ],
     metadataBase: new URL(siteUrl),
     alternates: {

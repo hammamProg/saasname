@@ -1,7 +1,11 @@
 import { notFound } from "next/navigation";
 import { requireUser } from "@/libs/supabase/require-user";
+import { getProfileAccess } from "@/libs/access";
+import { planForAccess } from "@/libs/plans";
+import { lockedTopicIds } from "@/libs/trends/locked-topics";
 import { getTopicDetail } from "@/libs/trends/topic-detail";
 import { getSEOTags } from "@/libs/seo";
+import LockedTrendNotice from "@/components/dashboard/LockedTrendNotice";
 
 const STAGE_LABELS: Record<string, string> = {
   early_signal: "Early signal",
@@ -21,6 +25,19 @@ export async function generateMetadata({
   const { slug } = await params;
   const detail = await getTopicDetail(slug);
 
+  // Metadata is rendered before the access check, so a locked trend's name
+  // would otherwise leak through the page title.
+  if (detail) {
+    const locked = await lockedTopicIds("free");
+    if (locked.has(detail.id)) {
+      return getSEOTags({
+        title: "Locked trend",
+        description: "One of the strongest trends right now.",
+        canonicalUrlRelative: `/dashboard/trends/${slug}`,
+      });
+    }
+  }
+
   return getSEOTags({
     title: detail?.name ?? "Trend",
     description: detail?.description ?? "Trend detail",
@@ -33,12 +50,22 @@ export default async function TrendDetailPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  await requireUser();
+  const user = await requireUser();
   const { slug } = await params;
   const detail = await getTopicDetail(slug);
 
   if (!detail) {
     notFound();
+  }
+
+  // The feed redacts locked trends, but a slug can still be guessed or shared,
+  // so the gate is enforced here too rather than only at the list level.
+  const access = await getProfileAccess(user.id);
+  const plan = planForAccess(access?.has_access ?? false);
+  const locked = await lockedTopicIds(plan);
+
+  if (locked.has(detail.id)) {
+    return <LockedTrendNotice />;
   }
 
   return (

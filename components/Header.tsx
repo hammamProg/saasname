@@ -9,7 +9,7 @@ import config from "@/config";
 
 const links = [
   { href: "#how-it-works", label: "How it works" },
-  { href: "#features", label: "What we check" },
+  { href: "#what-you-get", label: "What you get" },
   { href: "#pricing", label: "Pricing" },
   { href: "#faq", label: "FAQ" },
 ];

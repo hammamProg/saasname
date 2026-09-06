@@ -1,6 +1,5 @@
 import config from "@/config";
 import { siteUrl } from "@/libs/seo";
-import { getCreditPacks } from "@/libs/credits/packs";
 import { LANDING_FAQS } from "@/libs/landing-faqs";
 
 /**
@@ -16,65 +15,65 @@ import { LANDING_FAQS } from "@/libs/landing-faqs";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const packs = getCreditPacks();
-
   const body = `# ${config.appName}
 
 > ${config.appDescription}
 
-${config.appName} answers one question: is this name actually free to use?
-Describe a product idea and it writes candidate names, then checks each name
-against six independent sources and returns a per-name verdict with links to
-the evidence behind every signal.
+${config.appName} answers one question: what is gaining momentum right now that
+I should know about? It ingests signals from nine public sources, clusters
+related activity into named topics, scores each topic on momentum and
+cross-source confirmation, and serves a personalised feed of the result.
 
-## What it checks, per name
+## Sources
 
-- Domain availability for .com, .io, .ai, .dev and .app, read from the
-  registries' own RDAP servers rather than a reseller.
-- Live US trademark records for the exact wordmark, from the USPTO.
-- Existing apps on the Apple App Store.
-- Existing listings on Google Play.
-- Handle availability on GitHub, X and LinkedIn.
-- Web search presence for the exact phrase.
+- Hacker News — launches and discussion.
+- GitHub — newly created repositories and star velocity.
+- npm — JavaScript package publication and popularity.
+- PyPI — newly published Python packages.
+- Curated publisher feeds — engineering blogs and changelogs.
+- arXiv — new research in cs.AI, cs.CL and cs.LG.
+- Hugging Face — model and dataset traction.
+- Stack Overflow — developer questions, as an adoption-pain signal.
+- Keyword search demand — search volume, competition and cost per click.
 
-That is 12 outbound lookups per name. Signals roll up into one verdict per
-name: clear, contested, blocked, or unknown.
+## How a trend is produced
+
+1. Each connector runs on its own schedule and writes deduplicated signals.
+2. Signals are embedded and clustered into topics by semantic similarity.
+3. A nightly job snapshots each topic's daily activity and scores it on
+   momentum, cross-source confirmation and sustained growth.
+4. Each topic is assigned a stage: early signal, emerging, accelerating,
+   established, or cooling.
+5. A one-sentence summary is generated from the stored evidence titles only.
 
 ## What it does not claim
 
-- It is not legal advice, and not a trademark clearance opinion. The trademark
-  check is a screening signal covering live US wordmarks only.
-- A source that could not be reached is reported as unknown. Unknown never
-  means available, and an unknown can never produce a "clear" verdict.
-- Instagram, TikTok and similar are not checked, because they answer
-  identically for a taken handle and one that never existed, so a check there
-  would carry no information.
-- Domain availability moves minute to minute. A result is true when read.
+- Scores are arithmetic over observed public signals, not predictions. A high
+  momentum reading describes what has already happened, not what will.
+- A topic confirmed by a single source stays at low confidence and is labelled
+  as such. Cross-source agreement is the thing being measured.
+- Summaries are generated from evidence titles and are always shown with links
+  to that evidence. No quantitative claim is displayed without its source.
+- Coverage is limited to the nine sources above. Absence from the feed is not
+  evidence that something is not happening.
+- Search demand figures are supplied by a third-party keyword provider and
+  reflect its estimates, not measured traffic.
 
 ## Pricing
 
-One credit checks one name across all six sources. Generating candidate names
-is free. Credits are sold in one-time packs, never expire, and nothing renews.
-${config.credits.signupGrant} credits are granted on signup.
-
-${packs
-  .map((pack) => `- ${pack.name}: ${pack.credits} credits. ${pack.description}`)
-  .join("\n")}
-
-Live prices are shown at ${siteUrl}/#pricing and charged by our payment
-processor as merchant of record.
+The Discover feed is free to any signed-in account while in beta. There is no
+card required and no paywalled feed.
 
 ## Confidentiality
 
-Reports are readable only by the account that created them, enforced by the
-database below the application rather than by application code. Sharing is opt-in per report, revocable, and
-noindexed. Ideas are never sold or used to train models. Every category of recipient
-is listed at ${siteUrl}/confidentiality, and a standing NDA is
-published at ${siteUrl}/nda.
+Accounts, interests, follows and hidden topics are readable only by the account
+that created them, enforced by the database below the application rather than by
+application code. Every category of recipient is listed at
+${siteUrl}/confidentiality, and a standing NDA is published at ${siteUrl}/nda.
 
 ## Pages
 
-- [Home](${siteUrl}/): what it does, how it works, pricing, FAQ.
+- [Home](${siteUrl}/): what it does, the sources, how trends are scored, FAQ.
 - [Confidentiality](${siteUrl}/confidentiality): every provider that receives data, and what each receives.
 - [NDA](${siteUrl}/nda): standing confidentiality undertaking, effective on use.
 - [Privacy policy](${siteUrl}/privacy-policy)

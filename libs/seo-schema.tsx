@@ -1,6 +1,5 @@
 import config from "@/config";
 import { siteUrl } from "@/libs/seo";
-import { getCreditPacks } from "@/libs/credits/packs";
 
 /**
  * JSON-LD for the landing page.
@@ -11,8 +10,6 @@ import { getCreditPacks } from "@/libs/credits/packs";
  * this block without parsing the DOM.
  */
 export function renderSchemaTags(faqs: Array<{ question: string; answer: string }> = []) {
-  const packs = getCreditPacks();
-
   const graph: Record<string, unknown>[] = [
     {
       "@type": "WebSite",
@@ -39,25 +36,23 @@ export function renderSchemaTags(faqs: Array<{ question: string; answer: string 
       url: siteUrl,
       description: config.appDescription,
       featureList: [
-        "Generate SaaS name candidates from a product description",
-        "Domain availability across .com, .io, .ai, .dev and .app via RDAP",
-        "US trademark screening against live USPTO wordmarks",
-        "Apple App Store name collision check",
-        "Google Play name collision check",
-        "GitHub, X and LinkedIn handle availability",
-        "Web search presence for the exact name",
-        "Per-name verdict of clear, contested or blocked, with a score",
-        "Shareable, revocable read-only reports",
+        "Daily trend signals from Hacker News, GitHub, npm and PyPI",
+        "Research and model traction from arXiv and Hugging Face",
+        "Developer adoption pain from Stack Overflow questions",
+        "Keyword search demand as a confirming signal",
+        "Related signals clustered into named topics automatically",
+        "Momentum, confidence and lifecycle stage scored nightly",
+        "Personalised Discover feed with follow and hide controls",
+        "An unfiltered Rising Fast column to counter filter bubbles",
+        "Every trend linked to the source signals behind its score",
       ],
-      // Priced from Paddle at render time; omitted rather than guessed when a
-      // pack has no configured price.
-      offers: packs.map((pack) => ({
+      offers: {
         "@type": "Offer",
-        name: `${pack.name} — ${pack.credits} credits`,
-        description: pack.description,
-        category: "One-time credit pack",
-        url: `${siteUrl}/#pricing`,
-      })),
+        price: "0",
+        priceCurrency: "USD",
+        description: "Discover feed, free for any signed-in account while in beta.",
+        url: siteUrl,
+      },
     },
   ];
 

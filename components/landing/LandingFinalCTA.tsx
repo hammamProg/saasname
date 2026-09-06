@@ -1,33 +1,34 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import config from "@/config";
+import MarketingBackdrop from "@/components/ui/MarketingBackdrop";
 
 export default function LandingFinalCTA() {
   return (
-    <section className="relative overflow-hidden py-24 sm:py-32">
-      <div
-        className="pointer-events-none absolute inset-0 border-y border-border bg-surface"
-        aria-hidden
-      />
+    <section className="relative overflow-hidden py-24 sm:py-28">
+      <MarketingBackdrop variant="section" dark />
 
-      <div className="relative mx-auto max-w-4xl px-4 text-center sm:px-6">
-        <h2 className="section-heading text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
-          Settle the name{" "}
-          <span className="gradient-text">before you build the brand.</span>
+      <div className="relative mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
+        <h2 className="section-heading text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl">
+          Someone is building it{" "}
+          <span className="gradient-text">right now.</span>
         </h2>
-        <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted sm:text-xl">
-          Six sources, one report, one credit per name. Your first{" "}
-          {config.credits.signupGrant} searches are free.
+        <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-muted">
+          Pick a few interests and see what your feed surfaces. It takes about a
+          minute, and the free plan costs nothing.
         </p>
 
-        <div className="mt-10 flex justify-center">
+        <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-5">
           <Link
             href={config.auth.loginUrl}
-            className="btn-gradient px-10 py-4 text-base"
+            className="btn-gradient px-8 py-3.5 text-sm"
           >
             Start free
-            <ArrowRight size={18} />
+            <ArrowRight size={16} />
           </Link>
+          <span className="text-sm text-muted">
+            Free plan, no card required.
+          </span>
         </div>
       </div>
     </section>

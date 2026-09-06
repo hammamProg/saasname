@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
+import { Lock } from "lucide-react";
 import type { TrendCardData } from "@/libs/trends/feed";
 
 const STAGE_LABELS: Record<string, string> = {
@@ -15,13 +16,33 @@ const STAGE_LABELS: Record<string, string> = {
 export default function TrendCard({ trend }: { trend: TrendCardData }) {
   const [isFollowed, setIsFollowed] = useState(trend.isFollowed);
   const [isHidden, setIsHidden] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   function toggleFollow() {
     const next = !isFollowed;
+    // Optimistic, but reverted below if the write is refused — a follow that
+    // silently didn't happen is worse than a slower button.
     setIsFollowed(next);
+    setError(null);
+
     startTransition(async () => {
-      await fetch(`/api/trends/${trend.id}/follow`, { method: next ? "POST" : "DELETE" });
+      try {
+        const response = await fetch(`/api/trends/${trend.id}/follow`, {
+          method: next ? "POST" : "DELETE",
+        });
+
+        if (!response.ok) {
+          const body = (await response.json().catch(() => ({}))) as {
+            error?: string;
+          };
+          setIsFollowed(!next);
+          setError(body.error ?? "Could not save that. Try again.");
+        }
+      } catch {
+        setIsFollowed(!next);
+        setError("Could not save that. Try again.");
+      }
     });
   }
 
@@ -33,6 +54,44 @@ export default function TrendCard({ trend }: { trend: TrendCardData }) {
   }
 
   if (isHidden) return null;
+
+  // Locked cards arrive already redacted from the server — the blur is
+  // presentation only, never the access control.
+  if (trend.isLocked) {
+    return (
+      <div className="relative overflow-hidden rounded-2xl border border-primary/25 bg-card p-6">
+        <div aria-hidden className="select-none blur-sm">
+          <p className="text-lg font-bold">{trend.name}</p>
+          <p className="mt-1 text-sm text-muted">{trend.description}</p>
+          <div className="mt-4 flex flex-wrap gap-4 text-xs text-muted">
+            <span>Trend score {Math.round(trend.trendScore)}</span>
+            <span>
+              {trend.sourceCount} {trend.sourceCount === 1 ? "source" : "sources"}
+            </span>
+          </div>
+        </div>
+
+        <div className="mt-5 flex flex-col items-start gap-3 border-t border-border pt-5">
+          <span className="inline-flex items-center gap-2 text-sm font-bold">
+            <Lock size={15} className="shrink-0 text-primary" aria-hidden />
+            One of the strongest trends right now
+          </span>
+          <p className="text-xs leading-relaxed text-muted">
+            {trend.categoryName
+              ? `A high-scoring opportunity in ${trend.categoryName}.`
+              : "A high-scoring opportunity in your categories."}{" "}
+            Pro unlocks the trend, the evidence, and why it&apos;s moving.
+          </p>
+          <Link
+            href="/dashboard/billing"
+            className="btn-gradient px-5 py-2.5 text-xs"
+          >
+            Unlock with Pro
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="rounded-2xl border border-border bg-card p-6">
@@ -87,6 +146,8 @@ export default function TrendCard({ trend }: { trend: TrendCardData }) {
           Hide
         </button>
       </div>
+
+      {error && <p className="mt-3 text-xs text-red-600">{error}</p>}
     </div>
   );
 }

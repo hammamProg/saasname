@@ -1,11 +1,21 @@
 import { createSupabaseAdmin } from "@/libs/supabase";
 import { computeTrendScore, type SnapshotInput } from "@/libs/trends/score";
+import { numberFromEnv } from "@/libs/trends/env";
 
 /** A topic is auto-published once it clears both bars — cross-source
  *  confirmation and a minimum confidence — rather than by human review
- *  (design doc: no editorial console this slice). */
-const PUBLISH_CONFIDENCE_THRESHOLD = 40;
-const PUBLISH_MIN_SOURCES = 2;
+ *  (design doc: no editorial console this slice).
+ *
+ *  Both are env-tunable because the defaults are a cold-start trap: on a fresh
+ *  database almost every topic is seeded by a single signal, so requiring two
+ *  distinct sources means nothing ever publishes and the feed looks broken
+ *  rather than empty. Drop TRENDS_PUBLISH_MIN_SOURCES to 1 to bootstrap, then
+ *  raise it once enough signal volume exists for real cross-source agreement. */
+const PUBLISH_CONFIDENCE_THRESHOLD = numberFromEnv(
+  "TRENDS_PUBLISH_CONFIDENCE_THRESHOLD",
+  40
+);
+const PUBLISH_MIN_SOURCES = numberFromEnv("TRENDS_PUBLISH_MIN_SOURCES", 2);
 
 function sumEngagement(metrics: Record<string, number>): number {
   return Object.values(metrics).reduce((total, value) => total + (value || 0), 0);
@@ -28,18 +38,36 @@ export async function runDailySnapshotAndScore(): Promise<{ topicsProcessed: num
   // Every topic gets a fresh snapshot each run, regardless of
   // editorial_status — a `needs_review` topic still needs its score updated
   // so it has a chance to clear the publish threshold on a later run.
-  const { data: topics, error: topicsError } = await supabase
-    .from("topics")
-    .select("id")
-    .limit(500);
+  //
+  // Paged rather than a flat `.limit(500)`: with more than 500 topics that cap
+  // silently scored the same arbitrary slice every night and left the rest
+  // permanently unscored, so they could never reach the publish threshold no
+  // matter how much evidence accumulated. Ordering by id keeps paging stable.
+  const topics: Array<{ id: string }> = [];
+  const PAGE_SIZE = 500;
 
-  if (topicsError) {
-    throw new Error(`Failed to load topics: ${topicsError.message}`);
+  for (let from = 0; ; from += PAGE_SIZE) {
+    const { data: page, error: topicsError } = await supabase
+      .from("topics")
+      .select("id")
+      .order("id", { ascending: true })
+      .range(from, from + PAGE_SIZE - 1);
+
+    if (topicsError) {
+      throw new Error(`Failed to load topics: ${topicsError.message}`);
+    }
+
+    const rows = page ?? [];
+    topics.push(...(rows as Array<{ id: string }>));
+
+    if (rows.length < PAGE_SIZE) {
+      break;
+    }
   }
 
   let processed = 0;
 
-  for (const topic of topics ?? []) {
+  for (const topic of topics) {
     try {
       const { data: signals, error: signalsError } = await supabase
         .from("signals")

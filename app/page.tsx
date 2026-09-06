@@ -2,13 +2,8 @@ import { Suspense } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import LandingHero from "@/components/landing/LandingHero";
-import LandingProblem from "@/components/landing/LandingProblem";
-import LandingSolution from "@/components/landing/LandingSolution";
 import LandingHowItWorks from "@/components/landing/LandingHowItWorks";
-import LandingReportPreview from "@/components/landing/LandingReportPreview";
-import LandingComparison from "@/components/landing/LandingComparison";
-import LandingFounderBenefits from "@/components/landing/LandingFounderBenefits";
-import LandingSources from "@/components/landing/LandingSources";
+import LandingTrendAnatomy from "@/components/landing/LandingTrendAnatomy";
 import LandingPricing from "@/components/landing/LandingPricing";
 import LandingFAQ from "@/components/landing/LandingFAQ";
 import LandingFinalCTA from "@/components/landing/LandingFinalCTA";
@@ -18,14 +13,14 @@ import { renderSchemaTags } from "@/libs/seo-schema";
 import { LANDING_FAQS } from "@/libs/landing-faqs";
 
 export const metadata = getSEOTags({
-  title: "Find a SaaS name that is actually free to use",
+  title: "Catch the trend before it's crowded",
   description: config.appDescription,
   keywords: [
-    "saas name generator",
-    "domain availability check",
-    "trademark search",
-    "startup name checker",
-    "app name availability",
+    "emerging trends",
+    "trend discovery",
+    "what to build next",
+    "saas idea validation",
+    "early market signals",
   ],
   canonicalUrlRelative: "/",
 });
@@ -39,13 +34,8 @@ export default function Home() {
       </Suspense>
       <main>
         <LandingHero />
-        <LandingProblem />
-        <LandingSolution />
         <LandingHowItWorks />
-        <LandingReportPreview />
-        <LandingComparison />
-        <LandingFounderBenefits />
-        <LandingSources />
+        <LandingTrendAnatomy />
         <LandingPricing />
         <LandingFAQ />
         <LandingFinalCTA />

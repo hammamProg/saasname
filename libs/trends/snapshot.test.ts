@@ -14,7 +14,17 @@ const state = vi.hoisted(() => ({
 function fromMock(table: string) {
   if (table === "topics") {
     return {
-      select: () => ({ limit: async () => ({ data: state.topics, error: null }) }),
+      // Topics are read in stable-ordered pages rather than one capped
+      // `.limit(500)`. The mock mirrors `.order().range()` and slices, so
+      // multi-page paging is genuinely exercised rather than short-circuited.
+      select: () => ({
+        order: () => ({
+          range: async (from: number, to: number) => ({
+            data: state.topics.slice(from, to + 1),
+            error: null,
+          }),
+        }),
+      }),
       update: (values: Record<string, unknown>) => ({
         eq: async (_column: string, id: string) => {
           state.updatedTopic = values;
@@ -111,5 +121,22 @@ describe("runDailySnapshotAndScore", () => {
     );
 
     consoleErrorSpy.mockRestore();
+  });
+});
+
+describe("runDailySnapshotAndScore paging", () => {
+  it("scores topics beyond the first page", async () => {
+    // The bug this covers: a flat `.limit(500)` silently scored only the first
+    // 500 topics every night, so anything past that could never reach the
+    // publish threshold regardless of how much evidence accumulated.
+    state.topics = Array.from({ length: 640 }, (_, index) => ({
+      id: `topic-${index}`,
+    }));
+
+    const result = await runDailySnapshotAndScore();
+
+    expect(result).toEqual({ topicsProcessed: 640 });
+    expect(state.updatedTopicIds).toHaveLength(640);
+    expect(state.updatedTopicIds).toContain("topic-639");
   });
 });

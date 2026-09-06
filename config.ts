@@ -1,7 +1,7 @@
 const config = {
   appName: "SaaSNa.me",
   appDescription:
-    "Find a SaaS name that is actually free to use — checked across app stores, web search, social handles, trademarks, and domains.",
+    "Catch the trend before it's crowded — emerging opportunities clustered from Hacker News, GitHub, npm, PyPI, arXiv, Hugging Face, Stack Overflow and search demand, ranked by signal strength and backed by linked evidence.",
   domainName: "saasna.me",
   productionUrl: "https://saasna.me",
   supportEmail: "support@saasna.me",

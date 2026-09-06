@@ -98,7 +98,7 @@ describe("getForYouFeed", () => {
   });
 
   it("returns topics mapped to card data, marked as followed, with momentum/source/why fields", async () => {
-    const feed = await getForYouFeed("user-1", ["ai"]);
+    const feed = await getForYouFeed("user-1", ["ai"], "pro");
 
     expect(feed).toEqual([
       {
@@ -115,8 +115,24 @@ describe("getForYouFeed", () => {
         momentum: 12,
         sourceCount: 2,
         whyRecommended: "You follow AI",
+        isLocked: false,
       },
     ]);
+  });
+
+  it("redacts a locked trend's name, description and slug for free accounts", async () => {
+    const [card] = await getForYouFeed("user-1", ["ai"], "free");
+
+    expect(card.isLocked).toBe(true);
+    // The paywall has to hold in the payload, not just in CSS — the real name,
+    // summary and detail-page address must never reach the client.
+    expect(card.name).not.toBe("AI Receptionists");
+    expect(card.description).not.toBe("d");
+    expect(card.slug).toBe("");
+    // Metadata is intentionally still present so the card can say what kind of
+    // thing is being held back.
+    expect(card.categoryName).toBe("AI");
+    expect(card.trendScore).toBe(80);
   });
 
   it("does not filter by category when selectedCategories is empty", async () => {

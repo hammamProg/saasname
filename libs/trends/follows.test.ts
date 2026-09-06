@@ -1,14 +1,26 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { followTopic, unfollowTopic, hideTopic } from "@/libs/trends/follows";
+import {
+  followTopic,
+  unfollowTopic,
+  hideTopic,
+  FollowLimitReachedError,
+} from "@/libs/trends/follows";
 
 const upsert = vi.hoisted(() => vi.fn(async () => ({ error: null })));
 const del = vi.hoisted(() => vi.fn(() => ({ eq: () => ({ eq: async () => ({ error: null }) }) })));
+const existingFollows = vi.hoisted(() => ({ rows: [] as Array<{ topic_id: string }> }));
 
 vi.mock("@/libs/supabase/server", () => ({
   createClient: async () => ({
     from: (table: string) => {
       if (table === "follows" || table === "hidden_topics") {
-        return { upsert, delete: del };
+        return {
+          upsert,
+          delete: del,
+          select: () => ({
+            eq: async () => ({ data: existingFollows.rows, error: null }),
+          }),
+        };
       }
       throw new Error(`unexpected table ${table}`);
     },
@@ -17,6 +29,42 @@ vi.mock("@/libs/supabase/server", () => ({
 
 beforeEach(() => {
   vi.clearAllMocks();
+  existingFollows.rows = [];
+});
+
+describe("followTopic follow limit", () => {
+  it("allows the write when no limit applies", async () => {
+    existingFollows.rows = [{ topic_id: "a" }, { topic_id: "b" }, { topic_id: "c" }];
+
+    await followTopic("user-1", "topic-new", null);
+
+    expect(upsert).toHaveBeenCalled();
+  });
+
+  it("refuses a new follow once the cap is reached", async () => {
+    existingFollows.rows = [{ topic_id: "a" }, { topic_id: "b" }, { topic_id: "c" }];
+
+    await expect(followTopic("user-1", "topic-new", 3)).rejects.toBeInstanceOf(
+      FollowLimitReachedError
+    );
+    expect(upsert).not.toHaveBeenCalled();
+  });
+
+  it("stays idempotent for an already-followed topic at the cap", async () => {
+    existingFollows.rows = [{ topic_id: "a" }, { topic_id: "b" }, { topic_id: "c" }];
+
+    await followTopic("user-1", "b", 3);
+
+    expect(upsert).toHaveBeenCalled();
+  });
+
+  it("allows a new follow below the cap", async () => {
+    existingFollows.rows = [{ topic_id: "a" }];
+
+    await followTopic("user-1", "topic-new", 3);
+
+    expect(upsert).toHaveBeenCalled();
+  });
 });
 
 describe("follows", () => {

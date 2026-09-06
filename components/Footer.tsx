@@ -37,8 +37,8 @@ export default function Footer({ variant = "default" }: FooterProps) {
               </Link>
             </li>
             <li>
-              <Link href="#pricing" className="hover:text-accent">
-                Pricing
+              <Link href="/#how-it-works" className="hover:text-accent">
+                How it works
               </Link>
             </li>
             <li>

@@ -1,14 +1,25 @@
 import { createSupabaseAdmin } from "@/libs/supabase";
 import { embedText } from "@/libs/llm/openai-embeddings";
+import { numberFromEnv } from "@/libs/trends/env";
 
 /** Cosine similarity above this merges a signal into an existing topic;
- *  below it, the signal seeds a new topic instead. Picked as a starting
- *  point per the design doc — tune once real clustering output can be
- *  eyeballed against `topics.editorial_status`. */
-const MERGE_THRESHOLD = 0.82;
+ *  below it, the signal seeds a new topic instead.
+ *
+ *  The original 0.82 was a guess and turned out to be unreachable: measured
+ *  over 6,555 real topic pairs, mean similarity was 0.19 and the single most
+ *  similar pair in the whole corpus was 0.77, so nothing ever merged and every
+ *  signal became its own topic. 0.72 sits just under that genuinely-same-topic
+ *  pair and above the 0.60-0.67 band of merely-related ones. Env-tunable
+ *  because the right value depends on the signal mix, and it needs to be
+ *  adjustable against real output without a deploy. */
+const MERGE_THRESHOLD = numberFromEnv("TRENDS_MERGE_THRESHOLD", 0.72);
 /** Caps one pipeline run so a slow embedding provider can't blow past the
- *  cron route's maxDuration. */
-const BATCH_SIZE = 200;
+ *  cron route's maxDuration. Tunable because the nightly ceiling and a
+ *  one-off bootstrap have opposite needs: a fresh database can have thousands
+ *  of unclustered signals, and at 200 a run it would take weeks of nightly
+ *  jobs to work through the backlog. Raise it for a manual
+ *  `npm run trends:run`, leave it at the default for cron. */
+const BATCH_SIZE = numberFromEnv("TRENDS_CLUSTER_BATCH_SIZE", 200);
 
 function slugify(title: string): string {
   const base = title

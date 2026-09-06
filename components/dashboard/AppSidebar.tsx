@@ -39,11 +39,10 @@ const NAV_GROUPS: Array<{ label: string; items: NavItem[] }> = [
     label: "Account",
     items: [
       {
-        href: "/dashboard/credits",
-        label: "Credits",
+        href: "/dashboard/billing",
+        label: "Billing",
         icon: Coins,
         exact: false,
-        badge: "credits",
       },
       { href: "/dashboard/settings", label: "Settings", icon: Settings, exact: false },
     ],

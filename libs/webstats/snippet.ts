@@ -44,16 +44,33 @@ export function snippetVariants(siteId: string): SnippetVariant[] {
     {
       id: "nextjs",
       label: "Next.js",
-      hint: "Add to app/layout.tsx inside the <head> element.",
+      hint: "Add to app/layout.tsx. Works with the App Router.",
       language: "tsx",
+      // A whole layout rather than a fragment: the previous version was three
+      // lines with a "// inside your root layout" comment in the middle, which
+      // is not something anyone can paste. Note there is no `defer` — the
+      // attribute only means anything on a parser-inserted tag, and next/script
+      // injects it, so `strategy` is what controls load timing here.
       code: `import Script from "next/script";
 
-// inside your root layout
-<Script
-  defer
-  data-site="${siteId}"
-  src="${src}"
-/>`,
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body>
+        {children}
+        <Script
+          src="${src}"
+          data-site="${siteId}"
+          strategy="afterInteractive"
+        />
+      </body>
+    </html>
+  );
+}`,
     },
     {
       id: "wordpress",

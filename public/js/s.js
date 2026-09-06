@@ -1,6 +1,6 @@
 /*! SaaSNa.me analytics tracker — cookieless, no local storage written.
  *
- *  <script defer data-site="<uuid>" src="https://saasna.me/js/s.js"></script>
+ *  <script defer data-site="<uuid>" src="https://www.saasna.me/js/s.js"></script>
  *
  *  Attributes:
  *    data-site     required. The site id from your dashboard.
@@ -16,14 +16,35 @@
 (function () {
   "use strict";
 
-  var script = document.currentScript;
+  /* `document.currentScript` covers the common cases, including a tag that
+   * was appended from JS — it is set during execution however the element got
+   * into the document. It is null for module scripts and for anything running
+   * out of a callback or eval, so a tag installed as type="module" would
+   * otherwise make the tracker silently do nothing with no error to explain
+   * why. Fall back to finding our own tag in the DOM. */
+  var script =
+    document.currentScript ||
+    document.querySelector("script[data-site]") ||
+    document.querySelector('script[src*="/js/s.js"]');
+
   if (!script) return;
 
   var siteId = script.getAttribute("data-site");
   if (!siteId) return;
 
-  var host =
-    script.getAttribute("data-host") || new URL(script.src).origin;
+  // script.src can be empty if the tag was found by [data-site] but carries
+  // no source, so the origin lookup is guarded rather than allowed to throw
+  // inside someone else's page.
+  var host = script.getAttribute("data-host");
+  if (!host && script.src) {
+    try {
+      host = new URL(script.src).origin;
+    } catch (e) {
+      host = "";
+    }
+  }
+  if (!host) return;
+
   var endpoint = host.replace(/\/$/, "") + "/api/webstats/event";
 
   var allowed = (script.getAttribute("data-domains") || "")

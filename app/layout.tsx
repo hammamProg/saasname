@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { DM_Sans } from "next/font/google";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import config from "@/config";
@@ -8,8 +8,8 @@ import { isAuthConfigured } from "@/libs/auth";
 import { getServerUser } from "@/libs/supabase/get-server-user";
 import Providers from "@/components/Providers";
 
-const inter = Inter({
-  variable: "--font-inter",
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
   subsets: ["latin"],
 });
 
@@ -37,7 +37,7 @@ export default async function RootLayout({
   const gaId = process.env.NEXT_PUBLIC_GA_ID?.trim();
 
   return (
-    <html lang="en" className={`${inter.variable} h-full antialiased`}>
+    <html lang="en" className={`${dmSans.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         <Providers authEnabled={authEnabled} initialUser={initialUser}>
           {children}

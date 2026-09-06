@@ -12,21 +12,21 @@
   --verdict-blocked: #DF0110;
   --verdict-unknown: #94A3B8;
 
-  --background: #F7F9FC;
-  --foreground: #021B42;
-  --muted: #55627A;
-  --border: rgba(2, 27, 66, 0.12);
+  --background: #FBFAF9;
+  --foreground: #1A1A1A;
+  --muted: #6B6660;
+  --border: rgba(26, 26, 26, 0.1);
   --card: #ffffff;
-  --primary: #008DF7;
-  --primary-hover: #0072C9;
-  --primary-soft: rgba(0, 189, 252, 0.16);
-  --accent: #00BDFC;
-  --accent-soft: rgba(98, 46, 248, 0.12);
-  --accent-warm: #622EF8;
-  --surface: #EDF4FD;
-  --surface-dark: #021B42;
+  --primary: #E16540;
+  --primary-hover: #C0532F;
+  --primary-soft: rgba(225, 101, 64, 0.12);
+  --accent: #1D9BF0;
+  --accent-soft: rgba(29, 155, 240, 0.1);
+  --accent-warm: #E16540;
+  --surface: #F4F1EC;
+  --surface-dark: #1A1A1A;
 
-  --brand-gradient: linear-gradient(135deg, #622EF8 0%, #3C3FEB 38%, #008DF7 72%, #00BDFC 100%);
+  --brand-gradient: linear-gradient(135deg, #E16540 0%, #EF8B62 100%);
 }
 
 @theme inline {
@@ -52,7 +52,7 @@
   --color-verdict-contested: var(--verdict-contested);
   --color-verdict-blocked: var(--verdict-blocked);
   --color-verdict-unknown: var(--verdict-unknown);
-  --font-sans: var(--font-inter);
+  --font-sans: var(--font-dm-sans);
 }
 
 html {
@@ -62,11 +62,11 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-inter), system-ui, sans-serif;
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
 }
 
 ::selection {
-  background: rgba(0, 189, 252, 0.35);
+  background: rgba(225, 101, 64, 0.3);
   color: var(--foreground);
 }
 
@@ -156,13 +156,13 @@ body {
   color: #ffffff;
   font-weight: 700;
   transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
-  box-shadow: 0 8px 24px rgba(0, 141, 247, 0.22);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.06), 0 8px 16px -8px rgba(225, 101, 64, 0.55);
 }
 
 .btn-primary:hover {
   background: var(--primary-hover);
   transform: translateY(-1px);
-  box-shadow: 0 12px 28px rgba(0, 141, 247, 0.28);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08), 0 10px 20px -8px rgba(225, 101, 64, 0.6);
 }
 
 /* Unlayered, so this beats any `disabled:*` utility a caller adds.
@@ -171,8 +171,8 @@ body {
    unavailable — which made enabling it look like something appearing instead
    of something changing state. */
 .btn-primary:disabled {
-  background: #E2EAF5;
-  border: 1px solid rgba(2, 27, 66, 0.14);
+  background: #EDE9E3;
+  border: 1px solid rgba(26, 26, 26, 0.14);
   color: var(--muted);
   box-shadow: none;
   transform: none;
@@ -191,31 +191,26 @@ body {
   padding: 0 0.35rem;
 }
 
-/* Light landing theme.
-   The page used to run on the dark logo navy with glow orbs and glass panels.
-   It read as generic and heavy, so the surface is now paper-white and the
-   brand colours are spent only where they carry meaning: the primary action,
-   the accent chips, and the verdict states. */
 .landing-theme {
-  --background: #FFFFFF;
-  --foreground: #08203F;
-  --muted: #55658A;
-  --border: rgba(8, 32, 63, 0.1);
+  --background: #FBFAF9;
+  --foreground: #1A1A1A;
+  --muted: #6B6660;
+  --border: rgba(26, 26, 26, 0.08);
   --card: #FFFFFF;
-  --primary: #0A6ED1;
-  --primary-hover: #0857A8;
-  --primary-soft: rgba(10, 110, 209, 0.08);
-  --accent: #3C3FEB;
-  --accent-soft: rgba(60, 63, 235, 0.08);
-  --accent-warm: #622EF8;
-  --surface: #F4F8FD;
-  --surface-dark: #08203F;
+  --primary: #E16540;
+  --primary-hover: #C0532F;
+  --primary-soft: rgba(225, 101, 64, 0.1);
+  --accent: #1D9BF0;
+  --accent-soft: rgba(29, 155, 240, 0.08);
+  --accent-warm: #E16540;
+  --surface: #F4F1EC;
+  --surface-dark: #1A1A1A;
   background: var(--background);
   color: var(--foreground);
 }
 
 .landing-theme ::selection {
-  background: rgba(10, 110, 209, 0.18);
+  background: rgba(225, 101, 64, 0.22);
   color: var(--foreground);
 }
 
@@ -232,7 +227,7 @@ body {
   border: 1px solid var(--border);
   background: var(--card);
   border-radius: 1rem;
-  box-shadow: 0 1px 2px rgba(8, 32, 63, 0.04);
+  box-shadow: 0 1px 2px rgba(26, 26, 26, 0.05);
 }
 
 .glass-card-hover {
@@ -245,8 +240,6 @@ body {
   transform: translateY(-2px);
 }
 
-/* One solid fill, not a four-stop gradient. On a white page the gradient
-   button was the loudest thing on screen and said nothing extra. */
 .btn-gradient {
   display: inline-flex;
   align-items: center;
@@ -257,13 +250,13 @@ body {
   color: #ffffff;
   font-weight: 700;
   transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
-  box-shadow: 0 6px 18px rgba(10, 110, 209, 0.22);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.06), 0 8px 16px -8px rgba(225, 101, 64, 0.5), inset 0 -1px 2px rgba(180, 81, 51, 0.35);
 }
 
 .btn-gradient:hover {
   background: var(--primary-hover);
   transform: translateY(-1px);
-  box-shadow: 0 10px 24px rgba(10, 110, 209, 0.26);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08), 0 10px 20px -8px rgba(225, 101, 64, 0.55), inset 0 -1px 2px rgba(180, 81, 51, 0.4);
 }
 
 .btn-ghost {
@@ -281,7 +274,7 @@ body {
 
 .btn-ghost:hover {
   background: var(--surface);
-  border-color: rgba(10, 110, 209, 0.3);
+  border-color: rgba(225, 101, 64, 0.3);
 }
 
 @keyframes float {
@@ -331,8 +324,8 @@ body {
 
 .landing-grid-bg {
   background-image:
-    linear-gradient(to right, rgba(8, 32, 63, 0.045) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(8, 32, 63, 0.045) 1px, transparent 1px);
+    linear-gradient(to right, rgba(26, 26, 26, 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(26, 26, 26, 0.045) 1px, transparent 1px);
   background-size: 4rem 4rem;
   mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 30%, transparent 100%);
 }

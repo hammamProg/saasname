@@ -34,7 +34,7 @@ export default function PlanCards({
 
   return (
     <div className="mx-auto grid max-w-4xl gap-6 lg:grid-cols-2">
-      <div className="rounded-2xl border border-border bg-card p-8">
+      <div className="rounded-3xl border border-border bg-card p-8 shadow-[0_1px_2px_rgba(26,26,26,0.04)]">
         <h3 className="text-lg font-bold">Free</h3>
         <p className="mt-1 text-sm text-muted">
           Enough to see whether the signal is real.
@@ -50,7 +50,7 @@ export default function PlanCards({
         </ul>
       </div>
 
-      <div className="rounded-2xl border-2 border-primary bg-card p-8">
+      <div className="rounded-3xl border-2 border-primary bg-card p-8 shadow-[0_20px_40px_-24px_rgba(225,101,64,0.35)]">
         <div className="flex items-center justify-between gap-3">
           <h3 className="text-lg font-bold">Pro</h3>
           <span className="rounded-full bg-primary-soft px-3 py-1 text-xs font-semibold text-primary">

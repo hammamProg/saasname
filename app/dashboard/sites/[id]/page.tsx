@@ -5,6 +5,7 @@ import { requireUser } from "@/libs/supabase/require-user";
 import { getSite, hasReceivedEvents } from "@/libs/webstats/sites";
 import { snippetVariants } from "@/libs/webstats/snippet";
 import InstallSnippet from "@/components/dashboard/InstallSnippet";
+import DeleteSiteButton from "@/components/dashboard/DeleteSiteButton";
 
 export const dynamic = "force-dynamic";
 
@@ -55,6 +56,13 @@ export default async function SitePage({
             ? "Traffic is arriving. Visitor and pageview reporting lands with the next release."
             : "Install the snippet above and your first visitor will show up here."}
         </p>
+      </section>
+
+      {/* Last, and visually quiet. A destructive control competing with the
+          install steps would be the loudest thing on a page whose job is
+          getting someone set up. */}
+      <section className="rounded-2xl border border-border bg-card p-6">
+        <DeleteSiteButton siteId={site.id} domain={site.domain} />
       </section>
     </div>
   );

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
+import Script from "next/script";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import config from "@/config";
@@ -42,6 +43,22 @@ export default async function RootLayout({
         <Providers authEnabled={authEnabled} initialUser={initialUser}>
           {children}
         </Providers>
+
+        {/* Our own analytics, on our own site. The id is public by design — it
+            sits in a script tag on every visitor's page — so it is inlined
+            rather than treated as configuration.
+
+            `data-domains` is the same discipline as the GA gate below: preview
+            deploys run on *.vercel.app and would otherwise fire beacons that
+            ingest rejects for a hostname mismatch. The allowlist stops them at
+            the client instead, so no request is made at all. Localhost is
+            already skipped by the tracker itself. */}
+        <Script
+          src="/js/s.js"
+          data-site="99a1b58f-81c6-4812-a239-edf4682d3747"
+          data-domains="saasna.me,www.saasna.me"
+          strategy="afterInteractive"
+        />
       </body>
       {gaId ? <GoogleAnalytics gaId={gaId} /> : null}
     </html>

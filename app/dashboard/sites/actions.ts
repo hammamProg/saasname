@@ -8,11 +8,14 @@ import { requireUser } from "@/libs/supabase/require-user";
 import { DomainError } from "@/libs/webstats/domain";
 import {
   createSite,
+  deleteSite,
   DuplicateSiteError,
+  getSite,
   SiteLimitReachedError,
 } from "@/libs/webstats/sites";
 
 export type CreateSiteState = { error: string | null };
+export type DeleteSiteState = { error: string | null };
 
 export async function createSiteAction(
   _previous: CreateSiteState,
@@ -64,4 +67,45 @@ export async function createSiteAction(
   // Outside the catch: redirect signals by throwing, and catching it here
   // would turn a successful create into "Could not add that website".
   redirect(`/dashboard/sites/${siteId}`);
+}
+
+/** Stop tracking a site.
+ *
+ *  A soft delete, so the rows a site owns stay attributable and the domain
+ *  becomes available to add again. Ownership is not re-checked here beyond
+ *  loading the site: `getSite` and the update both go through the user-scoped
+ *  client, so RLS answers "not yours" as "not found" and the delete touches
+ *  nothing. */
+export async function deleteSiteAction(
+  _previous: DeleteSiteState,
+  formData: FormData,
+): Promise<DeleteSiteState> {
+  await requireUser();
+
+  const siteId = String(formData.get("siteId") ?? "");
+
+  if (!siteId) {
+    return { error: "Missing site." };
+  }
+
+  try {
+    const site = await getSite(siteId);
+
+    // Missing means already deleted, or never theirs — RLS reports both the
+    // same way. Either way there is nothing to remove, and the redirect below
+    // is the right answer for both.
+    if (site) {
+      await deleteSite(siteId);
+    }
+  } catch (error) {
+    console.error("[webstats] deleteSite failed", error);
+    return { error: "Could not remove that website. Try again." };
+  }
+
+  revalidatePath("/dashboard/sites");
+
+  // Outside the try on purpose: redirect signals by throwing, so calling it
+  // inside would land in the catch and report a successful delete as a
+  // failure. Same reason as createSiteAction.
+  redirect("/dashboard/sites");
 }

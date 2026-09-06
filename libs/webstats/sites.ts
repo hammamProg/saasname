@@ -5,6 +5,7 @@
  *  caller could forget. See 022_webstats.sql. */
 
 import { createClient } from "@/libs/supabase/server";
+import { createSupabaseAdmin } from "@/libs/supabase";
 import { normalizeDomain } from "./domain";
 
 export type Site = {
@@ -134,13 +135,25 @@ export async function deleteSite(siteId: string): Promise<void> {
 
 /** Whether any event has ever arrived for this site. Drives the install
  *  verification state, which is the screen that closes the loop between
- *  "I pasted a script" and "it works". */
+ *  "I pasted a script" and "it works".
+ *
+ *  Reads `webstats_events` (the raw firehose), not `webstats_visit_hourly`
+ *  (the hourly rollup): the rollup runs on a 5-minute pg_cron schedule with a
+ *  1-minute safety lag (see 024_webstats_rollup.sql), so a visitor who just
+ *  loaded the customer's page would still read as "waiting" for up to ~6
+ *  minutes on the rollup even though the tag is working. The raw table has
+ *  no RLS policy for the authenticated role by design (022_webstats.sql), so
+ *  this goes through the service-role client — callers are expected to have
+ *  already checked ownership via `getSite`, as both current callers do. */
 export async function hasReceivedEvents(siteId: string): Promise<boolean> {
-  const supabase = await createClient();
+  const admin = createSupabaseAdmin();
+  if (!admin) {
+    throw new Error("Failed to check site activity: service role not configured");
+  }
 
-  const { count, error } = await supabase
-    .from("webstats_visit_hourly")
-    .select("visit_id", { count: "exact", head: true })
+  const { count, error } = await admin
+    .from("webstats_events")
+    .select("id", { count: "exact", head: true })
     .eq("site_id", siteId);
 
   if (error) throw new Error(`Failed to check site activity: ${error.message}`);

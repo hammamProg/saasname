@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { SectionHeader } from "@/components/landing/shared";
 import { LANDING_FAQS } from "@/libs/landing-faqs";
-
 
 export default function LandingFAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
@@ -17,27 +17,36 @@ export default function LandingFAQ() {
           subtitle="What the checks cover, and what they deliberately do not."
         />
 
-        <div className="mt-12 divide-y divide-border">
+        <div className="mt-12 divide-y divide-border rounded-2xl border border-border bg-card">
           {LANDING_FAQS.map((faq, index) => {
             const isOpen = openIndex === index;
             return (
               <div key={faq.question}>
                 <button
                   type="button"
-                  className="flex w-full items-center justify-between gap-4 py-5 text-left"
+                  className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
                   onClick={() => setOpenIndex(isOpen ? null : index)}
+                  aria-expanded={isOpen}
                 >
                   <span
                     className={`font-semibold transition-colors ${
-                      isOpen ? "text-accent" : ""
+                      isOpen ? "text-primary" : ""
                     }`}
                   >
                     {faq.question}
                   </span>
-                  <span className="shrink-0 text-xl text-muted">{isOpen ? "−" : "+"}</span>
+                  <ChevronDown
+                    size={18}
+                    className={`shrink-0 text-muted transition-transform ${
+                      isOpen ? "rotate-180 text-primary" : ""
+                    }`}
+                    aria-hidden
+                  />
                 </button>
                 {isOpen && (
-                  <p className="pb-5 text-sm leading-relaxed text-muted">{faq.answer}</p>
+                  <p className="px-6 pb-5 text-sm leading-relaxed text-muted">
+                    {faq.answer}
+                  </p>
                 )}
               </div>
             );

@@ -5,11 +5,10 @@
 import { randomBytes } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-/** How long a retired salt is kept so sessions spanning a rotation still
- *  resolve. Past this the row is deleted and the identifiers it produced
- *  become irreversible — which is the step that makes them anonymous rather
- *  than merely pseudonymous. */
-const DESTROY_AFTER_DAYS = 2;
+/*  Retired salts are destroyed after two days by `webstats_maintenance()` on
+ *  pg_cron, not from here — see 027_webstats_pg_cron.sql. That deletion is
+ *  what turns a day's visitor identifiers from pseudonymous into
+ *  irreversible. */
 
 type SaltRow = { salt: string };
 
@@ -57,21 +56,4 @@ export async function activeSalts(admin: SupabaseClient): Promise<Buffer[]> {
   if (error) throw new Error(`Failed to read salts: ${error.message}`);
 
   return ((data ?? []) as SaltRow[]).map((row) => toBuffer(row.salt));
-}
-
-/** Delete salts past the destruction window. Called from the rollup cron
- *  rather than from ingest, so the hot path never pays for housekeeping. */
-export async function destroyExpiredSalts(admin: SupabaseClient): Promise<number> {
-  const cutoff = new Date();
-  cutoff.setUTCDate(cutoff.getUTCDate() - DESTROY_AFTER_DAYS);
-
-  const { data, error } = await admin
-    .from("webstats_salts")
-    .delete()
-    .lt("day", utcDay(cutoff))
-    .select("day");
-
-  if (error) throw new Error(`Failed to destroy salts: ${error.message}`);
-
-  return (data ?? []).length;
 }

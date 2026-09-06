@@ -1,20 +1,17 @@
 import { NextResponse } from "next/server";
 import { createSupabaseAdmin } from "@/libs/supabase";
-import { destroyExpiredSalts } from "@/libs/webstats/salts";
 import { verifyCronRequest } from "@/libs/trends/verify-cron";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-/** Rolls raw events into the tables the dashboard reads, and destroys salts
- *  past their 48-hour window.
+/** Manual trigger for the analytics maintenance job.
  *
- *  Scheduled rather than done on the write path: the aggregation is a handful
- *  of statements over a few minutes of data, and doing it per beacon would put
- *  a grouped query in front of every visitor's pageview.
- *
- *  Salt destruction rides along here because it belongs on a schedule and
- *  running it from ingest would make the hot path pay for housekeeping. */
+ *  Nothing schedules this. The job runs on `pg_cron` inside Postgres every
+ *  five minutes (see 027_webstats_pg_cron.sql) because it is pure SQL: that
+ *  works on any Vercel plan, costs no function invocations, and keeps running
+ *  when the app does not. This route exists so the same work can be forced by
+ *  hand during a backfill or while debugging. */
 export async function GET(request: Request) {
   const unauthorized = verifyCronRequest(request);
   if (unauthorized) return unauthorized;
@@ -29,19 +26,13 @@ export async function GET(request: Request) {
   }
 
   try {
-    const { data, error } = await admin.rpc("webstats_rollup");
+    // Same entry point pg_cron calls, so a manual run and a scheduled run
+    // cannot drift apart.
+    const { data, error } = await admin.rpc("webstats_maintenance");
 
     if (error) throw new Error(error.message);
 
-    // The next month's partition is created a few days ahead of time, so a
-    // month boundary never arrives to find nowhere to write.
-    await admin.rpc("webstats_ensure_partition", {
-      at: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
-    });
-
-    const saltsDestroyed = await destroyExpiredSalts(admin);
-
-    return NextResponse.json({ rollup: data, saltsDestroyed });
+    return NextResponse.json(data);
   } catch (error) {
     console.error(
       "[webstats/rollup]",

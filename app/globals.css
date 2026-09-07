@@ -495,7 +495,7 @@ body {
 }
 
 .animate-poll-sweep {
-  animation: poll-sweep 5s linear;
+  animation: poll-sweep 2s linear;
 }
 
 /* Respect a stated preference for less motion: the panel still reports

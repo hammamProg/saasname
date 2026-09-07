@@ -49,8 +49,8 @@ export default function InstallSnippet({
 
       // Someone who pastes the snippet sees the flip within seconds. Someone
       // who leaves this tab open for an hour should not still be polling —
-      // they can reload. Fifteen minutes at five seconds.
-      if (attemptsRef.current > 180) {
+      // they can reload. Fifteen minutes at two seconds.
+      if (attemptsRef.current > 450) {
         setGivenUp(true);
         return;
       }
@@ -70,7 +70,13 @@ export default function InstallSnippet({
       }
     }
 
-    const timer = setInterval(poll, 5000);
+    // Fire the first check immediately instead of waiting out the interval —
+    // someone who just pasted the snippet and reloaded their site often
+    // already has an event sitting in the database by the time this effect
+    // runs, and a 5s wait before even asking makes a genuinely fast pipeline
+    // feel slow.
+    poll();
+    const timer = setInterval(poll, 2000);
 
     return () => {
       cancelled = true;

@@ -51,18 +51,18 @@
  * attribute is set before first paint by the inline script in layout.tsx;
  * without that the page would render light and repaint dark.
  *
- * Warm near-blacks rather than pure grey, because the light palette is warm
- * (#FBFAF9, #F4F1EC) and a neutral-grey dark mode reads as a different
- * product. */
+ * Cool near-black rather than a warm brown-black — matches the reference
+ * analytics dashboard palette (near-black canvas, slate cards, neutral
+ * borders) so charts and status colors read the same as the mock. */
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --background: #131211;
-  --foreground: #F2EFEA;
-  --muted: #A19A92;
-  --border: rgba(255, 255, 255, 0.12);
-  --card: #1B1918;
-  --surface: #262322;
+  --background: #0D0D10;
+  --foreground: #F2F2F2;
+  --muted: #9A9CA5;
+  --border: rgba(255, 255, 255, 0.08);
+  --card: #17181C;
+  --surface: #1E1F24;
 
   /* The brand orange holds up on dark; the blue accent needs lifting or it
      disappears against the background. */

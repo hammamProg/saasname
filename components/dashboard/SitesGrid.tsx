@@ -62,7 +62,10 @@ export default function SitesGrid({
   }, [refresh]);
 
   return (
-    <ul className="grid gap-4 sm:grid-cols-2">
+    /* Three up on a laptop, four on a wide screen. The container caps at
+       max-w-6xl, so four columns is roughly 260px a card — narrow enough that
+       the header has to be allowed to wrap rather than crush the name. */
+    <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {sites.map((site) => {
         const status = overview[site.id] ?? EMPTY;
 
@@ -72,35 +75,21 @@ export default function SitesGrid({
               href={`/dashboard/sites/${site.id}`}
               className="block rounded-2xl border border-border bg-card p-5 transition hover:border-primary/40 hover:shadow-sm"
             >
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex min-w-0 items-center gap-3">
-                  <SiteFavicon domain={site.domain} size={28} />
-                  <div className="min-w-0">
-                    <p className="truncate font-semibold text-foreground">
-                      {site.name}
-                    </p>
-                    <p className="truncate text-sm text-muted">{site.domain}</p>
-                  </div>
+              {/* Header is identity only. The status badge used to sit here
+                  and, at four columns, squeezed the name down to "saasna...."
+                  — the one string on the card a reader actually needs. */}
+              <div className="flex min-w-0 items-center gap-3">
+                <SiteFavicon domain={site.domain} size={28} />
+                <div className="min-w-0">
+                  <p className="truncate font-semibold text-foreground">
+                    {site.name}
+                  </p>
+                  <p className="truncate text-sm text-muted">{site.domain}</p>
                 </div>
-
-                {status.connected ? (
-                  <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-success-soft px-2.5 py-1 text-xs font-semibold text-success">
-                    <span className="size-1.5 rounded-full bg-success" />
-                    Connected
-                  </span>
-                ) : (
-                  /* Not an error state. A site added a minute ago has simply
-                     not been installed yet, and colouring that red would make
-                     the normal first step look broken. */
-                  <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-surface px-2.5 py-1 text-xs font-semibold text-muted">
-                    <span className="size-1.5 rounded-full bg-muted/60" />
-                    Not connected
-                  </span>
-                )}
               </div>
 
               {status.connected ? (
-                <div className="mt-4 flex items-center gap-6 border-t border-border pt-3">
+                <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-border pt-3">
                   <div>
                     <p className="text-lg font-extrabold tabular-nums">
                       {formatCount(status.todayVisitors)}
@@ -126,10 +115,25 @@ export default function SitesGrid({
                     </p>
                     <p className="text-xs text-muted">Online now</p>
                   </div>
+
+                  {/* Kept, quietly. Real numbers usually prove the tag works,
+                      but a connected site with a genuine zero would otherwise
+                      look identical to a broken one. */}
+                  <span
+                    className="ml-auto inline-flex items-center gap-1.5 self-start text-xs font-semibold text-success"
+                    title="Receiving data"
+                  >
+                    <span className="size-1.5 rounded-full bg-success" />
+                    Connected
+                  </span>
                 </div>
               ) : (
+                /* Not an error state. A site added a minute ago has simply not
+                   been installed yet, and colouring that red would make the
+                   normal first step look broken. */
                 <p className="mt-4 border-t border-border pt-3 text-xs text-muted">
-                  Add the snippet to start collecting.
+                  <span className="font-semibold">Not connected</span> — add the
+                  snippet to start collecting.
                 </p>
               )}
             </Link>

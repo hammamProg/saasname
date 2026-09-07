@@ -32,6 +32,7 @@ export async function createSiteAction(
 
   const name = String(formData.get("name") ?? "");
   const domain = String(formData.get("domain") ?? "");
+  const groupId = String(formData.get("groupId") ?? "") || null;
 
   let siteId: string;
 
@@ -40,6 +41,7 @@ export async function createSiteAction(
       ownerId: user.id,
       name,
       domain,
+      groupId,
       siteLimit: limits.siteLimit,
     });
     siteId = site.id;

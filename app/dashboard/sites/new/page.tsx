@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getSEOTags } from "@/libs/seo";
 import { requireUser } from "@/libs/supabase/require-user";
+import { listGroups } from "@/libs/webstats/groups";
 import AddSiteForm from "@/components/dashboard/AddSiteForm";
 
 export const dynamic = "force-dynamic";
@@ -13,6 +14,7 @@ export const metadata = getSEOTags({
 
 export default async function NewSitePage() {
   await requireUser();
+  const groups = await listGroups();
 
   return (
     <div className="mx-auto max-w-lg space-y-8">
@@ -27,7 +29,7 @@ export default async function NewSitePage() {
       </div>
 
       <div className="rounded-2xl border border-border bg-card p-6">
-        <AddSiteForm />
+        <AddSiteForm groups={groups} />
       </div>
     </div>
   );

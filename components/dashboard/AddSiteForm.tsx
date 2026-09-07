@@ -2,10 +2,11 @@
 
 import { useActionState } from "react";
 import { createSiteAction, type CreateSiteState } from "@/app/dashboard/sites/actions";
+import type { SiteGroup } from "@/libs/webstats/group-name";
 
 const INITIAL: CreateSiteState = { error: null };
 
-export default function AddSiteForm() {
+export default function AddSiteForm({ groups }: { groups: SiteGroup[] }) {
   const [state, formAction, pending] = useActionState(createSiteAction, INITIAL);
 
   return (
@@ -43,6 +44,27 @@ export default function AddSiteForm() {
           className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-primary"
         />
       </div>
+
+      {groups.length > 0 ? (
+        <div className="space-y-2">
+          <label htmlFor="groupId" className="block text-sm font-semibold">
+            Group <span className="font-normal text-muted">(optional)</span>
+          </label>
+          <select
+            id="groupId"
+            name="groupId"
+            defaultValue=""
+            className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-primary"
+          >
+            <option value="">No group</option>
+            {groups.map((group) => (
+              <option key={group.id} value={group.id}>
+                {group.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      ) : null}
 
       {state.error ? (
         <p

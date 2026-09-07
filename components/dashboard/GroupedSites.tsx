@@ -3,12 +3,12 @@ import type { SiteGroup } from "@/libs/webstats/group-name";
 import type { SiteOverview } from "@/libs/webstats/overview";
 import SitesGrid from "@/components/dashboard/SitesGrid";
 import GroupOptionsMenu from "@/components/dashboard/GroupOptionsMenu";
-import NewGroupButton from "@/components/dashboard/NewGroupButton";
 
 /** Splits the sites list into one section per group, plus an Ungrouped
  *  section for whatever is left. A site's group is assigned from its own
- *  options menu (see SiteOptionsMenu → GroupPicker), not from here — this
- *  component only lays out whatever assignment already exists. */
+ *  options menu (see SiteOptionsMenu → GroupPicker), and a new group is
+ *  created from the page-level NewMenu — this component only lays out
+ *  whatever assignment already exists. */
 export default function GroupedSites({
   sites,
   groups,
@@ -21,14 +21,7 @@ export default function GroupedSites({
   // No groups yet: the plain grid, unchanged, so an account that never uses
   // this feature sees no difference from before it existed.
   if (groups.length === 0) {
-    return (
-      <div className="space-y-4">
-        <div className="flex justify-end">
-          <NewGroupButton />
-        </div>
-        <SitesGrid sites={sites} initial={overview} />
-      </div>
-    );
+    return <SitesGrid sites={sites} initial={overview} />;
   }
 
   const byGroup = new Map<string, Site[]>();
@@ -46,10 +39,6 @@ export default function GroupedSites({
 
   return (
     <div className="space-y-10">
-      <div className="flex justify-end">
-        <NewGroupButton />
-      </div>
-
       {groups.map((group) => {
         const groupSites = byGroup.get(group.id) ?? [];
 

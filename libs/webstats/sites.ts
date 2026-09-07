@@ -85,6 +85,10 @@ export async function createSite(params: {
   ownerId: string;
   name: string;
   domain: string;
+  /** `null` means ungrouped. Not validated against the owner's groups here —
+   *  RLS on webstats_site_groups already scopes what a group id could
+   *  resolve to, and the foreign key rejects anything that isn't a real row. */
+  groupId: string | null;
   /** `null` means unlimited. Checked before the write. */
   siteLimit: number | null;
 }): Promise<Site> {
@@ -110,7 +114,12 @@ export async function createSite(params: {
 
   const { data, error } = await supabase
     .from("webstats_sites")
-    .insert({ owner_id: params.ownerId, name, domain })
+    .insert({
+      owner_id: params.ownerId,
+      name,
+      domain,
+      group_id: params.groupId,
+    })
     .select("id, name, domain, created_at, group_id")
     .single();
 

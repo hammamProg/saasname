@@ -116,7 +116,7 @@ export default function ButtonAccount({ variant = "default" }: ButtonAccountProp
           "flex items-center gap-3 rounded-xl text-sm font-semibold transition-colors",
           isSidebar
             ? "w-full border border-[#1B3A66] bg-[#0E2A52] px-3 py-2.5 text-white hover:bg-[#12335F]"
-            : "border-2 border-foreground bg-surface px-3 py-2 font-bold"
+            : "px-3 py-2 hover:bg-surface"
         )}
       >
         {avatar && !avatarFailed ? (

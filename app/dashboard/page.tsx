@@ -6,6 +6,7 @@ import { requireUser } from "@/libs/supabase/require-user";
 import { listSites } from "@/libs/webstats/sites";
 import { listGroups } from "@/libs/webstats/groups";
 import GroupedSites from "@/components/dashboard/GroupedSites";
+import NewMenu from "@/components/dashboard/NewMenu";
 import { getSiteOverviews } from "@/libs/webstats/overview";
 
 export const dynamic = "force-dynamic";
@@ -42,11 +43,7 @@ export default async function SitesPage() {
           </p>
         </div>
 
-        {sites.length > 0 && !atLimit ? (
-          <Link href="/dashboard/sites/new" className="btn-gradient px-5 py-2.5 text-sm">
-            Add website
-          </Link>
-        ) : null}
+        {sites.length > 0 ? <NewMenu canAddWebsite={!atLimit} /> : null}
       </div>
 
       {sites.length === 0 ? (

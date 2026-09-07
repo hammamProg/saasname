@@ -8,7 +8,7 @@ day, at deploy time.** A sub-daily entry in `vercel.json` fails the build with
 | Where | Jobs | Why there |
 |---|---|---|
 | **Vercel Cron** (`vercel.json`) | 7 daily ingest jobs + the nightly pipeline | Daily is legal on Hobby, and these need the app's TypeScript connectors |
-| **pg_cron** (Supabase) | `webstats-maintenance` (5 min), `ingest-hacker-news`, `ingest-github`, `ingest-rss` (hourly), `webstats-cron-history-prune` (daily) | Sub-daily, so Vercel Cron is not an option on Hobby |
+| **pg_cron** (Supabase) | `webstats-maintenance` (5 min), `ingest-hacker-news`, `ingest-github`, `ingest-rss` (hourly), `webstats-cron-history-prune` (daily), `webstats-match-topics` (weekly) | Sub-daily, so Vercel Cron is not an option on Hobby. `webstats-match-topics` is weekly and could live on Vercel, but it belongs with the job that feeds it |
 
 Both are free. Neither needs a Vercel plan upgrade.
 

@@ -1,4 +1,5 @@
 import { formatCount } from "@/libs/webstats/format";
+import type { Bucket } from "@/libs/webstats/range";
 
 type Point = { at: Date; visitors: number; pageviews: number };
 
@@ -21,11 +22,13 @@ export default function TrafficChart({
   bucket,
 }: {
   series: Point[];
-  bucket: "hour" | "day";
+  bucket: Bucket;
 }) {
   const peak = Math.max(...series.map((p) => p.visitors), 1);
   const total = series.reduce((sum, p) => sum + p.visitors, 0);
 
+  // A week bucket is labelled by the day it starts, same as a day bucket —
+  // "w/c 1 Sep" would be more precise and less readable at axis size.
   const label = (at: Date) =>
     bucket === "hour"
       ? `${String(at.getUTCHours()).padStart(2, "0")}:00`

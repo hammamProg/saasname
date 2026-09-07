@@ -8,7 +8,13 @@
 
 import { createClient } from "@/libs/supabase/server";
 import { seriesFor, summarize, type Summary, type VisitRow } from "./metrics";
-import { bucketsFor, type Range } from "./range";
+import {
+  bucketsBetween,
+  bucketsFor,
+  RANGES,
+  type Bucket,
+  type Range,
+} from "./range";
 
 /** Rollup rows are one per visit-hour, so a busy site over 90 days can return
  *  a lot of them. Reads are capped rather than unbounded, and the cap is
@@ -22,7 +28,7 @@ export type Breakdown = { label: string; value: number }[];
 export type SiteStats = {
   summary: Summary;
   series: { at: Date; visitors: number; pageviews: number }[];
-  bucket: "hour" | "day";
+  bucket: Bucket;
   topPages: Breakdown;
   topSources: Breakdown;
   campaigns: Breakdown;
@@ -150,12 +156,61 @@ function rankEntryPages(rows: VisitRow[], limit = 8): Breakdown {
     .slice(0, limit);
 }
 
+/** Beyond this many daily buckets a chart is a smear, so all-time switches to
+ *  weeks. Chosen so a six-month-old site still reads day by day. */
+const MAX_DAILY_BUCKETS = 120;
+
+/** The first hour this site has a rollup for, or null if it has none. */
+async function earliestHour(siteId: string): Promise<Date | null> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("webstats_visit_hourly")
+    .select("hour")
+    .eq("site_id", siteId)
+    .order("hour", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) throw new Error(`Failed to find first data: ${error.message}`);
+
+  return data ? new Date(data.hour as string) : null;
+}
+
+/** Resolve the window to chart.
+ *
+ *  Fixed ranges know their own width. "All time" does not: it starts at the
+ *  site's first recorded hour, so the width — and the sensible bucket size —
+ *  depend on the data. */
+async function resolveWindow(
+  siteId: string,
+  range: Range,
+  now: Date,
+): Promise<{ buckets: Date[]; bucket: Bucket }> {
+  if (range.key !== "all") {
+    return { buckets: bucketsFor(range, now), bucket: range.bucket };
+  }
+
+  const first = await earliestHour(siteId);
+
+  // No data yet. Falling back to today keeps the axis sane rather than
+  // charting a single bucket at the epoch.
+  if (!first) {
+    return { buckets: bucketsFor(RANGES.today, now), bucket: "hour" };
+  }
+
+  const days = Math.floor((now.getTime() - first.getTime()) / 86_400_000);
+  const bucket: Bucket = days <= MAX_DAILY_BUCKETS ? "day" : "week";
+
+  return { buckets: bucketsBetween(first, now, bucket), bucket };
+}
+
 export async function getSiteStats(
   siteId: string,
   range: Range,
   now: Date = new Date(),
 ): Promise<SiteStats> {
-  const buckets = bucketsFor(range, now);
+  const { buckets, bucket } = await resolveWindow(siteId, range, now);
   const from = buckets[0];
   const to = now;
 
@@ -188,8 +243,8 @@ export async function getSiteStats(
 
   return {
     summary,
-    series: seriesFor(rows, buckets, range.bucket),
-    bucket: range.bucket,
+    series: seriesFor(rows, buckets, bucket),
+    bucket,
     topPages: pages.rows,
     topSources: sources,
     campaigns: utmCampaigns.rows.length > 0 ? utmCampaigns.rows : utmSources.rows,

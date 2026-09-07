@@ -15,6 +15,8 @@
  *    every single-pageview visit exactly zero seconds, which is why the
  *    tracker reports engaged time at all. */
 
+import { truncate, type Bucket } from "./range";
+
 export type VisitRow = {
   hour: string;
   visit_id: string;
@@ -123,14 +125,11 @@ export function summarize(rows: VisitRow[]): Summary {
 export function seriesFor(
   rows: VisitRow[],
   buckets: Date[],
-  bucket: "hour" | "day",
+  bucket: Bucket,
 ): { at: Date; visitors: number; pageviews: number }[] {
-  const keyOf = (iso: string) => {
-    const d = new Date(iso);
-    if (bucket === "day") d.setUTCHours(0, 0, 0, 0);
-    else d.setUTCMinutes(0, 0, 0);
-    return d.getTime();
-  };
+  // Same snapping the buckets themselves were generated with, so a row always
+  // lands in a bucket that exists rather than silently disappearing.
+  const keyOf = (iso: string) => truncate(new Date(iso), bucket).getTime();
 
   const sessions = new Map<number, Set<string>>();
   const views = new Map<number, number>();

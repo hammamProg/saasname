@@ -17,11 +17,55 @@ describe("parseRange", () => {
     expect(parseRange(key).key).toBe(key);
   });
 
+  it("accepts today", () => {
+    expect(parseRange("today").key).toBe("today");
+  });
+
   it("buckets 24 hours hourly and longer ranges daily", () => {
+    expect(parseRange("today").bucket).toBe("hour");
     expect(parseRange("24h").bucket).toBe("hour");
     expect(parseRange("7d").bucket).toBe("day");
     expect(parseRange("30d").bucket).toBe("day");
     expect(parseRange("90d").bucket).toBe("day");
+  });
+});
+
+describe("bucketsFor — today", () => {
+  it("starts at midnight UTC and ends at the current hour", () => {
+    const buckets = bucketsFor(parseRange("today"), NOW);
+
+    expect(buckets[0].toISOString()).toBe("2026-09-07T00:00:00.000Z");
+    expect(buckets[buckets.length - 1].toISOString()).toBe(
+      "2026-09-07T14:00:00.000Z",
+    );
+  });
+
+  it("grows through the day rather than padding to a full 24", () => {
+    // Empty bars for hours that have not happened yet read as traffic
+    // collapsing, not as time not having passed.
+    expect(bucketsFor(parseRange("today"), NOW)).toHaveLength(15);
+  });
+
+  it("is a single bucket in the first hour of the day", () => {
+    const justAfterMidnight = new Date("2026-09-07T00:04:00.000Z");
+
+    expect(bucketsFor(parseRange("today"), justAfterMidnight)).toHaveLength(1);
+  });
+
+  it("is 24 buckets in the last hour of the day", () => {
+    const beforeMidnight = new Date("2026-09-07T23:59:59.000Z");
+    const buckets = bucketsFor(parseRange("today"), beforeMidnight);
+
+    expect(buckets).toHaveLength(24);
+    expect(buckets[0].toISOString()).toBe("2026-09-07T00:00:00.000Z");
+  });
+
+  it("uses UTC, not the machine's local day", () => {
+    // The rollups are UTC, so a local-day boundary here would disagree with
+    // every other figure on the page.
+    const buckets = bucketsFor(parseRange("today"), NOW);
+
+    expect(buckets[0].getUTCHours()).toBe(0);
   });
 });
 

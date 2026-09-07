@@ -533,6 +533,22 @@ body {
   animation: count-change 0.4s ease-out;
 }
 
+/* Brand mark ------------------------------------------------------------
+   Painted as a background rather than as two <img> elements with one hidden,
+   because a hidden image is still downloaded and each wordmark is ~400KB. The
+   browser fetches only the rule that actually applies, so switching themes
+   costs one request instead of paying for both up front. */
+.brand-logo-auto {
+  background-image: url("/brand/saasname-logo.png");
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: contain;
+}
+
+[data-theme="dark"] .brand-logo-auto {
+  background-image: url("/brand/saasname-logo-on-dark.png");
+}
+
 /* Theme toggle -----------------------------------------------------------
    The icon is chosen by the attribute rather than by React state, so the
    button renders identically on the server in either theme and never causes a

@@ -128,13 +128,21 @@ export default function SitesGrid({
                   </span>
                 </div>
               ) : (
-                /* Not an error state. A site added a minute ago has simply not
-                   been installed yet, and colouring that red would make the
-                   normal first step look broken. */
-                <p className="mt-4 border-t border-border pt-3 text-xs text-muted">
-                  <span className="font-semibold">Not connected</span> — add the
-                  snippet to start collecting.
-                </p>
+                <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3">
+                  <p className="text-xs text-muted">
+                    Add the snippet to start collecting.
+                  </p>
+
+                  {/* Amber, not red: a site added a minute ago has simply not
+                      been installed yet, and colouring that a danger tone
+                      would make the normal first step look broken. Amber
+                      still reads as "needs attention" rather than blending
+                      into the surrounding muted text. */}
+                  <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-warning-soft px-2.5 py-1 text-xs font-semibold text-warning">
+                    <span className="size-1.5 rounded-full bg-warning" />
+                    Not connected
+                  </span>
+                </div>
               )}
             </Link>
           </li>

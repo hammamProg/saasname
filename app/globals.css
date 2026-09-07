@@ -125,6 +125,16 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Native <dialog> centers itself via the UA stylesheet's `margin: auto` on
+   the top-layer fixed box. Tailwind's preflight resets `margin: 0` on every
+   element, including dialog, which quietly wins that fight and leaves every
+   modal pinned to the top-left instead of centered. This rule is unlayered
+   (not inside any @layer), so per the cascade it outranks preflight's
+   `@layer base` reset regardless of selector specificity. */
+dialog[open] {
+  margin: auto;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

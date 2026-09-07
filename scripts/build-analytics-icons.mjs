@@ -19,7 +19,7 @@
  *  disk, so a hand-added mark in any format survives a rebuild and resolves.
  */
 
-import { cp, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
+import { cp, mkdir, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import * as simpleIcons from "simple-icons";
 

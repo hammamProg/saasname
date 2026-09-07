@@ -4,7 +4,8 @@ import { limitsForPlan, planForAccess } from "@/libs/plans";
 import { getSEOTags } from "@/libs/seo";
 import { requireUser } from "@/libs/supabase/require-user";
 import { listSites } from "@/libs/webstats/sites";
-import SiteFavicon from "@/components/dashboard/SiteFavicon";
+import SitesGrid from "@/components/dashboard/SitesGrid";
+import { getSiteOverviews } from "@/libs/webstats/overview";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +20,10 @@ export default async function SitesPage() {
   const access = await getProfileAccess(user.id);
   const limits = limitsForPlan(planForAccess(access?.has_access ?? false));
 
-  const sites = await listSites();
+  const [sites, overview] = await Promise.all([
+    listSites(),
+    getSiteOverviews(),
+  ]);
   const atLimit =
     limits.siteLimit !== null && sites.length >= limits.siteLimit;
 
@@ -60,26 +64,7 @@ export default async function SitesPage() {
           </Link>
         </div>
       ) : (
-        <ul className="grid gap-4 sm:grid-cols-2">
-          {sites.map((site) => (
-            <li key={site.id}>
-              <Link
-                href={`/dashboard/sites/${site.id}`}
-                className="block rounded-2xl border border-border bg-card p-5 transition hover:border-primary/40 hover:shadow-sm"
-              >
-                <div className="flex items-center gap-3">
-                  <SiteFavicon domain={site.domain} size={28} />
-                  <div className="min-w-0">
-                    <p className="truncate font-semibold text-foreground">
-                      {site.name}
-                    </p>
-                    <p className="truncate text-sm text-muted">{site.domain}</p>
-                  </div>
-                </div>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <SitesGrid sites={sites} initial={overview} />
       )}
 
       {atLimit && sites.length > 0 ? (

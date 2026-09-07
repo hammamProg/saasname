@@ -84,7 +84,7 @@ export default function OnlineTile({
           {/* The ping only runs when someone is actually there. A dot that
               pulses at zero claims activity that is not happening. */}
           {online > 0 ? (
-            <span className="absolute inline-flex size-full animate-ping rounded-full bg-success opacity-60" />
+            <span className="absolute inline-flex size-full animate-live-pulse rounded-full bg-success" />
           ) : null}
           <span
             className={

@@ -113,7 +113,7 @@ export default function SitesGrid({
                       {formatCount(status.onlineVisitors)}
                       <span className="relative flex size-1.5" aria-hidden="true">
                         {status.onlineVisitors > 0 ? (
-                          <span className="absolute inline-flex size-full animate-ping rounded-full bg-success opacity-60" />
+                          <span className="absolute inline-flex size-full animate-live-pulse rounded-full bg-success" />
                         ) : null}
                         <span
                           className={

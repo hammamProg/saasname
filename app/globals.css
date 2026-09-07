@@ -511,9 +511,34 @@ body {
     stroke-dashoffset: 0;
   }
 
-  .animate-count-change {
+  .animate-count-change,
+  .animate-live-pulse {
     animation: none;
   }
+}
+
+/* The "someone is here right now" halo.
+   Tailwind's animate-ping scales to 2x and fades quickly, which on an 8px dot
+   expands to 16px and is gone before the eye catches it - it read as a static
+   dot. This travels further, holds longer, and eases out, so the pulse is
+   legible at the size the dot is actually drawn. */
+@keyframes live-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  70% {
+    transform: scale(2.8);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.8);
+    opacity: 0;
+  }
+}
+
+.animate-live-pulse {
+  animation: live-pulse 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
 /* A brief lift when a live figure changes. Fires only on an actual change,

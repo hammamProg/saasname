@@ -6,6 +6,8 @@ import { parseLocation, parseReferrer } from "@/libs/webstats/referrer";
 import { activeSalts } from "@/libs/webstats/salts";
 import { postgresSink } from "@/libs/webstats/sink";
 import { isBot, parseUserAgent } from "@/libs/webstats/useragent";
+import { overBurstLimit, overMonthlyQuota } from "@/libs/webstats/limits";
+import { limitsForPlan, planForAccess } from "@/libs/plans";
 
 /** Node, not Edge. Vercel's docs now recommend migrating off the Edge runtime,
  *  and `runtime = 'edge'` stops being supported in Next 16.3. Node also gets
@@ -73,11 +75,26 @@ function clientIp(request: Request): string {
   );
 }
 
+/** A beacon is a few hundred bytes. Anything approaching this is not a
+ *  browser reporting a pageview, and parsing it would be work done on an
+ *  unauthenticated caller's behalf. */
+const MAX_BODY_BYTES = 8 * 1024;
+
 export async function POST(request: Request): Promise<Response> {
   const userAgent = request.headers.get("user-agent") ?? "";
 
   // Cheapest rejection first: no parse, no database round trip.
   if (isBot(userAgent)) return accepted();
+
+  const ip = clientIp(request);
+
+  // Before reading the body, so a flood costs as little as possible.
+  if (overBurstLimit(ip)) return accepted();
+
+  // Trusting Content-Length alone would be naive, but rejecting on it is
+  // free and stops the obvious case before the body is read at all.
+  const declared = Number(request.headers.get("content-length") ?? 0);
+  if (declared > MAX_BODY_BYTES) return accepted();
 
   let body: string;
   try {
@@ -85,6 +102,8 @@ export async function POST(request: Request): Promise<Response> {
   } catch {
     return accepted();
   }
+
+  if (body.length > MAX_BODY_BYTES) return accepted();
 
   const payload = parsePayload(body);
   if (!payload) return accepted();
@@ -103,7 +122,7 @@ export async function POST(request: Request): Promise<Response> {
     try {
       const { data: site, error } = await admin
         .from("webstats_sites")
-        .select("id, domain")
+        .select("id, domain, owner_id")
         .eq("id", payload.siteId)
         .is("deleted_at", null)
         .maybeSingle();
@@ -126,10 +145,25 @@ export async function POST(request: Request): Promise<Response> {
       const bare = hostname?.replace(/^www\./, "");
       if (!bare || bare !== site.domain.replace(/^www\./, "")) return;
 
+      /* Plan quota. The site id is public and the hostname check only proves
+         the beacon claims to be from the right domain — anyone who reads a
+         customer's HTML can forge them. This is what bounds the cost of that:
+         past the plan's monthly events the write is dropped, silently, so a
+         traffic spike never makes a working install look broken. */
+      const { data: profile } = await admin
+        .from("profiles")
+        .select("has_access")
+        .eq("id", site.owner_id)
+        .maybeSingle();
+
+      const plan = planForAccess(profile?.has_access ?? false);
+      const { monthlyEventLimit } = limitsForPlan(plan);
+
+      if (await overMonthlyQuota(admin, site.id, monthlyEventLimit)) return;
+
       const salts = await activeSalts(admin);
       if (salts.length === 0) return;
 
-      const ip = clientIp(request);
       const sessionId = deriveSessionId(salts[0], {
         ip,
         userAgent,

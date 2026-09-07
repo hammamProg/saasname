@@ -2,11 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { SnippetVariant } from "@/libs/webstats/snippet";
+import type { SiteGroup } from "@/libs/webstats/group-name";
 import InstallSnippet from "@/components/dashboard/InstallSnippet";
 import DeleteSiteButton from "@/components/dashboard/DeleteSiteButton";
 import RenameSiteForm from "@/components/dashboard/RenameSiteForm";
+import GroupPicker from "@/components/dashboard/GroupPicker";
 
-type Panel = "install" | "rename" | "remove" | null;
+type Panel = "install" | "rename" | "group" | "remove" | null;
 
 /** Per-site actions, collapsed into one control beside the domain.
  *
@@ -24,12 +26,16 @@ export default function SiteOptionsMenu({
   name,
   variants,
   installed,
+  groups,
+  groupId,
 }: {
   siteId: string;
   domain: string;
   name: string;
   variants: SnippetVariant[];
   installed: boolean;
+  groups: SiteGroup[];
+  groupId: string | null;
 }) {
   const [open, setOpen] = useState(false);
   const [panel, setPanel] = useState<Panel>(null);
@@ -124,6 +130,11 @@ export default function SiteOptionsMenu({
             Rename
           </button>
 
+          <button type="button" role="menuitem" className={item}
+            onClick={() => choose("group")}>
+            Move to group
+          </button>
+
           <a
             role="menuitem"
             href={`https://${domain}`}
@@ -165,7 +176,9 @@ export default function SiteOptionsMenu({
               ? "Stop tracking"
               : panel === "rename"
                 ? "Rename"
-                : "Install"}{" "}
+                : panel === "group"
+                  ? "Move to group"
+                  : "Install"}{" "}
             · {domain}
           </h2>
           <button
@@ -192,6 +205,14 @@ export default function SiteOptionsMenu({
               siteId={siteId}
               domain={domain}
               name={name}
+              onDone={() => setPanel(null)}
+            />
+          ) : null}
+          {panel === "group" ? (
+            <GroupPicker
+              siteId={siteId}
+              groups={groups}
+              currentGroupId={groupId}
               onDone={() => setPanel(null)}
             />
           ) : null}

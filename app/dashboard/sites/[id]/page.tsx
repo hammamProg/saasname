@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getSEOTags } from "@/libs/seo";
 import { requireUser } from "@/libs/supabase/require-user";
 import { getSite, hasReceivedEvents } from "@/libs/webstats/sites";
+import { listGroups } from "@/libs/webstats/groups";
 import { snippetVariants } from "@/libs/webstats/snippet";
 import { parseRange } from "@/libs/webstats/range";
 import { getSiteStats } from "@/libs/webstats/stats";
@@ -37,7 +38,10 @@ export default async function SitePage({
     notFound();
   }
 
-  const installed = await hasReceivedEvents(site.id);
+  const [installed, groups] = await Promise.all([
+    hasReceivedEvents(site.id),
+    listGroups(),
+  ]);
 
   // Only queried once there is something to query. Before the first beacon the
   // install snippet is the whole page, and an empty report competing with it
@@ -72,6 +76,8 @@ export default async function SitePage({
           name={site.name}
           variants={snippetVariants(site.id)}
           installed={installed}
+          groups={groups}
+          groupId={site.groupId}
         />
       </div>
 

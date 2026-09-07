@@ -14,6 +14,7 @@ export type Site = {
   name: string;
   domain: string;
   createdAt: string;
+  groupId: string | null;
 };
 
 /** Raised when a user already tracks this domain. Distinct from a generic
@@ -38,6 +39,7 @@ type SiteRow = {
   name: string;
   domain: string;
   created_at: string;
+  group_id: string | null;
 };
 
 function toSite(row: SiteRow): Site {
@@ -46,6 +48,7 @@ function toSite(row: SiteRow): Site {
     name: row.name,
     domain: row.domain,
     createdAt: row.created_at,
+    groupId: row.group_id,
   };
 }
 
@@ -54,7 +57,7 @@ export async function listSites(): Promise<Site[]> {
 
   const { data, error } = await supabase
     .from("webstats_sites")
-    .select("id, name, domain, created_at")
+    .select("id, name, domain, created_at, group_id")
     .is("deleted_at", null)
     .order("created_at", { ascending: false });
 
@@ -68,7 +71,7 @@ export async function getSite(siteId: string): Promise<Site | null> {
 
   const { data, error } = await supabase
     .from("webstats_sites")
-    .select("id, name, domain, created_at")
+    .select("id, name, domain, created_at, group_id")
     .eq("id", siteId)
     .is("deleted_at", null)
     .maybeSingle();
@@ -108,7 +111,7 @@ export async function createSite(params: {
   const { data, error } = await supabase
     .from("webstats_sites")
     .insert({ owner_id: params.ownerId, name, domain })
-    .select("id, name, domain, created_at")
+    .select("id, name, domain, created_at, group_id")
     .single();
 
   // 23505 is unique_violation — here, the partial index over live rows.

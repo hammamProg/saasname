@@ -4,7 +4,8 @@ import { limitsForPlan, planForAccess } from "@/libs/plans";
 import { getSEOTags } from "@/libs/seo";
 import { requireUser } from "@/libs/supabase/require-user";
 import { listSites } from "@/libs/webstats/sites";
-import SitesGrid from "@/components/dashboard/SitesGrid";
+import { listGroups } from "@/libs/webstats/groups";
+import GroupedSites from "@/components/dashboard/GroupedSites";
 import { getSiteOverviews } from "@/libs/webstats/overview";
 
 export const dynamic = "force-dynamic";
@@ -20,9 +21,10 @@ export default async function SitesPage() {
   const access = await getProfileAccess(user.id);
   const limits = limitsForPlan(planForAccess(access?.has_access ?? false));
 
-  const [sites, overview] = await Promise.all([
+  const [sites, overview, groups] = await Promise.all([
     listSites(),
     getSiteOverviews(),
+    listGroups(),
   ]);
   const atLimit =
     limits.siteLimit !== null && sites.length >= limits.siteLimit;
@@ -64,7 +66,7 @@ export default async function SitesPage() {
           </Link>
         </div>
       ) : (
-        <SitesGrid sites={sites} initial={overview} />
+        <GroupedSites sites={sites} groups={groups} overview={overview} />
       )}
 
       {atLimit && sites.length > 0 ? (

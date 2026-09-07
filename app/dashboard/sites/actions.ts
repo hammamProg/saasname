@@ -15,10 +15,12 @@ import {
   renameSite,
   SiteLimitReachedError,
 } from "@/libs/webstats/sites";
+import { setSiteGroup } from "@/libs/webstats/groups";
 
 export type CreateSiteState = { error: string | null };
 export type DeleteSiteState = { error: string | null };
 export type RenameSiteState = { error: string | null; done?: boolean };
+export type SetSiteGroupState = { error: string | null; done?: boolean };
 
 export async function createSiteAction(
   _previous: CreateSiteState,
@@ -150,6 +152,42 @@ export async function renameSiteAction(
   } catch (error) {
     console.error("[webstats] renameSite failed", error);
     return { error: "Could not rename that website. Try again." };
+  }
+
+  revalidatePath("/dashboard");
+  revalidatePath(`/dashboard/sites/${siteId}`);
+
+  return { error: null, done: true };
+}
+
+/** Move a site into a group, or back out of one.
+ *
+ *  An empty `groupId` means "no group" rather than an error — that is the
+ *  option the picker offers for ungrouping a site, not a missing field. */
+export async function setSiteGroupAction(
+  _previous: SetSiteGroupState,
+  formData: FormData,
+): Promise<SetSiteGroupState> {
+  await requireUser();
+
+  const siteId = String(formData.get("siteId") ?? "");
+  const groupId = String(formData.get("groupId") ?? "");
+
+  if (!siteId) {
+    return { error: "Missing site." };
+  }
+
+  try {
+    const site = await getSite(siteId);
+
+    if (!site) {
+      return { error: "That website is no longer available." };
+    }
+
+    await setSiteGroup(siteId, groupId || null);
+  } catch (error) {
+    console.error("[webstats] setSiteGroup failed", error);
+    return { error: "Could not move that website. Try again." };
   }
 
   revalidatePath("/dashboard");

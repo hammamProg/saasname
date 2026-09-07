@@ -19,7 +19,8 @@ export default function Footer({ variant = "default" }: FooterProps) {
     >
       <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:grid-cols-3 sm:px-6 lg:px-8">
         <div>
-          <BrandLogo size="sm" />
+          {/* See Header.tsx for why landing forces the light wordmark. */}
+          <BrandLogo size="sm" onDark={isLanding ? false : undefined} />
           <p className="mt-3 text-sm text-muted">
             Cookieless website analytics, free while in beta
           </p>

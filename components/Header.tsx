@@ -30,7 +30,14 @@ export default function Header({ variant = "default" }: HeaderProps) {
       }
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-        <BrandLogo size="lg" />
+        {/* The landing page is wrapped in `.landing-theme`, which forces a
+            light surface regardless of the dashboard's dark/light toggle —
+            but `data-theme` on <html> is still whatever the visitor last
+            chose there. BrandLogo's unset `onDark` follows that attribute,
+            so a visitor with dark mode on would get the on-dark (white)
+            wordmark rendered against this always-light page. Landing is
+            never dark, so the logo never should be either. */}
+        <BrandLogo size="lg" onDark={isLanding ? false : undefined} />
 
         <div className="hidden items-center gap-8 md:flex">
           {links.map((link) => (

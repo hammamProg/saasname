@@ -4,6 +4,9 @@ import { getSEOTags } from "@/libs/seo";
 import { requireUser } from "@/libs/supabase/require-user";
 import { getSite, hasReceivedEvents } from "@/libs/webstats/sites";
 import { snippetVariants } from "@/libs/webstats/snippet";
+import { parseRange } from "@/libs/webstats/range";
+import { getSiteStats } from "@/libs/webstats/stats";
+import SiteStatsPanel from "@/components/dashboard/SiteStatsPanel";
 import InstallSnippet from "@/components/dashboard/InstallSnippet";
 import DeleteSiteButton from "@/components/dashboard/DeleteSiteButton";
 
@@ -17,12 +20,15 @@ export const metadata = getSEOTags({
 
 export default async function SitePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ range?: string }>;
 }) {
   await requireUser();
 
   const { id } = await params;
+  const range = parseRange((await searchParams).range);
   const site = await getSite(id);
 
   if (!site) {
@@ -30,6 +36,11 @@ export default async function SitePage({
   }
 
   const installed = await hasReceivedEvents(site.id);
+
+  // Only queried once there is something to query. Before the first beacon the
+  // install snippet is the whole page, and an empty report competing with it
+  // just adds noise to the one step that matters.
+  const stats = installed ? await getSiteStats(site.id, range) : null;
 
   return (
     <div className="space-y-8">
@@ -47,16 +58,16 @@ export default async function SitePage({
         initiallyInstalled={installed}
       />
 
-      <section className="rounded-2xl border border-border bg-card p-8 text-center">
-        <h2 className="section-heading text-lg font-extrabold">
-          {installed ? "Building your first report" : "No data yet"}
-        </h2>
-        <p className="mx-auto mt-2 max-w-md text-sm text-muted">
-          {installed
-            ? "Traffic is arriving. Visitor and pageview reporting lands with the next release."
-            : "Install the snippet above and your first visitor will show up here."}
-        </p>
-      </section>
+      {stats ? (
+        <SiteStatsPanel siteId={site.id} range={range} stats={stats} />
+      ) : (
+        <section className="rounded-2xl border border-border bg-card p-8 text-center">
+          <h2 className="section-heading text-lg font-extrabold">No data yet</h2>
+          <p className="mx-auto mt-2 max-w-md text-sm text-muted">
+            Install the snippet above and your first visitor will show up here.
+          </p>
+        </section>
+      )}
 
       {/* Last, and visually quiet. A destructive control competing with the
           install steps would be the loudest thing on a page whose job is

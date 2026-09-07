@@ -40,7 +40,7 @@ export default function PaymentStepper({ phase, className }: PaymentStepperProps
           key={step.id}
           className={cn(
             "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors",
-            step.status === "complete" && "border-emerald-200 bg-emerald-50 text-emerald-800",
+            step.status === "complete" && "border-success/30 bg-success-soft text-success",
             step.status === "current" && "border-primary/30 bg-primary-soft text-primary",
             step.status === "upcoming" && "border-border bg-surface text-muted"
           )}
@@ -48,7 +48,7 @@ export default function PaymentStepper({ phase, className }: PaymentStepperProps
           <span
             className={cn(
               "flex h-5 w-5 items-center justify-center rounded-full",
-              step.status === "complete" && "bg-emerald-600 text-white",
+              step.status === "complete" && "bg-success text-white",
               step.status === "current" && "bg-primary text-white",
               step.status === "upcoming" && "bg-border text-muted"
             )}

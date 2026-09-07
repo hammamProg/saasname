@@ -6,6 +6,7 @@ import { getSite, hasReceivedEvents } from "@/libs/webstats/sites";
 import { snippetVariants } from "@/libs/webstats/snippet";
 import { parseRange } from "@/libs/webstats/range";
 import { getSiteStats } from "@/libs/webstats/stats";
+import { getOnlineVisitors } from "@/libs/webstats/online";
 import SiteStatsPanel from "@/components/dashboard/SiteStatsPanel";
 import InstallSnippet from "@/components/dashboard/InstallSnippet";
 import SiteOptionsMenu from "@/components/dashboard/SiteOptionsMenu";
@@ -40,7 +41,9 @@ export default async function SitePage({
   // Only queried once there is something to query. Before the first beacon the
   // install snippet is the whole page, and an empty report competing with it
   // just adds noise to the one step that matters.
-  const stats = installed ? await getSiteStats(site.id, range) : null;
+  const [stats, online] = installed
+    ? await Promise.all([getSiteStats(site.id, range), getOnlineVisitors(site.id)])
+    : [null, 0];
 
   return (
     <div className="space-y-8">
@@ -77,7 +80,7 @@ export default async function SitePage({
       )}
 
       {stats ? (
-        <SiteStatsPanel siteId={site.id} range={range} stats={stats} />
+        <SiteStatsPanel siteId={site.id} range={range} stats={stats} online={online} />
       ) : (
         <section className="rounded-2xl border border-border bg-card p-8 text-center">
           <h2 className="section-heading text-lg font-extrabold">No data yet</h2>

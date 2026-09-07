@@ -136,7 +136,7 @@ export default function SiteOptionsMenu({
           <button
             type="button"
             role="menuitem"
-            className={`${item} text-red-700 hover:bg-red-50`}
+            className={`${item} text-danger hover:bg-danger-soft`}
             onClick={() => choose("remove")}
           >
             Stop tracking

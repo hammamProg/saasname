@@ -1,6 +1,7 @@
 import Link from "next/link";
 import BrandLogo from "@/components/BrandLogo";
 import ButtonAccount from "@/components/ButtonAccount";
+import ThemeToggle from "@/components/ThemeToggle";
 import type { PlanId } from "@/libs/plans";
 
 /** Replaces the sidebar. Discover is a single surface, so a nav rail listing
@@ -26,6 +27,7 @@ export default function DashboardTopBar({ plan }: { plan: PlanId }) {
         </div>
 
         <div className="flex items-center gap-3">
+          <ThemeToggle />
           {plan === "free" ? (
             <Link
               href="/dashboard/billing"

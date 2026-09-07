@@ -108,7 +108,7 @@ export default function InstallSnippet({
         )}
 
         {installed ? (
-          <span className="animate-popup inline-flex items-center gap-2 rounded-full bg-[color-mix(in_srgb,var(--verdict-clear)_14%,transparent)] px-3 py-1.5 text-xs font-semibold text-[#04996A]">
+          <span className="animate-popup inline-flex items-center gap-2 rounded-full bg-success-soft px-3 py-1.5 text-xs font-semibold text-success">
             <svg viewBox="0 0 24 24" className="size-3.5" aria-hidden="true">
               <path
                 d="M4 12.5l5.2 5.2L20 7"

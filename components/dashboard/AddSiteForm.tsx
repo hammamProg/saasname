@@ -48,7 +48,7 @@ export default function AddSiteForm() {
         <p
           id="site-error"
           role="alert"
-          className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+          className="rounded-xl border border-danger-border bg-danger-soft px-4 py-3 text-sm text-danger"
         >
           {state.error}
         </p>

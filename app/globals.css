@@ -12,6 +12,10 @@
   --verdict-blocked: #DF0110;
   --verdict-unknown: #94A3B8;
 
+  /* Tells the UA to render scrollbars, form controls and the caret to match.
+     Without it those stay light and stand out badly against a dark page. */
+  color-scheme: light;
+
   --background: #FBFAF9;
   --foreground: #1A1A1A;
   --muted: #6B6660;
@@ -26,7 +30,57 @@
   --surface: #F4F1EC;
   --surface-dark: #1A1A1A;
 
+  /* Status colours as tokens rather than raw palette utilities, so they flip
+     with the theme. A hardcoded bg-red-50 is invisible on a dark surface. */
+  --danger: #B42318;
+  --danger-soft: rgba(180, 35, 24, 0.08);
+  --danger-border: rgba(180, 35, 24, 0.25);
+  --warning: #92400E;
+  --warning-soft: rgba(146, 64, 14, 0.08);
+  --warning-border: rgba(146, 64, 14, 0.25);
+  --success: #04996A;
+  --success-soft: rgba(2, 223, 151, 0.14);
+
   --brand-gradient: linear-gradient(135deg, #E16540 0%, #EF8B62 100%);
+}
+
+/* Dark theme.
+ *
+ * Applied from an explicit `data-theme` on <html> rather than only from the
+ * media query, so a chosen theme survives a system that disagrees. The
+ * attribute is set before first paint by the inline script in layout.tsx;
+ * without that the page would render light and repaint dark.
+ *
+ * Warm near-blacks rather than pure grey, because the light palette is warm
+ * (#FBFAF9, #F4F1EC) and a neutral-grey dark mode reads as a different
+ * product. */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --background: #131211;
+  --foreground: #F2EFEA;
+  --muted: #A19A92;
+  --border: rgba(255, 255, 255, 0.12);
+  --card: #1B1918;
+  --surface: #262322;
+
+  /* The brand orange holds up on dark; the blue accent needs lifting or it
+     disappears against the background. */
+  --primary: #EE7A57;
+  --primary-hover: #F28E6F;
+  --primary-soft: rgba(238, 122, 87, 0.16);
+  --accent: #4FB3F7;
+  --accent-soft: rgba(79, 179, 247, 0.16);
+  --accent-warm: #EE7A57;
+
+  --danger: #FF8A80;
+  --danger-soft: rgba(255, 138, 128, 0.12);
+  --danger-border: rgba(255, 138, 128, 0.3);
+  --warning: #F5C26B;
+  --warning-soft: rgba(245, 194, 107, 0.12);
+  --warning-border: rgba(245, 194, 107, 0.3);
+  --success: #34D9A0;
+  --success-soft: rgba(52, 217, 160, 0.14);
 }
 
 @theme inline {
@@ -43,6 +97,14 @@
   --color-accent-warm: var(--accent-warm);
   --color-surface: var(--surface);
   --color-surface-dark: var(--surface-dark);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-border: var(--danger-border);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-border: var(--warning-border);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
   --color-brand-ink: #021B42;
   --color-brand-violet: #622EF8;
   --color-brand-indigo: #3C3FEB;
@@ -192,6 +254,10 @@ body {
 }
 
 .landing-theme {
+  /* Tells the UA to render scrollbars, form controls and the caret to match.
+     Without it those stay light and stand out badly against a dark page. */
+  color-scheme: light;
+
   --background: #FBFAF9;
   --foreground: #1A1A1A;
   --muted: #6B6660;
@@ -444,6 +510,23 @@ body {
     animation: none;
     stroke-dashoffset: 0;
   }
+}
+
+/* Theme toggle -----------------------------------------------------------
+   The icon is chosen by the attribute rather than by React state, so the
+   button renders identically on the server in either theme and never causes a
+   hydration mismatch. The sun is hidden by default so that a page rendered
+   before the theme script runs shows the moon rather than both. */
+.theme-icon-sun {
+  display: none;
+}
+
+[data-theme="dark"] .theme-icon-moon {
+  display: none;
+}
+
+[data-theme="dark"] .theme-icon-sun {
+  display: block;
 }
 
 /* Legal pages ---------------------------------------------------------- */

@@ -36,7 +36,7 @@ export default function DeleteSiteButton({
         <button
           type="button"
           onClick={() => setConfirming(true)}
-          className="rounded-xl border border-border px-4 py-2 text-sm font-semibold text-muted transition hover:border-red-300 hover:text-red-700"
+          className="rounded-xl border border-border px-4 py-2 text-sm font-semibold text-muted transition hover:border-danger-border hover:text-danger"
         >
           Stop tracking
         </button>
@@ -59,7 +59,7 @@ export default function DeleteSiteButton({
       {state.error ? (
         <p
           role="alert"
-          className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+          className="rounded-xl border border-danger-border bg-danger-soft px-4 py-3 text-sm text-danger"
         >
           {state.error}
         </p>
@@ -69,7 +69,7 @@ export default function DeleteSiteButton({
         <button
           type="submit"
           disabled={pending}
-          className="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-60"
+          className="rounded-xl bg-danger px-4 py-2 text-sm font-semibold text-background transition hover:opacity-90 disabled:opacity-60"
         >
           {pending ? "Removing…" : `Yes, stop tracking ${domain}`}
         </button>

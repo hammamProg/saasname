@@ -8,6 +8,7 @@ import { RANGES, type Range, type RangeKey } from "@/libs/webstats/range";
 import type { SiteStats } from "@/libs/webstats/stats";
 import BreakdownCard from "@/components/dashboard/BreakdownCard";
 import TrafficChart from "@/components/dashboard/TrafficChart";
+import OnlineTile from "@/components/dashboard/OnlineTile";
 
 function Tile({
   label,
@@ -33,10 +34,12 @@ export default function SiteStatsPanel({
   siteId,
   range,
   stats,
+  online,
 }: {
   siteId: string;
   range: Range;
   stats: SiteStats;
+  online: number;
 }) {
   const { summary } = stats;
 
@@ -64,13 +67,13 @@ export default function SiteStatsPanel({
       </div>
 
       {stats.truncated ? (
-        <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+        <p className="rounded-xl border border-warning-border bg-warning-soft px-4 py-3 text-sm text-warning">
           This range has more data than one report can read. The figures below
           are a floor, not a total — narrow the range for exact numbers.
         </p>
       ) : null}
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <Tile label="Visitors" value={formatCount(summary.visitors)} />
         <Tile label="Pageviews" value={formatCount(summary.pageviews)} />
         <Tile
@@ -83,6 +86,9 @@ export default function SiteStatsPanel({
           value={formatDuration(summary.avgDurationMs)}
           hint="Average, time on page"
         />
+        {/* Last in the row, and the only tile that ignores the date range:
+            "now" is not a period. */}
+        <OnlineTile siteId={siteId} initial={online} />
       </div>
 
       <section className="rounded-2xl border border-border bg-card p-5">

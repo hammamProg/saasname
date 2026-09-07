@@ -38,7 +38,18 @@ export default async function RootLayout({
   const gaId = process.env.NEXT_PUBLIC_GA_ID?.trim();
 
   return (
-    <html lang="en" className={`${dmSans.variable} h-full antialiased`}>
+    <html lang="en" className={`${dmSans.variable} h-full antialiased`} suppressHydrationWarning>
+      <head>
+        {/* Runs before first paint. Resolving the theme in React instead would
+            render light, then repaint dark - the flash every themed app is
+            judged by. suppressHydrationWarning above is because this script
+            legitimately mutates <html> before React hydrates. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem("theme");if(t!=="light"&&t!=="dark"){t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}document.documentElement.dataset.theme=t}catch(e){document.documentElement.dataset.theme="light"}})()`,
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col">
         <Providers authEnabled={authEnabled} initialUser={initialUser}>
           {children}

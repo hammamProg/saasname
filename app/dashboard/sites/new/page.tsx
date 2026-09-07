@@ -17,7 +17,7 @@ export default async function NewSitePage() {
   return (
     <div className="mx-auto max-w-lg space-y-8">
       <div className="space-y-2">
-        <Link href="/dashboard/sites" className="text-sm text-muted hover:text-foreground">
+        <Link href="/dashboard" className="text-sm text-muted hover:text-foreground">
           ← Analytics
         </Link>
         <h1 className="section-heading text-3xl font-extrabold">Add a website</h1>

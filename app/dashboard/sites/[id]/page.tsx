@@ -50,7 +50,7 @@ export default async function SitePage({
     <div className="space-y-8">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 space-y-2">
-          <Link href="/dashboard/sites" className="text-sm text-muted hover:text-foreground">
+          <Link href="/dashboard" className="text-sm text-muted hover:text-foreground">
             ← Analytics
           </Link>
           <div className="flex items-center gap-3">

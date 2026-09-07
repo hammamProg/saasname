@@ -65,7 +65,7 @@ export async function createSiteAction(
     return { error: "Could not add that website. Try again." };
   }
 
-  revalidatePath("/dashboard/sites");
+  revalidatePath("/dashboard");
 
   // Outside the catch: redirect signals by throwing, and catching it here
   // would turn a successful create into "Could not add that website".
@@ -105,12 +105,12 @@ export async function deleteSiteAction(
     return { error: "Could not remove that website. Try again." };
   }
 
-  revalidatePath("/dashboard/sites");
+  revalidatePath("/dashboard");
 
   // Outside the try on purpose: redirect signals by throwing, so calling it
   // inside would land in the catch and report a successful delete as a
   // failure. Same reason as createSiteAction.
-  redirect("/dashboard/sites");
+  redirect("/dashboard");
 }
 
 /** Change a site's display name.
@@ -152,7 +152,7 @@ export async function renameSiteAction(
     return { error: "Could not rename that website. Try again." };
   }
 
-  revalidatePath("/dashboard/sites");
+  revalidatePath("/dashboard");
   revalidatePath(`/dashboard/sites/${siteId}`);
 
   return { error: null, done: true };

@@ -14,14 +14,15 @@ export default function DashboardTopBar({ plan }: { plan: PlanId }) {
         <div className="flex items-center gap-6">
           <BrandLogo size="md" href="/dashboard" />
 
-          {/* Two product areas share this login. Kept as plain links rather
-              than an active-state nav until there is a third destination. */}
+          {/* Analytics first, and at the dashboard root: it is the product
+              people open daily. Trends is the second thing this login buys,
+              not the thing it is for. */}
           <nav className="hidden items-center gap-4 text-sm font-semibold sm:flex">
             <Link href="/dashboard" className="text-muted transition hover:text-foreground">
-              Trends
-            </Link>
-            <Link href="/dashboard/sites" className="text-muted transition hover:text-foreground">
               Analytics
+            </Link>
+            <Link href="/dashboard/trends" className="text-muted transition hover:text-foreground">
+              Trends
             </Link>
           </nav>
         </div>

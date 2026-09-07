@@ -1,88 +1,81 @@
-import { requireUser } from "@/libs/supabase/require-user";
+import Link from "next/link";
 import { getProfileAccess } from "@/libs/access";
-import { planForAccess } from "@/libs/plans";
-import { getUserPreferences } from "@/libs/trends/preferences";
-import { getForYouFeed, getRisingFastFeed } from "@/libs/trends/feed";
+import { limitsForPlan, planForAccess } from "@/libs/plans";
 import { getSEOTags } from "@/libs/seo";
-import CategoryPicker from "@/components/dashboard/CategoryPicker";
-import TrendCard from "@/components/dashboard/TrendCard";
-import UpgradeCallout from "@/components/dashboard/UpgradeCallout";
+import { requireUser } from "@/libs/supabase/require-user";
+import { listSites } from "@/libs/webstats/sites";
+import SitesGrid from "@/components/dashboard/SitesGrid";
+import { getSiteOverviews } from "@/libs/webstats/overview";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = getSEOTags({
-  title: "Your trends",
-  description: "Trends worth building on.",
+  title: "Analytics",
+  description: "Traffic for the websites you track.",
   canonicalUrlRelative: "/dashboard",
 });
 
-export default async function DashboardPage() {
+export default async function SitesPage() {
   const user = await requireUser();
-  const preferences = await getUserPreferences(user.id);
-
-  if (!preferences) {
-    return <CategoryPicker />;
-  }
-
   const access = await getProfileAccess(user.id);
-  const plan = planForAccess(access?.has_access ?? false);
+  const limits = limitsForPlan(planForAccess(access?.has_access ?? false));
 
-  const [forYou, risingFast] = await Promise.all([
-    getForYouFeed(user.id, preferences.selectedCategories, plan),
-    getRisingFastFeed(user.id, plan),
+  const [sites, overview] = await Promise.all([
+    listSites(),
+    getSiteOverviews(),
   ]);
+  const atLimit =
+    limits.siteLimit !== null && sites.length >= limits.siteLimit;
 
   return (
-    <div className="space-y-10">
-      <div className="space-y-2">
-        <h1 className="section-heading text-3xl font-extrabold md:text-4xl">
-          Worth building on
-        </h1>
-        <p className="max-w-2xl text-muted">
-          Ranked by how strong the signal is right now. Each one is a candidate
-          for a new product — or a feature in the one you already have.
-        </p>
-      </div>
-
-      <section className="space-y-3">
-        <div className="flex items-baseline justify-between gap-4">
-          <h2 className="section-heading text-2xl font-extrabold">
-            In your categories
-          </h2>
-          <span className="text-xs text-muted">Strongest first</span>
+    <div className="space-y-8">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="space-y-2">
+          <h1 className="section-heading text-3xl font-extrabold md:text-4xl">
+            Analytics
+          </h1>
+          <p className="max-w-2xl text-muted">
+            Add a script tag to your site and see who visits, where they come
+            from, and which trends your traffic is touching.
+          </p>
         </div>
 
-        {forYou.length === 0 ? (
-          <p className="rounded-2xl border border-border bg-card p-6 text-muted">
-            Nothing published in your categories yet. The pipeline scores trends
-            nightly — check back soon, or widen your interests.
-          </p>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2">
-            {forYou.map((trend) => (
-              <TrendCard key={trend.id} trend={trend} />
-            ))}
-          </div>
-        )}
-      </section>
+        {sites.length > 0 && !atLimit ? (
+          <Link href="/dashboard/sites/new" className="btn-gradient px-5 py-2.5 text-sm">
+            Add website
+          </Link>
+        ) : null}
+      </div>
 
-      {risingFast.length > 0 && (
-        <section className="space-y-3">
-          <div className="flex items-baseline justify-between gap-4">
-            <h2 className="section-heading text-2xl font-extrabold">
-              Rising fast
-            </h2>
-            <span className="text-xs text-muted">Outside your categories</span>
-          </div>
-          <div className="grid gap-4 md:grid-cols-2">
-            {risingFast.map((trend) => (
-              <TrendCard key={trend.id} trend={trend} />
-            ))}
-          </div>
-        </section>
+      {sites.length === 0 ? (
+        <div className="rounded-2xl border border-border bg-card p-8 text-center">
+          <h2 className="section-heading text-xl font-extrabold">
+            Track your first website
+          </h2>
+          <p className="mx-auto mt-2 max-w-md text-muted">
+            One script tag, no cookies, no consent banner. You will see your
+            first visitor within seconds of installing it.
+          </p>
+          <Link
+            href="/dashboard/sites/new"
+            className="btn-gradient mt-6 inline-block px-6 py-3 text-sm"
+          >
+            Add website
+          </Link>
+        </div>
+      ) : (
+        <SitesGrid sites={sites} initial={overview} />
       )}
 
-      {plan === "free" && <UpgradeCallout />}
+      {atLimit && sites.length > 0 ? (
+        <p className="rounded-2xl border border-border bg-card p-5 text-sm text-muted">
+          You are tracking {sites.length} of {limits.siteLimit} websites.{" "}
+          <Link href="/dashboard/billing" className="font-semibold text-primary">
+            Upgrade
+          </Link>{" "}
+          to add more.
+        </p>
+      ) : null}
     </div>
   );
 }

@@ -4,8 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import type { SnippetVariant } from "@/libs/webstats/snippet";
 import InstallSnippet from "@/components/dashboard/InstallSnippet";
 import DeleteSiteButton from "@/components/dashboard/DeleteSiteButton";
+import RenameSiteForm from "@/components/dashboard/RenameSiteForm";
 
-type Panel = "install" | "remove" | null;
+type Panel = "install" | "rename" | "remove" | null;
 
 /** Per-site actions, collapsed into one control beside the domain.
  *
@@ -20,11 +21,13 @@ type Panel = "install" | "remove" | null;
 export default function SiteOptionsMenu({
   siteId,
   domain,
+  name,
   variants,
   installed,
 }: {
   siteId: string;
   domain: string;
+  name: string;
   variants: SnippetVariant[];
   installed: boolean;
 }) {
@@ -116,6 +119,11 @@ export default function SiteOptionsMenu({
             Install snippet
           </button>
 
+          <button type="button" role="menuitem" className={item}
+            onClick={() => choose("rename")}>
+            Rename
+          </button>
+
           <a
             role="menuitem"
             href={`https://${domain}`}
@@ -153,7 +161,12 @@ export default function SiteOptionsMenu({
       >
         <div className="flex items-center justify-between gap-4 border-b border-border px-5 py-3">
           <h2 className="section-heading text-sm font-extrabold">
-            {panel === "remove" ? "Stop tracking" : "Install"} · {domain}
+            {panel === "remove"
+              ? "Stop tracking"
+              : panel === "rename"
+                ? "Rename"
+                : "Install"}{" "}
+            · {domain}
           </h2>
           <button
             type="button"
@@ -172,6 +185,14 @@ export default function SiteOptionsMenu({
               variants={variants}
               initiallyInstalled={installed}
               embedded
+            />
+          ) : null}
+          {panel === "rename" ? (
+            <RenameSiteForm
+              siteId={siteId}
+              domain={domain}
+              name={name}
+              onDone={() => setPanel(null)}
             />
           ) : null}
           {panel === "remove" ? (

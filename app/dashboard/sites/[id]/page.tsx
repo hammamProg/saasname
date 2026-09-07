@@ -69,6 +69,7 @@ export default async function SitePage({
         <SiteOptionsMenu
           siteId={site.id}
           domain={site.domain}
+          name={site.name}
           variants={snippetVariants(site.id)}
           installed={installed}
         />

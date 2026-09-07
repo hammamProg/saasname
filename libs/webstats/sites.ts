@@ -7,6 +7,7 @@
 import { createClient } from "@/libs/supabase/server";
 import { createSupabaseAdmin } from "@/libs/supabase";
 import { normalizeDomain } from "./domain";
+export { MAX_SITE_NAME } from "./site-name";
 
 export type Site = {
   id: string;
@@ -118,6 +119,22 @@ export async function createSite(params: {
   if (error) throw new Error(`Failed to create site: ${error.message}`);
 
   return toSite(data);
+}
+
+/** Rename a site.
+ *
+ *  Only the label changes. The domain is what ingest matches beacons against
+ *  and what the install snippet is bound to, so it is deliberately not
+ *  editable here — changing it would silently orphan a working install. */
+export async function renameSite(siteId: string, name: string): Promise<void> {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("webstats_sites")
+    .update({ name })
+    .eq("id", siteId);
+
+  if (error) throw new Error(`Failed to rename site: ${error.message}`);
 }
 
 /** Soft delete, so the historical rollups a site owns stay attributable while

@@ -11,11 +11,14 @@ import {
   deleteSite,
   DuplicateSiteError,
   getSite,
+  MAX_SITE_NAME,
+  renameSite,
   SiteLimitReachedError,
 } from "@/libs/webstats/sites";
 
 export type CreateSiteState = { error: string | null };
 export type DeleteSiteState = { error: string | null };
+export type RenameSiteState = { error: string | null; done?: boolean };
 
 export async function createSiteAction(
   _previous: CreateSiteState,
@@ -108,4 +111,49 @@ export async function deleteSiteAction(
   // inside would land in the catch and report a successful delete as a
   // failure. Same reason as createSiteAction.
   redirect("/dashboard/sites");
+}
+
+/** Change a site's display name.
+ *
+ *  Only the label. The domain is what ingest matches beacons against and what
+ *  the snippet is bound to, so editing it here would silently orphan a working
+ *  install; that belongs behind its own flow, if ever. */
+export async function renameSiteAction(
+  _previous: RenameSiteState,
+  formData: FormData,
+): Promise<RenameSiteState> {
+  await requireUser();
+
+  const siteId = String(formData.get("siteId") ?? "");
+  const raw = String(formData.get("name") ?? "").trim();
+
+  if (!siteId) {
+    return { error: "Missing site." };
+  }
+
+  if (raw.length > MAX_SITE_NAME) {
+    return { error: `Keep the name under ${MAX_SITE_NAME} characters.` };
+  }
+
+  try {
+    const site = await getSite(siteId);
+
+    // Missing means already deleted or never theirs; RLS reports both the same
+    // way and neither is worth an error page.
+    if (!site) {
+      return { error: "That website is no longer available." };
+    }
+
+    // Clearing the field resets to the domain rather than saving an empty
+    // name, which would render as a blank card. Same rule as creating a site.
+    await renameSite(siteId, raw || site.domain);
+  } catch (error) {
+    console.error("[webstats] renameSite failed", error);
+    return { error: "Could not rename that website. Try again." };
+  }
+
+  revalidatePath("/dashboard/sites");
+  revalidatePath(`/dashboard/sites/${siteId}`);
+
+  return { error: null, done: true };
 }

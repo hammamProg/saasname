@@ -111,12 +111,14 @@ export default function SiteStatsPanel({
         <BreakdownCard
           title="Countries"
           unit="visitors"
+          kind="country"
           rows={stats.countries}
           empty="No locations recorded yet."
         />
         <BreakdownCard
           title="Browsers"
           unit="visitors"
+          kind="browser"
           rows={stats.browsers}
           empty="No browsers recorded yet."
         />

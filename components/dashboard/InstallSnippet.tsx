@@ -13,10 +13,15 @@ export default function InstallSnippet({
   siteId,
   variants,
   initiallyInstalled,
+  embedded = false,
 }: {
   siteId: string;
   variants: SnippetVariant[];
   initiallyInstalled: boolean;
+  /** Rendered inside the options dialog, which already supplies a heading and
+   *  a surface. Repeating both gives "Install · domain" above a second
+   *  "Install", and a card border inside a card. */
+  embedded?: boolean;
 }) {
   const [active, setActive] = useState(variants[0]?.id);
   const [copied, setCopied] = useState(false);
@@ -88,9 +93,19 @@ export default function InstallSnippet({
   if (!variant) return null;
 
   return (
-    <div className="space-y-4 rounded-2xl border border-border bg-card p-6">
+    <div
+      className={
+        embedded
+          ? "space-y-4"
+          : "space-y-4 rounded-2xl border border-border bg-card p-6"
+      }
+    >
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="section-heading text-lg font-extrabold">Install</h2>
+        {embedded ? (
+          <span className="sr-only">Install status</span>
+        ) : (
+          <h2 className="section-heading text-lg font-extrabold">Install</h2>
+        )}
 
         {installed ? (
           <span className="animate-popup inline-flex items-center gap-2 rounded-full bg-[color-mix(in_srgb,var(--verdict-clear)_14%,transparent)] px-3 py-1.5 text-xs font-semibold text-[#04996A]">

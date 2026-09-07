@@ -8,7 +8,7 @@ import { parseRange } from "@/libs/webstats/range";
 import { getSiteStats } from "@/libs/webstats/stats";
 import SiteStatsPanel from "@/components/dashboard/SiteStatsPanel";
 import InstallSnippet from "@/components/dashboard/InstallSnippet";
-import DeleteSiteButton from "@/components/dashboard/DeleteSiteButton";
+import SiteOptionsMenu from "@/components/dashboard/SiteOptionsMenu";
 
 export const dynamic = "force-dynamic";
 
@@ -44,19 +44,37 @@ export default async function SitePage({
 
   return (
     <div className="space-y-8">
-      <div className="space-y-2">
-        <Link href="/dashboard/sites" className="text-sm text-muted hover:text-foreground">
-          ← Analytics
-        </Link>
-        <h1 className="section-heading text-3xl font-extrabold">{site.name}</h1>
-        <p className="text-muted">{site.domain}</p>
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0 space-y-2">
+          <Link href="/dashboard/sites" className="text-sm text-muted hover:text-foreground">
+            ← Analytics
+          </Link>
+          <h1 className="section-heading truncate text-3xl font-extrabold">
+            {site.name}
+          </h1>
+          <p className="truncate text-muted">{site.domain}</p>
+        </div>
+
+        {/* Beside the domain, not below the reports: these act on the site as
+            a whole, so they belong with its name. */}
+        <SiteOptionsMenu
+          siteId={site.id}
+          domain={site.domain}
+          variants={snippetVariants(site.id)}
+          installed={installed}
+        />
       </div>
 
-      <InstallSnippet
-        siteId={site.id}
-        variants={snippetVariants(site.id)}
-        initiallyInstalled={installed}
-      />
+      {/* Only while it is still the job. Once a beacon has arrived this moves
+          into the options menu; leaving it here would push the reports below
+          the fold permanently for a thing you need once. */}
+      {installed ? null : (
+        <InstallSnippet
+          siteId={site.id}
+          variants={snippetVariants(site.id)}
+          initiallyInstalled={false}
+        />
+      )}
 
       {stats ? (
         <SiteStatsPanel siteId={site.id} range={range} stats={stats} />
@@ -69,12 +87,6 @@ export default async function SitePage({
         </section>
       )}
 
-      {/* Last, and visually quiet. A destructive control competing with the
-          install steps would be the loudest thing on a page whose job is
-          getting someone set up. */}
-      <section className="rounded-2xl border border-border bg-card p-6">
-        <DeleteSiteButton siteId={site.id} domain={site.domain} />
-      </section>
     </div>
   );
 }

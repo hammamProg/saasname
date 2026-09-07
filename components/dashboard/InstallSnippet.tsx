@@ -1,12 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import type { SnippetVariant } from "@/libs/webstats/snippet";
-import {
-  ClaudeAgentIcon,
-  CodexAgentIcon,
-  CursorAgentIcon,
-} from "@/components/icons/AgentIcons";
+import { CodexAgentIcon } from "@/components/icons/AgentIcons";
 
 /** Install snippet with framework tabs, copy-to-clipboard, and a live check
  *  for the first incoming event.
@@ -186,10 +183,22 @@ export default function InstallSnippet({
             }
           >
             {v.id === "agent" ? (
-              <span className="flex items-center -space-x-1" aria-hidden="true">
-                <ClaudeAgentIcon size={13} />
-                <CursorAgentIcon size={13} />
-                <CodexAgentIcon size={13} />
+              <span className="flex items-center gap-1" aria-hidden="true">
+                <Image
+                  src="/analytics/agents/claude-code.png"
+                  alt=""
+                  width={14}
+                  height={14}
+                  unoptimized
+                />
+                <Image
+                  src="/analytics/agents/cursor.png"
+                  alt=""
+                  width={14}
+                  height={14}
+                  unoptimized
+                />
+                <CodexAgentIcon size={14} />
               </span>
             ) : null}
             {v.label}

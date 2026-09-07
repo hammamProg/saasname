@@ -14,15 +14,13 @@ export default function DashboardTopBar({ plan }: { plan: PlanId }) {
         <div className="flex items-center gap-6">
           <BrandLogo size="md" href="/dashboard" />
 
-          {/* Analytics first, and at the dashboard root: it is the product
-              people open daily. Trends is the second thing this login buys,
-              not the thing it is for. */}
+          {/* Trends is off for now — its nightly pipeline calls a paid LLM
+              and DataForSEO, so the link is pulled rather than left pointing
+              at a page whose cron feeding it has been disabled (see
+              vercel.json and app/dashboard/trends/page.tsx). */}
           <nav className="hidden items-center gap-4 text-sm font-semibold sm:flex">
             <Link href="/dashboard" className="text-muted transition hover:text-foreground">
               Analytics
-            </Link>
-            <Link href="/dashboard/trends" className="text-muted transition hover:text-foreground">
-              Trends
             </Link>
           </nav>
         </div>

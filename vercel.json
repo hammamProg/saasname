@@ -1,32 +1,3 @@
 {
-  "crons": [
-    {
-      "path": "/api/internal/ingest/npm",
-      "schedule": "0 6 * * *"
-    },
-    {
-      "path": "/api/internal/ingest/pypi",
-      "schedule": "0 7 * * *"
-    },
-    {
-      "path": "/api/internal/ingest/arxiv",
-      "schedule": "0 8 * * *"
-    },
-    {
-      "path": "/api/internal/ingest/hugging-face",
-      "schedule": "0 9 * * *"
-    },
-    {
-      "path": "/api/internal/ingest/stack-exchange",
-      "schedule": "0 10 * * *"
-    },
-    {
-      "path": "/api/internal/ingest/dataforseo",
-      "schedule": "0 11 * * *"
-    },
-    {
-      "path": "/api/internal/pipeline/run",
-      "schedule": "0 2 * * *"
-    }
-  ]
+  "crons": []
 }

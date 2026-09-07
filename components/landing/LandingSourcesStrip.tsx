@@ -1,18 +1,17 @@
+import Image from "next/image";
 import { SectionHeader } from "@/components/landing/shared";
+import { CodexAgentIcon } from "@/components/icons/AgentIcons";
 
-/** The trust section on its own: nine sources shown as a chip grid rather
- *  than buried at the bottom of the trend-anatomy block. The fact that
- *  there are nine matters; a card each for them does not. */
-const SOURCES = [
-  "Hacker News",
-  "GitHub",
-  "npm",
-  "PyPI",
-  "arXiv",
-  "Hugging Face",
-  "Stack Overflow",
-  "Publisher feeds",
-  "Search demand",
+/** Every place the install snippet already works, shown as a chip grid —
+ *  the same variants InstallSnippet renders once you're signed in, so this
+ *  section can never promise a target that doesn't exist. */
+const TARGETS = [
+  { label: "HTML" },
+  { label: "Next.js" },
+  { label: "WordPress" },
+  { label: "Cursor", icon: "/analytics/agents/cursor.png" },
+  { label: "Claude Code", icon: "/analytics/agents/claude-code.png" },
+  { label: "Codex", codex: true },
 ];
 
 export default function LandingSourcesStrip() {
@@ -20,18 +19,23 @@ export default function LandingSourcesStrip() {
     <section className="relative py-20 sm:py-24">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
         <SectionHeader
-          badge="Sources"
-          title="Reading every day, across nine sources."
-          subtitle="One source moving alone is noise, and we label it that way — a single-source trend stays low-confidence until something unrelated confirms it."
+          badge="Install"
+          title="One snippet, every stack."
+          subtitle="Paste it by hand, or hand the exact same command to the AI agent you already have open."
         />
 
         <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
-          {SOURCES.map((source) => (
+          {TARGETS.map((target) => (
             <span
-              key={source}
-              className="rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold text-foreground"
+              key={target.label}
+              className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold text-foreground"
             >
-              {source}
+              {target.icon ? (
+                <Image src={target.icon} alt="" width={16} height={16} unoptimized />
+              ) : target.codex ? (
+                <CodexAgentIcon size={16} />
+              ) : null}
+              {target.label}
             </span>
           ))}
         </div>

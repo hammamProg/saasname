@@ -19,69 +19,61 @@ export async function GET() {
 
 > ${config.appDescription}
 
-${config.appName} answers one question: what is gaining momentum right now that
-I should know about? It ingests signals from nine public sources, clusters
-related activity into named topics, scores each topic on momentum and
-cross-source confirmation, and serves a personalised feed of the result.
+${config.appName} is cookieless website analytics. Add one script tag and see
+visitors, referrers, countries, devices and who is on the site right now,
+without asking the visitor's browser for consent first.
 
-## Sources
+## How identity works
 
-- Hacker News — launches and discussion.
-- GitHub — newly created repositories and star velocity.
-- npm — JavaScript package publication and popularity.
-- PyPI — newly published Python packages.
-- Curated publisher feeds — engineering blogs and changelogs.
-- arXiv — new research in cs.AI, cs.CL and cs.LG.
-- Hugging Face — model and dataset traction.
-- Stack Overflow — developer questions, as an adoption-pain signal.
-- Keyword search demand — search volume, competition and cost per click.
+- A visitor is identified by a keyed hash of IP address, user agent and the
+  tracked domain, salted with a value that rotates daily and is destroyed
+  after 48 hours.
+- Nothing is written to or read from the visitor's device — no cookies, no
+  localStorage, no fingerprinting beyond headers already sent on every
+  request.
+- Because no state lives on the visitor's device, there is nothing there to
+  ask consent for.
 
-## How a trend is produced
+## What it reports
 
-1. Each connector runs on its own schedule and writes deduplicated signals.
-2. Signals are embedded and clustered into topics by semantic similarity.
-3. A nightly job snapshots each topic's daily activity and scores it on
-   momentum, cross-source confirmation and sustained growth.
-4. Each topic is assigned a stage: early signal, emerging, accelerating,
-   established, or cooling.
-5. A one-sentence summary is generated from the stored evidence titles only.
+- Unique visitors and pageviews over time, deduplicated by session rather
+  than counted per pageview.
+- Who is on the site in roughly the last five minutes.
+- Referrers split into channel, direct traffic and campaign, plus top pages,
+  countries, browsers and devices.
+- Bounce rate and session duration.
+
+## Install
+
+One script tag, generated per site with a real site id. Ready-made variants
+exist for plain HTML, Next.js and WordPress, plus a single natural-language
+prompt for AI coding agents (Cursor, Claude Code, Codex, and similar) that
+lets the agent find the right file in a project and add the tag itself.
 
 ## What it does not claim
 
-- Scores are arithmetic over observed public signals, not predictions. A high
-  momentum reading describes what has already happened, not what will.
-- A topic confirmed by a single source stays at low confidence and is labelled
-  as such. Cross-source agreement is the thing being measured.
-- Summaries are generated from evidence titles and are always shown with links
-  to that evidence. No quantitative claim is displayed without its source.
-- Coverage is limited to the nine sources above. Absence from the feed is not
-  evidence that something is not happening.
-- Search demand figures are supplied by a third-party keyword provider and
-  reflect its estimates, not measured traffic.
+- Visitor counts are anonymous, not merely pseudonymous: the salt that
+  produces them is destroyed after 48 hours, after which the identifier
+  cannot be reversed or re-linked, including by us.
+- The same person on two different devices, or behind a shared/rotating IP,
+  can register as more than one visitor. This is the standard tradeoff of not
+  using cookies, not a bug.
+- This page is not legal advice. Whether cookieless analytics satisfies a
+  given jurisdiction's requirements is for the site owner to confirm.
 
 ## Pricing
 
-The Discover feed is free to any signed-in account while in beta. There is no
-card required and no paywalled feed.
-
-## Confidentiality
-
-Accounts, interests, follows and hidden topics are readable only by the account
-that created them, enforced by the database below the application rather than by
-application code. Every category of recipient is listed at
-${siteUrl}/confidentiality, and a standing NDA is published at ${siteUrl}/nda.
+Free to any signed-in account while the product is in beta. No card is
+required. Pricing will be announced before beta ends, with notice.
 
 ## Pages
 
-- [Home](${siteUrl}/): what it does, the sources, how trends are scored, FAQ.
-- [Confidentiality](${siteUrl}/confidentiality): every provider that receives data, and what each receives.
-- [NDA](${siteUrl}/nda): standing confidentiality undertaking, effective on use.
+- [Home](${siteUrl}/): what it does, how identity works, install, FAQ.
 - [Privacy policy](${siteUrl}/privacy-policy)
 - [Terms](${siteUrl}/tos)
-- [Blog](${siteUrl}/blog)
 
-Everything under /dashboard requires an account and is private to that account.
-It is not crawlable and not useful to an unauthenticated agent.
+Everything under /dashboard requires an account and is private to that
+account. It is not crawlable and not useful to an unauthenticated agent.
 
 ## Frequently asked
 

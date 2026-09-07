@@ -10,12 +10,12 @@ export default function LandingFinalCTA() {
 
       <div className="relative mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
         <h2 className="section-heading text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl">
-          Someone is building it{" "}
+          Know who&apos;s on your site{" "}
           <span className="gradient-text">right now.</span>
         </h2>
         <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-muted">
-          Pick a few interests and see what your feed surfaces. It takes about a
-          minute, and the free plan costs nothing.
+          One script tag, and your first visitor shows up in seconds. Free
+          while the product is in beta — no card required.
         </p>
 
         <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-5">
@@ -23,11 +23,11 @@ export default function LandingFinalCTA() {
             href={config.auth.loginUrl}
             className="btn-gradient px-8 py-3.5 text-sm"
           >
-            Start free
+            Start tracking free
             <ArrowRight size={16} />
           </Link>
           <span className="text-sm text-muted">
-            Free plan, no card required.
+            Beta — free for now, no card required.
           </span>
         </div>
       </div>

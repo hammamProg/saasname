@@ -14,7 +14,7 @@ export default function LandingFAQ() {
         <SectionHeader
           badge="FAQ"
           title="Frequently Asked Questions"
-          subtitle="What the checks cover, and what they deliberately do not."
+          subtitle="What it tracks, what it costs right now, and what it deliberately doesn't do."
         />
 
         <div className="mt-12 divide-y divide-border rounded-2xl border border-border bg-card">

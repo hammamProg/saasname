@@ -21,7 +21,7 @@ export default function Footer({ variant = "default" }: FooterProps) {
         <div>
           <BrandLogo size="sm" />
           <p className="mt-3 text-sm text-muted">
-            Launch your SaaS in days, not months
+            Cookieless website analytics, free while in beta
           </p>
           <p className="mt-6 text-xs text-muted">
             Copyright © {new Date().getFullYear()} — All rights reserved

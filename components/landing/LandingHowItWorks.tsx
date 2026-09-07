@@ -1,23 +1,22 @@
 import { SectionHeader } from "@/components/landing/shared";
 
-/** Mirrors the real pipeline rather than a marketing abstraction, so the page
- *  and the system cannot drift apart. Three steps, not five — the ingest and
- *  cluster stages are one idea from the reader's side. */
+/** Mirrors the real flow rather than a marketing abstraction, so the page and
+ *  the product cannot drift apart. */
 const steps = [
   {
     number: "01",
-    title: "Watch",
-    body: "Nine sources, pulled every day: launches, repos, packages, papers, models, developer questions and search demand.",
+    title: "Add the snippet",
+    body: "One script tag. Paste it by hand, or hand the same prompt to Cursor, Claude Code or Codex and let it find the right file.",
   },
   {
     number: "02",
-    title: "Cluster and score",
-    body: "Related activity from unrelated sources collapses into one named trend, scored nightly on momentum and how many sources agree.",
+    title: "It confirms itself",
+    body: "The install screen watches for your first pageview and flips to \"Connected\" within seconds — no reload, no guessing whether it worked.",
   },
   {
     number: "03",
-    title: "Act early",
-    body: "Your feed ranks them strongest-first, with the evidence attached — so you can judge it yourself instead of taking our word.",
+    title: "Watch it live",
+    body: "Visitors, referrers, countries and who's on the site right now, updating without a page reload.",
   },
 ];
 
@@ -27,8 +26,8 @@ export default function LandingHowItWorks() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeader
           badge="How it works"
-          title="Noise in, ranked opportunities out."
-          subtitle="The same three steps run every day, whether or not anyone is watching."
+          title="Three steps, and the last one never ends."
+          subtitle="Install once. Everything after that just runs."
         />
 
         <ol className="mt-14 grid gap-6 md:grid-cols-3">

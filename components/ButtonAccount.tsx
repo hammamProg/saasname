@@ -83,7 +83,7 @@ export default function ButtonAccount({ variant = "default" }: ButtonAccountProp
       window.location.href = url;
     } catch (error) {
       if (error instanceof ApiError && error.status === 404) {
-        window.location.href = "/#pricing";
+        window.location.href = "/dashboard/billing";
         return;
       }
       console.error("[billing]", error);

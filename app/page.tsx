@@ -3,9 +3,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import LandingHero from "@/components/landing/LandingHero";
 import LandingHowItWorks from "@/components/landing/LandingHowItWorks";
-import LandingTrendAnatomy from "@/components/landing/LandingTrendAnatomy";
+import LandingFeatures from "@/components/landing/LandingFeatures";
 import LandingSourcesStrip from "@/components/landing/LandingSourcesStrip";
-import LandingPricing from "@/components/landing/LandingPricing";
 import LandingFAQ from "@/components/landing/LandingFAQ";
 import LandingFinalCTA from "@/components/landing/LandingFinalCTA";
 import config from "@/config";
@@ -14,14 +13,15 @@ import { renderSchemaTags } from "@/libs/seo-schema";
 import { LANDING_FAQS } from "@/libs/landing-faqs";
 
 export const metadata = getSEOTags({
-  title: "Catch the trend before it's crowded",
+  title: "Website analytics without the cookie banner",
   description: config.appDescription,
   keywords: [
-    "emerging trends",
-    "trend discovery",
-    "what to build next",
-    "saas idea validation",
-    "early market signals",
+    "cookieless analytics",
+    "web analytics",
+    "privacy friendly analytics",
+    "no cookie banner",
+    "GDPR analytics",
+    "real time visitors",
   ],
   canonicalUrlRelative: "/",
 });
@@ -36,9 +36,8 @@ export default function Home() {
       <main>
         <LandingHero />
         <LandingHowItWorks />
-        <LandingTrendAnatomy />
+        <LandingFeatures />
         <LandingSourcesStrip />
-        <LandingPricing />
         <LandingFAQ />
         <LandingFinalCTA />
       </main>

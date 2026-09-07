@@ -8,11 +8,11 @@
 import config from "@/config";
 
 export type SnippetVariant = {
-  id: "html" | "nextjs" | "wordpress";
+  id: "html" | "nextjs" | "wordpress" | "agent";
   label: string;
   /** Where the snippet goes, in one line. */
   hint: string;
-  language: "html" | "tsx";
+  language: "html" | "tsx" | "text";
   code: string;
 };
 
@@ -78,6 +78,20 @@ export default function RootLayout({
       hint: "Appearance → Theme File Editor → header.php, before </head>.",
       language: "html",
       code: `<script defer data-site="${siteId}" src="${src}"></script>`,
+    },
+    {
+      id: "agent",
+      label: "AI Agent",
+      hint: "Paste into Cursor, Claude Code, Codex, or any coding agent — it reads your project and installs the snippet itself.",
+      language: "text",
+      // One prompt for every agent: they all take a natural-language
+      // instruction plus a code block and can find the right file
+      // themselves, so there is no per-agent variant to maintain here — the
+      // same text that works in Cursor's chat works pasted into Claude Code
+      // or the Codex CLI.
+      code: `Add this analytics script tag so it loads on every page of this site. If this is a static HTML site, add it just before the closing </head> tag on every page. If this is a Next.js app, add it to the root layout using next/script with strategy="afterInteractive" instead of the raw tag. If it's something else, use your best judgement for where a site-wide script belongs.
+
+<script defer data-site="${siteId}" src="${src}"></script>`,
     },
   ];
 }

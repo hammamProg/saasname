@@ -2,6 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { SnippetVariant } from "@/libs/webstats/snippet";
+import {
+  ClaudeAgentIcon,
+  CodexAgentIcon,
+  CursorAgentIcon,
+} from "@/components/icons/AgentIcons";
 
 /** Install snippet with framework tabs, copy-to-clipboard, and a live check
  *  for the first incoming event.
@@ -176,10 +181,17 @@ export default function InstallSnippet({
             onClick={() => setActive(v.id)}
             className={
               v.id === active
-                ? "rounded-full bg-primary-soft px-3 py-1.5 text-xs font-semibold text-primary"
-                : "rounded-full px-3 py-1.5 text-xs font-semibold text-muted hover:text-foreground"
+                ? "inline-flex items-center gap-1.5 rounded-full bg-primary-soft px-3 py-1.5 text-xs font-semibold text-primary"
+                : "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold text-muted hover:text-foreground"
             }
           >
+            {v.id === "agent" ? (
+              <span className="flex items-center -space-x-1" aria-hidden="true">
+                <ClaudeAgentIcon size={13} />
+                <CursorAgentIcon size={13} />
+                <CodexAgentIcon size={13} />
+              </span>
+            ) : null}
             {v.label}
           </button>
         ))}
@@ -192,7 +204,7 @@ export default function InstallSnippet({
             `--color-brand-ink`. An undefined utility silently renders no
             background, which put white text on a white card. */}
         <pre className="overflow-x-auto rounded-xl bg-brand-ink p-4 pr-20 text-xs leading-relaxed text-white">
-          <code className="whitespace-pre-wrap break-all">{variant.code}</code>
+          <code className="whitespace-pre-wrap break-words">{variant.code}</code>
         </pre>
         <button
           type="button"

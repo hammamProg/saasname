@@ -106,7 +106,13 @@ export default function SiteStatsPanel({
           title="Top sources"
           unit="pageviews"
           rows={stats.topSources}
-          empty="Everyone arrived directly, with no referrer."
+          empty="No traffic recorded yet."
+        />
+        <BreakdownCard
+          title="Campaigns"
+          unit="pageviews"
+          rows={stats.campaigns}
+          empty="No tagged links yet. Add ?utm_source=… to a link to see it here."
         />
         <BreakdownCard
           title="Entry pages"
@@ -139,7 +145,11 @@ export default function SiteStatsPanel({
       {/* Stated rather than buried: two of these lists rank by a different
           unit, and a reader comparing them deserves to know why. */}
       <p className="text-xs text-muted">
-        Pages and sources rank by pageviews. Unique visitors cannot be summed
+        Sources come from the referring page. Traffic with no referrer — a
+        typed address, a bookmark, or an app that strips it — is counted as
+        Direct. Links you tag with <code>utm_source</code> or{" "}
+        <code>utm_campaign</code> appear under Campaigns. Pages and sources
+        rank by pageviews. Unique visitors cannot be summed
         across hours without counting the same person twice, so the lists that
         can report visitors do, and the ones that cannot say so.
       </p>

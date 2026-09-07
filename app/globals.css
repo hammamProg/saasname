@@ -510,6 +510,27 @@ body {
     animation: none;
     stroke-dashoffset: 0;
   }
+
+  .animate-count-change {
+    animation: none;
+  }
+}
+
+/* A brief lift when a live figure changes. Fires only on an actual change,
+   so it stays evidence that something happened rather than decoration. */
+@keyframes count-change {
+  0% {
+    transform: translateY(3px);
+    opacity: 0.35;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-count-change {
+  animation: count-change 0.4s ease-out;
 }
 
 /* Theme toggle -----------------------------------------------------------

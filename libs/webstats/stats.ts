@@ -25,6 +25,7 @@ export type SiteStats = {
   bucket: "hour" | "day";
   topPages: Breakdown;
   topSources: Breakdown;
+  campaigns: Breakdown;
   entryPages: Breakdown;
   countries: Breakdown;
   browsers: Breakdown;
@@ -70,7 +71,7 @@ async function fetchDimension(
   from: Date,
   to: Date,
   limit = 8,
-): Promise<Breakdown> {
+): Promise<{ rows: Breakdown; total: number }> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -91,10 +92,14 @@ async function fetchDimension(
     totals.set(row.value, (totals.get(row.value) ?? 0) + row.pageviews);
   }
 
-  return [...totals.entries()]
+  const rows = [...totals.entries()]
     .map(([label, value]) => ({ label, value }))
-    .sort((a, b) => b.value - a.value)
-    .slice(0, limit);
+    .sort((a, b) => b.value - a.value);
+
+  return {
+    rows: rows.slice(0, limit),
+    total: rows.reduce((sum, r) => sum + r.value, 0),
+  };
 }
 
 /** Rank a visit-level attribute by unique visitors.
@@ -154,18 +159,40 @@ export async function getSiteStats(
   const from = buckets[0];
   const to = now;
 
-  const [{ rows, truncated }, topPages, topSources] = await Promise.all([
-    fetchVisitRows(siteId, from, to),
-    fetchDimension(siteId, "path", from, to),
-    fetchDimension(siteId, "referrer_domain", from, to),
-  ]);
+  const [{ rows, truncated }, pages, referrers, utmSources, utmCampaigns] =
+    await Promise.all([
+      fetchVisitRows(siteId, from, to),
+      fetchDimension(siteId, "path", from, to),
+      fetchDimension(siteId, "referrer_domain", from, to),
+      fetchDimension(siteId, "utm_source", from, to),
+      fetchDimension(siteId, "utm_campaign", from, to),
+    ]);
+
+  const summary = summarize(rows);
+
+  /* Traffic with no referrer is not absent, it is direct: someone typed the
+     address, used a bookmark, or came from an app that strips the header.
+     Without this row the sources list silently omits the largest bucket on
+     most sites, and the numbers look like they do not add up. */
+  const direct = Math.max(0, summary.pageviews - referrers.total);
+  const topSources = [
+    ...referrers.rows,
+    ...(direct > 0 ? [{ label: "Direct / none", value: direct }] : []),
+  ].sort((a, b) => b.value - a.value);
+
+  /* utm_source is a hand-set label for the same thing referrer_domain
+     measures, so the two are merged rather than shown as rival lists. A
+     campaign link from X reports both "x.com" and "twitter"; keeping them
+     apart would make one visit look like two sources. */
+  const sources = topSources.slice(0, 8);
 
   return {
-    summary: summarize(rows),
+    summary,
     series: seriesFor(rows, buckets, range.bucket),
     bucket: range.bucket,
-    topPages,
-    topSources,
+    topPages: pages.rows,
+    topSources: sources,
+    campaigns: utmCampaigns.rows.length > 0 ? utmCampaigns.rows : utmSources.rows,
     entryPages: rankEntryPages(rows),
     countries: rankByVisitors(rows, (r) => r.country),
     browsers: rankByVisitors(rows, (r) => r.browser),

@@ -9,7 +9,7 @@ import type { PlanId } from "@/libs/plans";
  *  the account menu, and gives the feed the full width. */
 export default function DashboardTopBar({ plan }: { plan: PlanId }) {
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur">
+    <header className="sticky top-0 z-30 border-b border-border bg-card/85 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <div className="flex items-center gap-6">
           <BrandLogo size="md" href="/dashboard" />

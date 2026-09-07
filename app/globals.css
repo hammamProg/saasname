@@ -57,12 +57,16 @@
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --background: #0D0D10;
+  /* Background is a mid dark gray, cards/surfaces step up in lightness from
+     there, so a card visibly sits on top of the page instead of blending
+     into it — the previous near-black bg (#0D0D10) and near-black card
+     (#17181C) were close enough in luminance to read as one flat surface. */
+  --background: #1A1A1E;
   --foreground: #F2F2F2;
-  --muted: #9A9CA5;
-  --border: rgba(255, 255, 255, 0.08);
-  --card: #17181C;
-  --surface: #1E1F24;
+  --muted: #A6A8B0;
+  --border: rgba(255, 255, 255, 0.10);
+  --card: #26262B;
+  --surface: #2F2F36;
 
   /* The brand orange holds up on dark; the blue accent needs lifting or it
      disappears against the background. */

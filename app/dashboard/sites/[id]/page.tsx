@@ -10,6 +10,7 @@ import { getOnlineVisitors } from "@/libs/webstats/online";
 import SiteStatsPanel from "@/components/dashboard/SiteStatsPanel";
 import InstallSnippet from "@/components/dashboard/InstallSnippet";
 import SiteOptionsMenu from "@/components/dashboard/SiteOptionsMenu";
+import SiteFavicon from "@/components/dashboard/SiteFavicon";
 
 export const dynamic = "force-dynamic";
 
@@ -52,10 +53,15 @@ export default async function SitePage({
           <Link href="/dashboard/sites" className="text-sm text-muted hover:text-foreground">
             ← Analytics
           </Link>
-          <h1 className="section-heading truncate text-3xl font-extrabold">
-            {site.name}
-          </h1>
-          <p className="truncate text-muted">{site.domain}</p>
+          <div className="flex items-center gap-3">
+            <SiteFavicon domain={site.domain} size={36} />
+            <div className="min-w-0">
+              <h1 className="section-heading truncate text-3xl font-extrabold">
+                {site.name}
+              </h1>
+              <p className="truncate text-muted">{site.domain}</p>
+            </div>
+          </div>
         </div>
 
         {/* Beside the domain, not below the reports: these act on the site as

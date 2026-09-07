@@ -14,20 +14,28 @@ import manifest from "@/public/analytics/manifest.json";
 const BROWSER_FALLBACK = "/analytics/browsers/_fallback.svg";
 const FLAG_FALLBACK = "/analytics/flags/_fallback.svg";
 
-const BROWSERS = new Set(manifest.browsers);
-const FLAGS = new Set(manifest.flags);
+/* Keyed by the filename stem, valued by the filename itself. The manifest
+   records full names because hand-added icons are not necessarily SVG — the
+   Edge mark is a PNG — and assuming an extension made those unreachable. */
+const stems = (files: string[]) =>
+  new Map(files.map((file) => [file.replace(/\.[^.]+$/, ""), file]));
+
+const BROWSERS = stems(manifest.browsers);
+const FLAGS = stems(manifest.flags);
 
 /** Icon for a browser name as produced by `parseUserAgent`.
  *
- *  Microsoft Edge and Samsung Internet resolve to the fallback: simple-icons
- *  removed those marks, and drawing a lookalike would misrepresent a trademark
- *  rather than identify it. */
+ *  Anything without a mark on disk falls back to a neutral glyph. simple-icons
+ *  no longer ships Edge or Samsung Internet, so those only resolve if a file
+ *  has been added by hand — which is why the lookup is driven by the manifest
+ *  rather than by a hardcoded list. */
 export function browserIcon(browser: string | null | undefined): string {
   if (!browser) return BROWSER_FALLBACK;
 
   const slug = browser.toLowerCase().replace(/\s+/g, "-");
+  const file = BROWSERS.get(slug);
 
-  return BROWSERS.has(slug) ? `/analytics/browsers/${slug}.svg` : BROWSER_FALLBACK;
+  return file ? `/analytics/browsers/${file}` : BROWSER_FALLBACK;
 }
 
 /** Flag for an ISO 3166-1 alpha-2 country code. */
@@ -37,7 +45,9 @@ export function flagIcon(country: string | null | undefined): string {
   const code = country.toLowerCase();
   if (!/^[a-z]{2}$/.test(code)) return FLAG_FALLBACK;
 
-  return FLAGS.has(code) ? `/analytics/flags/${code}.svg` : FLAG_FALLBACK;
+  const file = FLAGS.get(code);
+
+  return file ? `/analytics/flags/${file}` : FLAG_FALLBACK;
 }
 
 /** Readable country name for a code.

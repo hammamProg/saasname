@@ -12,9 +12,11 @@
  *  - Flags: flag-icons (MIT), 4x3 aspect, named by ISO 3166-1 alpha-2.
  *
  *  simple-icons ships monochrome paths, so the brand colour is applied here
- *  from the package's own metadata. Microsoft Edge and Samsung Internet are
- *  deliberately absent: simple-icons removed them, and inventing a substitute
- *  mark would be worse than the neutral fallback they get instead.
+ *  from the package's own metadata. It no longer carries Microsoft Edge or
+ *  Samsung Internet, so those are not generated - but an icon dropped into the
+ *  directory by hand is picked up all the same. The script only deletes files
+ *  it generated itself, and the manifest is built from whatever is actually on
+ *  disk, so a hand-added mark in any format survives a rebuild and resolves.
  */
 
 import { cp, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
@@ -41,8 +43,13 @@ const FALLBACK_FLAG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 3"
 
 async function buildBrowsers() {
   const dir = path.join(OUT, "browsers");
-  await rm(dir, { recursive: true, force: true });
   await mkdir(dir, { recursive: true });
+
+  // Only the generated names, never the directory. Wiping it would silently
+  // delete hand-added icons on the next rebuild.
+  for (const name of Object.keys(BROWSERS)) {
+    await rm(path.join(dir, `${name}.svg`), { force: true });
+  }
 
   let written = 0;
 
@@ -70,7 +77,6 @@ async function buildFlags() {
   const source = path.join(ROOT, "node_modules", "flag-icons", "flags", "4x3");
   const dir = path.join(OUT, "flags");
 
-  await rm(dir, { recursive: true, force: true });
   await mkdir(dir, { recursive: true });
 
   const files = (await readdir(source)).filter((f) => f.endsWith(".svg"));
@@ -87,15 +93,22 @@ async function buildFlags() {
 const browsers = await buildBrowsers();
 const flags = await buildFlags();
 
-// A manifest so the app can tell "we have no icon for this" from "the file is
-// missing", without a filesystem read per row at request time.
+/* A manifest so the app can tell "we have no icon for this" from "the file is
+   missing", without a filesystem read per row at request time.
+
+   Full filenames, not slugs. Hand-added icons are not necessarily SVG - the
+   Edge mark is a PNG - and recording only the stem forced the resolver to
+   assume an extension, which made those files unreachable. */
+const IMAGE = /\.(svg|png|webp|avif|jpg|jpeg)$/i;
+
+const listed = async (kind) =>
+  (await readdir(path.join(OUT, kind)))
+    .filter((f) => IMAGE.test(f) && !f.startsWith("_"))
+    .sort();
+
 const manifest = {
-  browsers: (await readdir(path.join(OUT, "browsers")))
-    .filter((f) => f.endsWith(".svg") && !f.startsWith("_"))
-    .map((f) => f.replace(/\.svg$/, "")),
-  flags: (await readdir(path.join(OUT, "flags")))
-    .filter((f) => f.endsWith(".svg") && !f.startsWith("_"))
-    .map((f) => f.replace(/\.svg$/, "")),
+  browsers: await listed("browsers"),
+  flags: await listed("flags"),
 };
 
 await writeFile(
@@ -104,5 +117,5 @@ await writeFile(
   "utf8",
 );
 
-console.log(`browsers: ${browsers} (+ fallback)`);
-console.log(`flags: ${flags} (+ fallback)`);
+console.log(`browsers: ${browsers} generated, ${manifest.browsers.length} total`);
+console.log(`flags: ${flags} generated, ${manifest.flags.length} total`);

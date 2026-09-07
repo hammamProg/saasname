@@ -10,10 +10,14 @@ describe("browserIcon", () => {
     expect(browserIcon("firefox")).toBe("/analytics/browsers/firefox.svg");
   });
 
-  it("falls back for a browser with no licensed mark", () => {
-    // simple-icons dropped Edge and Samsung Internet; inventing a substitute
-    // logo would be worse than a neutral glyph.
-    expect(browserIcon("Edge")).toBe("/analytics/browsers/_fallback.svg");
+  it("resolves a hand-added icon that is not an SVG", () => {
+    // simple-icons ships no Edge mark, so this file was added by hand as a
+    // PNG. The resolver reads the extension from the manifest rather than
+    // assuming one, which is the only reason it is reachable.
+    expect(browserIcon("Edge")).toBe("/analytics/browsers/edge.png");
+  });
+
+  it("falls back for a browser with no mark on disk", () => {
     expect(browserIcon("Samsung Internet")).toBe(
       "/analytics/browsers/_fallback.svg",
     );

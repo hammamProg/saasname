@@ -7,10 +7,6 @@ import { snippetVariants } from "@/libs/webstats/snippet";
 import { parseRange } from "@/libs/webstats/range";
 import { getSiteStats } from "@/libs/webstats/stats";
 import SiteStatsPanel from "@/components/dashboard/SiteStatsPanel";
-import SiteTopicsPanel from "@/components/dashboard/SiteTopicsPanel";
-import { getSiteTopics } from "@/libs/webstats/site-topics";
-import { getProfileAccess } from "@/libs/access";
-import { planForAccess } from "@/libs/plans";
 import InstallSnippet from "@/components/dashboard/InstallSnippet";
 import DeleteSiteButton from "@/components/dashboard/DeleteSiteButton";
 
@@ -29,7 +25,7 @@ export default async function SitePage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ range?: string }>;
 }) {
-  const user = await requireUser();
+  await requireUser();
 
   const { id } = await params;
   const range = parseRange((await searchParams).range);
@@ -45,10 +41,6 @@ export default async function SitePage({
   // install snippet is the whole page, and an empty report competing with it
   // just adds noise to the one step that matters.
   const stats = installed ? await getSiteStats(site.id, range) : null;
-
-  const access = await getProfileAccess(user.id);
-  const plan = planForAccess(access?.has_access ?? false);
-  const topics = installed ? await getSiteTopics(site.id, plan) : [];
 
   return (
     <div className="space-y-8">
@@ -67,10 +59,7 @@ export default async function SitePage({
       />
 
       {stats ? (
-        <>
-          <SiteStatsPanel siteId={site.id} range={range} stats={stats} />
-          <SiteTopicsPanel topics={topics} domain={site.domain} />
-        </>
+        <SiteStatsPanel siteId={site.id} range={range} stats={stats} />
       ) : (
         <section className="rounded-2xl border border-border bg-card p-8 text-center">
           <h2 className="section-heading text-lg font-extrabold">No data yet</h2>

@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 
-/** Vercel Cron sends `Authorization: Bearer $CRON_SECRET` when the env var
+/** Shared cron authentication. Lived under `libs/trends/` because that is
+ *  where the first scheduled job happened to be written, but it is
+ *  infrastructure rather than trends logic, and the analytics product needs it
+ *  too. Kept neutral so neither product depends on the other's module.
+ *
+ *  Vercel Cron sends `Authorization: Bearer $CRON_SECRET` when the env var
  *  is set on the project. Ingestion routes spend real API quota per call, so
  *  they must not be triggerable by an unauthenticated request in production.
  *  Locally, where CRON_SECRET is usually unset, requests are allowed so a

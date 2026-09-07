@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { verifyCronRequest } from "@/libs/trends/verify-cron";
+import { describe, it, expect, afterEach, vi } from "vitest";
+import { verifyCronRequest } from "@/libs/cron-auth";
 
 function requestWith(auth?: string) {
   return new Request("https://example.com/api/internal/ingest/hacker-news", {

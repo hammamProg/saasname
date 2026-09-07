@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { verifyCronRequest } from "@/libs/trends/verify-cron";
+import { verifyCronRequest } from "@/libs/cron-auth";
 import { isConnectorEnabled } from "@/libs/trends/connector-enabled";
 import { rssConnector } from "@/libs/trends/connectors/rss";
 import { ingestSignals } from "@/libs/trends/ingest";

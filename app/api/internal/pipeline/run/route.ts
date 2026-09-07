@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { verifyCronRequest } from "@/libs/trends/verify-cron";
+import { verifyCronRequest } from "@/libs/cron-auth";
 import { clusterUnclusteredSignals } from "@/libs/trends/cluster";
 import { runDailySnapshotAndScore } from "@/libs/trends/snapshot";
 import { summarizeTopicsNeedingSummary } from "@/libs/trends/summarize";

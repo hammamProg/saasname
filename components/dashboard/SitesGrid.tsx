@@ -75,17 +75,36 @@ export default function SitesGrid({
               href={`/dashboard/sites/${site.id}`}
               className="block rounded-2xl border border-border bg-card p-5 transition hover:border-primary/40 hover:shadow-sm"
             >
-              {/* Header is identity only. The status badge used to sit here
-                  and, at four columns, squeezed the name down to "saasna...."
-                  — the one string on the card a reader actually needs. */}
-              <div className="flex min-w-0 items-center gap-3">
-                <SiteFavicon domain={site.domain} size={28} />
-                <div className="min-w-0">
-                  <p className="truncate font-semibold text-foreground">
-                    {site.name}
-                  </p>
-                  <p className="truncate text-sm text-muted">{site.domain}</p>
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex min-w-0 items-center gap-3">
+                  <SiteFavicon domain={site.domain} size={28} />
+                  <div className="min-w-0">
+                    <p className="truncate font-semibold text-foreground">
+                      {site.name}
+                    </p>
+                    <p className="truncate text-sm text-muted">{site.domain}</p>
+                  </div>
                 </div>
+
+                {status.connected ? (
+                  <span
+                    className="inline-flex shrink-0 items-center gap-1.5 self-start pt-1 text-xs font-semibold text-success"
+                    title="Receiving data"
+                  >
+                    <span className="size-1.5 rounded-full bg-success" />
+                    Connected
+                  </span>
+                ) : (
+                  /* Amber, not red: a site added a minute ago has simply not
+                     been installed yet, and colouring that a danger tone
+                     would make the normal first step look broken. Amber
+                     still reads as "needs attention" rather than blending
+                     into the surrounding muted text. */
+                  <span className="inline-flex shrink-0 items-center gap-1.5 self-start pt-1 text-xs font-semibold text-warning">
+                    <span className="size-1.5 rounded-full bg-warning" />
+                    Not connected
+                  </span>
+                )}
               </div>
 
               {status.connected ? (
@@ -115,33 +134,22 @@ export default function SitesGrid({
                     </p>
                     <p className="text-xs text-muted">Online now</p>
                   </div>
-
-                  {/* Kept, quietly. Real numbers usually prove the tag works,
-                      but a connected site with a genuine zero would otherwise
-                      look identical to a broken one. */}
-                  <span
-                    className="ml-auto inline-flex items-center gap-1.5 self-start text-xs font-semibold text-success"
-                    title="Receiving data"
-                  >
-                    <span className="size-1.5 rounded-full bg-success" />
-                    Connected
-                  </span>
                 </div>
               ) : (
-                <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3">
-                  <p className="text-xs text-muted">
-                    Add the snippet to start collecting.
-                  </p>
+                /* Same two-column shape as the connected footer, dashes
+                   instead of figures, so a not-connected card is the same
+                   height as its neighbours in the grid rather than shrinking
+                   to fit one line of text. */
+                <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-border pt-3">
+                  <div>
+                    <p className="text-lg font-extrabold text-muted">—</p>
+                    <p className="text-xs text-muted">Visitors today</p>
+                  </div>
 
-                  {/* Amber, not red: a site added a minute ago has simply not
-                      been installed yet, and colouring that a danger tone
-                      would make the normal first step look broken. Amber
-                      still reads as "needs attention" rather than blending
-                      into the surrounding muted text. */}
-                  <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-warning-soft px-2.5 py-1 text-xs font-semibold text-warning">
-                    <span className="size-1.5 rounded-full bg-warning" />
-                    Not connected
-                  </span>
+                  <div>
+                    <p className="text-lg font-extrabold text-muted">—</p>
+                    <p className="text-xs text-muted">Online now</p>
+                  </div>
                 </div>
               )}
             </Link>

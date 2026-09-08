@@ -1,8 +1,8 @@
-/** Single-visitor timeline: sessions, page/track events and goal completions
- *  merged into one ordered feed — "First visit — facebook / paid-social,
- *  viewed homepage, viewed pricing, completed goal, signed up, returned
- *  through Google organic". Reads go through the user-scoped client; RLS
- *  scopes every table here to the caller's own sites. */
+/** Single-visitor timeline: sessions and page/track events merged into one
+ *  ordered feed — "First visit — facebook / paid-social, viewed homepage,
+ *  viewed pricing, signed up, returned through Google organic". Reads go
+ *  through the user-scoped client; RLS scopes every table here to the
+ *  caller's own sites. */
 
 import { createClient } from "@/libs/supabase/server";
 import type { AttributionSnapshot } from "./attribution";
@@ -33,12 +33,6 @@ export type JourneyEntry =
       kind: "identify";
       at: string;
       userId: string | null;
-    }
-  | {
-      kind: "goal";
-      at: string;
-      goalName: string;
-      properties: Record<string, unknown>;
     };
 
 export type VisitorSummary = {
@@ -111,7 +105,7 @@ export async function getVisitorJourney(
 ): Promise<JourneyEntry[]> {
   const supabase = await createClient();
 
-  const [sessionsRes, eventsRes, goalsRes] = await Promise.all([
+  const [sessionsRes, eventsRes] = await Promise.all([
     supabase
       .from("webstats_sessions")
       .select("session_id, started_at, channel, source, medium, campaign, landing_path")
@@ -125,12 +119,6 @@ export async function getVisitorJourney(
       .eq("visitor_id", visitorId)
       .order("client_occurred_at", { ascending: true })
       .limit(2000),
-    supabase
-      .from("webstats_goal_completions")
-      .select("completed_at, properties, goal_id, webstats_goals(name)")
-      .eq("site_id", siteId)
-      .eq("visitor_id", visitorId)
-      .order("completed_at", { ascending: true }),
   ]);
 
   if (sessionsRes.error) {
@@ -138,9 +126,6 @@ export async function getVisitorJourney(
   }
   if (eventsRes.error) {
     throw new Error(`Failed to load events: ${eventsRes.error.message}`);
-  }
-  if (goalsRes.error) {
-    throw new Error(`Failed to load goal completions: ${goalsRes.error.message}`);
   }
 
   const entries: JourneyEntry[] = [];
@@ -186,19 +171,6 @@ export async function getVisitorJourney(
         properties: row.properties,
       });
     }
-  }
-
-  for (const row of (goalsRes.data ?? []) as unknown as {
-    completed_at: string;
-    properties: Record<string, unknown>;
-    webstats_goals: { name: string } | null;
-  }[]) {
-    entries.push({
-      kind: "goal",
-      at: row.completed_at,
-      goalName: row.webstats_goals?.name ?? "Goal",
-      properties: row.properties,
-    });
   }
 
   return entries.sort((a, b) => a.at.localeCompare(b.at));

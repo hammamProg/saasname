@@ -1,11 +1,11 @@
-/** Validation for the new identity/attribution/goal collection endpoint.
+/** Validation for the identity/attribution collection endpoint.
  *
  *  Same policy as libs/webstats/payload.ts, which this deliberately mirrors
  *  rather than importing zod for: reject what cannot be interpreted,
  *  truncate what is merely too long. Short keys for the same reason — this
  *  is sent on every page view and event from every customer's site. */
 
-export type CollectType = "page" | "track" | "goal" | "identify";
+export type CollectType = "page" | "track" | "identify";
 
 export type CollectPayload = {
   siteId: string;
@@ -17,9 +17,9 @@ export type CollectPayload = {
   clientTimestamp: number;
   url: string;
   referrer: string | null;
-  /** Event name for `track`, goal key for `goal`. Unused for `page`/`identify`. */
+  /** Event name for `track`. Unused for `page`/`identify`. */
   name: string | null;
-  /** Safe custom properties from track()/goal() calls. */
+  /** Safe custom properties from track() calls. */
   properties: Record<string, unknown> | null;
   /** True when the SDK has decided this call starts a new session — only
    *  then is source captured, matching "on the first page of every session". */
@@ -45,7 +45,7 @@ function text(value: unknown, max: number): string | null {
 }
 
 function typeOf(raw: unknown): CollectType | null {
-  if (raw === "page" || raw === "track" || raw === "goal" || raw === "identify") {
+  if (raw === "page" || raw === "track" || raw === "identify") {
     return raw;
   }
   return null;

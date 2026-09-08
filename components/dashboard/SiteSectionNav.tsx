@@ -1,11 +1,10 @@
 import Link from "next/link";
 
-type Section = "overview" | "acquisition" | "goals";
+type Section = "overview" | "acquisition";
 
 const TABS: { key: Section; label: string; path: (id: string) => string }[] = [
   { key: "overview", label: "Overview", path: (id) => `/dashboard/sites/${id}` },
   { key: "acquisition", label: "Acquisition", path: (id) => `/dashboard/sites/${id}/acquisition` },
-  { key: "goals", label: "Goals", path: (id) => `/dashboard/sites/${id}/goals` },
 ];
 
 export default function SiteSectionNav({

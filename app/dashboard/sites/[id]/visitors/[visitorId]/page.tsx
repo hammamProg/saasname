@@ -23,8 +23,6 @@ function describe(entry: JourneyEntry): string {
       return `Event — ${entry.name ?? "unnamed"}`;
     case "identify":
       return entry.userId ? `Identified — ${entry.userId}` : "Identified";
-    case "goal":
-      return `Goal completed — ${entry.goalName}`;
   }
 }
 

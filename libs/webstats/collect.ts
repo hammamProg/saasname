@@ -1,4 +1,4 @@
-/** Write path for the identity/attribution/goal pipeline.
+/** Write path for the identity/attribution pipeline.
  *
  *  Called from both the public collection endpoint
  *  (app/api/webstats/collect/route.ts) and the server-side identify endpoint
@@ -10,7 +10,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { deriveAttribution, type AttributionSnapshot } from "./attribution";
 import { sanitizeUrl } from "./sanitize";
-import { dedupeKeyFor } from "./dedupe";
 import type { CollectPayload } from "./collect-payload";
 
 export type GeoInfo = {
@@ -197,7 +196,7 @@ async function insertIdentityEvent(
       visitor_id: payload.visitorId,
       session_id: payload.sessionId,
       user_id: payload.userId,
-      event_type: payload.type === "identify" ? "identify" : payload.type,
+      event_type: payload.type,
       name: payload.type === "track" ? payload.name : null,
       path,
       url: cleanUrl,
@@ -206,78 +205,6 @@ async function insertIdentityEvent(
       client_occurred_at: new Date(payload.clientTimestamp).toISOString(),
     },
     { onConflict: "site_id,event_id", ignoreDuplicates: true },
-  );
-}
-
-type GoalRow = {
-  id: string;
-  dedupe: "once_per_visitor" | "once_per_session" | "every";
-};
-
-/** Resolves the goal by key and records a completion, applying whatever
- *  dedupe rule the goal was configured with. Silently does nothing if no
- *  goal with that key exists for the site — a customer calling `goal()` for
- *  a key they have not configured yet should not break ingestion, and there
- *  is nothing to attribute the completion to. */
-async function completeGoal(
-  admin: SupabaseClient,
-  payload: CollectPayload,
-  snapshot: AttributionSnapshot | null,
-): Promise<void> {
-  if (!payload.name) return;
-
-  const { data: goal } = await admin
-    .from("webstats_goals")
-    .select("id, dedupe")
-    .eq("site_id", payload.siteId)
-    .eq("key", payload.name)
-    .maybeSingle<GoalRow>();
-
-  if (!goal) return;
-
-  const { data: visitor } = await admin
-    .from("webstats_visitors")
-    .select("first_touch, last_touch, last_non_direct")
-    .eq("site_id", payload.siteId)
-    .eq("visitor_id", payload.visitorId)
-    .maybeSingle<{
-      first_touch: AttributionSnapshot;
-      last_touch: AttributionSnapshot;
-      last_non_direct: AttributionSnapshot | null;
-    }>();
-
-  const sessionSource = snapshot ?? visitor?.last_touch ?? null;
-
-  const attribution = {
-    firstTouch: visitor?.first_touch ?? sessionSource,
-    sessionSource,
-    lastTouch: visitor?.last_touch ?? sessionSource,
-    lastNonDirect: visitor?.last_non_direct ?? null,
-    landingPage: sessionSource?.landingPath ?? null,
-    visitorId: payload.visitorId,
-    sessionId: payload.sessionId,
-    userId: payload.userId,
-  };
-
-  const dedupeKey = dedupeKeyFor(goal.dedupe, {
-    visitorId: payload.visitorId,
-    sessionId: payload.sessionId,
-    eventId: payload.eventId,
-  });
-
-  await admin.from("webstats_goal_completions").upsert(
-    {
-      site_id: payload.siteId,
-      goal_id: goal.id,
-      visitor_id: payload.visitorId,
-      session_id: payload.sessionId,
-      user_id: payload.userId,
-      completed_at: new Date(payload.clientTimestamp).toISOString(),
-      attribution,
-      dedupe_key: dedupeKey,
-      properties: payload.properties ?? {},
-    },
-    { onConflict: "site_id,goal_id,dedupe_key", ignoreDuplicates: true },
   );
 }
 
@@ -315,13 +242,7 @@ export async function ingestCollectEvent(
     await stampSessionUserIfUnset(admin, payload.siteId, payload.sessionId, payload.userId);
   }
 
-  if (payload.type === "page" || payload.type === "track" || payload.type === "identify") {
-    await insertIdentityEvent(admin, payload, cleanUrl);
-  }
-
-  if (payload.type === "goal") {
-    await completeGoal(admin, payload, snapshot);
-  }
+  await insertIdentityEvent(admin, payload, cleanUrl);
 }
 
 /** Server-side identify(): the same identity link + session-stamping logic

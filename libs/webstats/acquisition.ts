@@ -1,9 +1,9 @@
 /** Acquisition reporting for the identity/attribution pipeline: unique
- *  visitors, sessions, events, goal completions, conversion rate, new vs.
- *  returning, identified vs. anonymous, and breakdowns by channel/source/
- *  medium/campaign. Reads go through the user-scoped client — RLS is what
- *  actually enforces "your sites only" (036_webstats_identity_attribution.sql),
- *  the siteId parameter alone is not what makes this safe. */
+ *  visitors, sessions, events, new vs. returning, identified vs. anonymous,
+ *  and breakdowns by channel/source/medium/campaign. Reads go through the
+ *  user-scoped client — RLS is what actually enforces "your sites only"
+ *  (036_webstats_identity_attribution.sql), the siteId parameter alone is
+ *  not what makes this safe. */
 
 import { createClient } from "@/libs/supabase/server";
 
@@ -12,10 +12,6 @@ export type AcquisitionSummary = {
   sessions: number;
   pageviews: number;
   events: number;
-  goalCompletions: number;
-  /** Goal completions ÷ unique visitors in the range. 0 when there were no
-   *  visitors to divide by. */
-  conversionRate: number;
   newVisitors: number;
   returningVisitors: number;
   identifiedSessions: number;
@@ -72,28 +68,21 @@ export async function getAcquisitionSummary(
   const sessions = await fetchSessions(siteId, from, to);
   const visitorIds = new Set(sessions.map((s) => s.visitor_id));
 
-  const [{ count: pageviews }, { count: events }, { count: goalCompletions }] =
-    await Promise.all([
-      supabase
-        .from("webstats_identity_events")
-        .select("id", { count: "exact", head: true })
-        .eq("site_id", siteId)
-        .eq("event_type", "page")
-        .gte("client_occurred_at", from.toISOString())
-        .lte("client_occurred_at", to.toISOString()),
-      supabase
-        .from("webstats_identity_events")
-        .select("id", { count: "exact", head: true })
-        .eq("site_id", siteId)
-        .gte("client_occurred_at", from.toISOString())
-        .lte("client_occurred_at", to.toISOString()),
-      supabase
-        .from("webstats_goal_completions")
-        .select("id", { count: "exact", head: true })
-        .eq("site_id", siteId)
-        .gte("completed_at", from.toISOString())
-        .lte("completed_at", to.toISOString()),
-    ]);
+  const [{ count: pageviews }, { count: events }] = await Promise.all([
+    supabase
+      .from("webstats_identity_events")
+      .select("id", { count: "exact", head: true })
+      .eq("site_id", siteId)
+      .eq("event_type", "page")
+      .gte("client_occurred_at", from.toISOString())
+      .lte("client_occurred_at", to.toISOString()),
+    supabase
+      .from("webstats_identity_events")
+      .select("id", { count: "exact", head: true })
+      .eq("site_id", siteId)
+      .gte("client_occurred_at", from.toISOString())
+      .lte("client_occurred_at", to.toISOString()),
+  ]);
 
   // "New" = this visitor's first-ever session started inside the range.
   // Requires a lookup against webstats_visitors, batched to avoid an
@@ -125,9 +114,6 @@ export async function getAcquisitionSummary(
     sessions: sessions.length,
     pageviews: pageviews ?? 0,
     events: events ?? 0,
-    goalCompletions: goalCompletions ?? 0,
-    conversionRate:
-      visitorIds.size > 0 ? (goalCompletions ?? 0) / visitorIds.size : 0,
     newVisitors,
     returningVisitors: Math.max(0, visitorIds.size - newVisitors),
     identifiedSessions,

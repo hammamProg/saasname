@@ -18,10 +18,6 @@ export const metadata = getSEOTags({
   robots: { index: false, follow: false },
 });
 
-function pct(value: number): string {
-  return `${(value * 100).toFixed(1)}%`;
-}
-
 export default async function AcquisitionPage({
   params,
   searchParams,
@@ -50,8 +46,6 @@ export default async function AcquisitionPage({
     { label: "Sessions", value: formatCount(summary.sessions) },
     { label: "Pageviews", value: formatCount(summary.pageviews) },
     { label: "Events", value: formatCount(summary.events) },
-    { label: "Goal completions", value: formatCount(summary.goalCompletions) },
-    { label: "Conversion rate", value: pct(summary.conversionRate) },
     {
       label: "New vs. returning",
       value: `${formatCount(summary.newVisitors)} / ${formatCount(summary.returningVisitors)}`,

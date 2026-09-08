@@ -5,13 +5,13 @@ import { ingestCollectEvent } from "@/libs/webstats/collect";
 import { isBot, parseUserAgent } from "@/libs/webstats/useragent";
 import { overBurstLimit } from "@/libs/webstats/limits";
 
-/** Collection endpoint for the identity/attribution/goal pipeline —
- *  `analytics.page()/track()/goal()/identify()`.
+/** Collection endpoint for the identity/attribution pipeline —
+ *  `analytics.page()/track()/identify()`.
  *
  *  Deliberately separate from /api/webstats/event, which keeps powering the
  *  existing cookieless dashboard untouched. This endpoint writes to
- *  webstats_visitors/sessions/identity_links/identity_events/goal_completions
- *  only — see libs/webstats/collect.ts. */
+ *  webstats_visitors/sessions/identity_links/identity_events only —
+ *  see libs/webstats/collect.ts. */
 
 export const runtime = "nodejs";
 export const preferredRegion = ["fra1"];

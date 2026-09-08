@@ -1,6 +1,8 @@
+import { MousePointerClick } from "lucide-react";
 import type { Breakdown } from "@/libs/webstats/stats";
 import { formatCount } from "@/libs/webstats/format";
 import { browserIcon, countryName, flagIcon } from "@/libs/webstats/icons";
+import SiteFavicon from "@/components/dashboard/SiteFavicon";
 
 /** A ranked list with the proportion drawn behind each row.
  *
@@ -21,9 +23,12 @@ export default function BreakdownCard({
   unit: "visitors" | "pageviews" | "sessions";
   rows: Breakdown;
   empty: string;
-  /** Adds an icon, and for countries expands the ISO code to a name. Omitted
-   *  for pages and sources, where the label is already the whole story. */
-  kind?: "browser" | "country";
+  /** Adds an icon, and for countries expands the ISO code to a name. `source`
+   *  fetches the referrer's own favicon straight from its domain — same
+   *  technique and privacy rationale as SiteFavicon — and gives "Direct /
+   *  none" a dedicated glyph instead of a broken favicon request. Omitted for
+   *  pages, where the label is already the whole story. */
+  kind?: "browser" | "country" | "source";
 }) {
   const peak = Math.max(...rows.map((r) => r.value), 1);
 
@@ -57,7 +62,18 @@ export default function BreakdownCard({
               />
               <div className="relative flex items-center justify-between gap-3 px-2 py-1.5">
                 <span className="flex min-w-0 items-center gap-2">
-                  {decorate(row.label) ? (
+                  {kind === "source" ? (
+                    row.label === "Direct / none" ? (
+                      <span
+                        aria-hidden="true"
+                        className="flex size-4 shrink-0 items-center justify-center rounded-[2px] bg-surface text-muted"
+                      >
+                        <MousePointerClick size={11} />
+                      </span>
+                    ) : (
+                      <SiteFavicon domain={row.label} size={16} />
+                    )
+                  ) : decorate(row.label) ? (
                     // A plain img, not next/image: these are local SVGs a few
                     // KB each, already the size they render at, and the
                     // optimizer has nothing to do for them.

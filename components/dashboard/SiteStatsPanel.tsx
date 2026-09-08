@@ -105,6 +105,7 @@ export default function SiteStatsPanel({
         <BreakdownCard
           title="Top sources"
           unit="pageviews"
+          kind="source"
           rows={stats.topSources}
           empty="No traffic recorded yet."
         />

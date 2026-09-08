@@ -12,6 +12,7 @@ import SiteStatsPanel from "@/components/dashboard/SiteStatsPanel";
 import InstallSnippet from "@/components/dashboard/InstallSnippet";
 import SiteOptionsMenu from "@/components/dashboard/SiteOptionsMenu";
 import SiteFavicon from "@/components/dashboard/SiteFavicon";
+import SiteSectionNav from "@/components/dashboard/SiteSectionNav";
 
 export const dynamic = "force-dynamic";
 
@@ -80,6 +81,8 @@ export default async function SitePage({
           groupId={site.groupId}
         />
       </div>
+
+      <SiteSectionNav siteId={id} active="overview" />
 
       {/* Only while it is still the job. Once a beacon has arrived this moves
           into the options menu; leaving it here would push the reports below

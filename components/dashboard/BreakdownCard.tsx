@@ -18,7 +18,7 @@ export default function BreakdownCard({
   title: string;
   /** What the number counts. Stated because the same list shape carries
    *  visitors for some dimensions and pageviews for others. */
-  unit: "visitors" | "pageviews";
+  unit: "visitors" | "pageviews" | "sessions";
   rows: Breakdown;
   empty: string;
   /** Adds an icon, and for countries expands the ISO code to a name. Omitted

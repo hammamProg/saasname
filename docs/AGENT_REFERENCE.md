@@ -407,6 +407,7 @@ Migrations: paste SQL from `supabase/migrations/` into Supabase SQL Editor (no C
 | Static pages | [STATIC_PAGE.md](./STATIC_PAGE.md) |
 | SEO | [SEO.md](./SEO.md) |
 | Auth | [AUTH.md](./AUTH.md) |
+| Analytics identity/attribution/goals | [ANALYTICS_IDENTITY.md](./ANALYTICS_IDENTITY.md) |
 | Agent reference | [AGENT_REFERENCE.md](./AGENT_REFERENCE.md) |
 
 ---

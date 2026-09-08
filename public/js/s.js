@@ -1,4 +1,4 @@
-/*! SaaSNa.me analytics tracker — cookieless, no local storage written.
+/*! SaaSNa.me analytics tracker.
  *
  *  <script defer data-site="<uuid>" src="https://www.saasna.me/js/s.js"></script>
  *
@@ -10,8 +10,21 @@
  *
  *  Kill switch for your own visits: localStorage.setItem('sn_ignore', '1')
  *
- *  Served static and unminified on purpose for now: it is small, it is read by
- *  the people installing it, and a build step is not yet worth its weight.
+ *  Two pipelines live in this one file, deliberately kept independent:
+ *
+ *  1. The legacy pageview beacon (unchanged from earlier versions), posted to
+ *     /api/webstats/event. Cookieless — identity is a server-derived,
+ *     daily-rotating salted hash of IP + user agent + domain. This is what
+ *     powers the existing dashboard, and nothing below touches it.
+ *
+ *  2. The identity pipeline: a real first-party visitor_id cookie, rolling
+ *     30-minute sessions, identify()/reset()/setConsent(), custom events and
+ *     goals, posted to /api/webstats/collect. Exposed as window.saasname(...)
+ *     for the legacy one-arg shorthand, and as window.saasname.track/goal/
+ *     identify/reset/setConsent/page/getVisitorId/getSessionId.
+ *
+ *  Served static and unminified on purpose for now: it is small, it is read
+ *  by the people installing it, and a build step is not yet worth its weight.
  */
 (function () {
   "use strict";
@@ -39,13 +52,14 @@
   if (!host && script.src) {
     try {
       host = new URL(script.src).origin;
-    } catch (e) {
+    } catch {
       host = "";
     }
   }
   if (!host) return;
 
-  var endpoint = host.replace(/\/$/, "") + "/api/webstats/event";
+  var legacyEndpoint = host.replace(/\/$/, "") + "/api/webstats/event";
+  var collectEndpoint = host.replace(/\/$/, "") + "/api/webstats/collect";
 
   var allowed = (script.getAttribute("data-domains") || "")
     .split(",")
@@ -55,7 +69,7 @@
   var honourDnt = script.getAttribute("data-dnt") === "true";
 
   /* ---------------------------------------------------------------------
-   * Should we track at all?
+   * Should we track at all? Shared by both pipelines.
    * ------------------------------------------------------------------- */
 
   function disabled() {
@@ -94,7 +108,7 @@
 
     try {
       if (window.localStorage.getItem("sn_ignore")) return true;
-    } catch (e) {
+    } catch {
       // Storage can be blocked outright; that is not a reason to stop.
     }
 
@@ -104,14 +118,14 @@
   if (disabled()) return;
 
   /* ---------------------------------------------------------------------
-   * Transport
+   * Legacy transport — unchanged.
    * ------------------------------------------------------------------- */
 
   function send(payload) {
     try {
       // text/plain keeps this a CORS "simple request", so the browser never
       // fires a preflight — halving the requests each pageview costs.
-      fetch(endpoint, {
+      fetch(legacyEndpoint, {
         method: "POST",
         headers: { "Content-Type": "text/plain" },
         body: JSON.stringify(payload),
@@ -119,7 +133,7 @@
         credentials: "omit",
         mode: "cors",
       }).catch(function () {});
-    } catch (e) {
+    } catch {
       // Analytics must never throw into the host page.
     }
   }
@@ -135,8 +149,26 @@
     };
   }
 
+  /** The original window.saasname('event-name', data) contract, unchanged.
+   *  Posted to the legacy endpoint and counted in the legacy `events` column
+   *  on webstats_visit_hourly, which the existing dashboard's bounce-rate
+   *  calculation reads (metrics.ts: a bounce is one pageview and zero
+   *  events). Redirecting this call to the new pipeline instead would
+   *  silently change bounce rate for every already-installed site the
+   *  moment this file deploys — so it stays exactly as it was. */
+  function legacyEvent(name, data) {
+    var payload = base();
+    payload.t = "event";
+    payload.n = name;
+    if (data) payload.d = data;
+    send(payload);
+  }
+
   /* ---------------------------------------------------------------------
-   * Pageviews
+   * Legacy pageviews — unchanged, except each call also drives the new
+   * pipeline's page() (see identityPage() below), so both pipelines observe
+   * exactly the same navigation events rather than each patching history
+   * separately.
    * ------------------------------------------------------------------- */
 
   var lastUrl = null;
@@ -151,10 +183,11 @@
 
     resetEngagement();
     send(base());
+    identityPage();
   }
 
   /* ---------------------------------------------------------------------
-   * Engagement
+   * Engagement — unchanged.
    *
    * Without this, duration is last-event minus first-event, so every
    * single-page visit is exactly zero seconds and both average duration and
@@ -196,11 +229,8 @@
   window.addEventListener("pagehide", flushEngagement);
 
   /* ---------------------------------------------------------------------
-   * SPA navigation
-   *
-   * All four cases are handled. Competitors each miss at least one: Umami has
-   * no popstate listener, so back-button navigations go untracked; Datafast
-   * compares pathname only, so hash routes never fire.
+   * SPA navigation — unchanged. All four cases are handled: pushState,
+   * replaceState, popstate (back/forward), hashchange, and bfcache restore.
    * ------------------------------------------------------------------- */
 
   function patch(name) {
@@ -229,18 +259,325 @@
     pageview();
   });
 
+  /* =======================================================================
+   * Identity pipeline: visitor_id, sessions, identify/reset/setConsent,
+   * custom events and goals.
+   * ===================================================================== */
+
+  var VISITOR_COOKIE = "_sn_vid";
+  var VISITOR_COOKIE_MAX_AGE = 60 * 60 * 24 * 365 * 2; // 2 years, in seconds
+  var SESSION_KEY = "_sn_session_" + siteId;
+  var USER_KEY = "_sn_uid_" + siteId;
+  var CONSENT_KEY = "_sn_consent_" + siteId;
+  var SESSION_TIMEOUT_MS = 30 * 60 * 1000;
+
+  function uuid() {
+    if (window.crypto && typeof crypto.randomUUID === "function") {
+      return crypto.randomUUID();
+    }
+
+    // Fallback for browsers without crypto.randomUUID (Safari < 15.4 etc.).
+    // Still cryptographically random via getRandomValues where available.
+    var bytes = new Uint8Array(16);
+    if (window.crypto && crypto.getRandomValues) {
+      crypto.getRandomValues(bytes);
+    } else {
+      for (var i = 0; i < 16; i++) bytes[i] = Math.floor(Math.random() * 256);
+    }
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+
+    var hex = [];
+    for (var j = 0; j < 256; j++) hex[j] = (j + 0x100).toString(16).substr(1);
+
+    return (
+      hex[bytes[0]] + hex[bytes[1]] + hex[bytes[2]] + hex[bytes[3]] + "-" +
+      hex[bytes[4]] + hex[bytes[5]] + "-" +
+      hex[bytes[6]] + hex[bytes[7]] + "-" +
+      hex[bytes[8]] + hex[bytes[9]] + "-" +
+      hex[bytes[10]] + hex[bytes[11]] + hex[bytes[12]] + hex[bytes[13]] + hex[bytes[14]] + hex[bytes[15]]
+    );
+  }
+
+  function readCookie(name) {
+    var match = document.cookie.match(
+      new RegExp("(?:^|; )" + name.replace(/[.$?*|{}()[\]\\/+^]/g, "\\$&") + "=([^;]*)")
+    );
+    return match ? decodeURIComponent(match[1]) : null;
+  }
+
+  function writeCookie(name, value, maxAgeSeconds) {
+    var secure = window.location.protocol === "https:" ? "; Secure" : "";
+    var attrs = "; Path=/; SameSite=Lax" + secure;
+    if (maxAgeSeconds <= 0) {
+      document.cookie = name + "=; Max-Age=0" + attrs;
+    } else {
+      document.cookie =
+        name + "=" + encodeURIComponent(value) + "; Max-Age=" + maxAgeSeconds + attrs;
+    }
+  }
+
+  function readLocal(key) {
+    try {
+      var raw = window.localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function writeLocal(key, value) {
+    try {
+      window.localStorage.setItem(key, JSON.stringify(value));
+    } catch {
+      // Storage can be blocked (private mode, quota); the session just will
+      // not survive a reload, which is a degradation, not a failure.
+    }
+  }
+
+  function removeLocal(key) {
+    try {
+      window.localStorage.removeItem(key);
+    } catch {}
+  }
+
+  // Default on, matching most analytics SDKs — a site opts OUT by calling
+  // setConsent(false), typically before showing its own consent banner, and
+  // opts back IN by calling setConsent(true) once the visitor accepts. See
+  // docs/ANALYTICS_IDENTITY.md for the exact behaviour this implements.
+  var consentGranted = true;
+  try {
+    if (window.localStorage.getItem(CONSENT_KEY) === "denied") {
+      consentGranted = false;
+    }
+  } catch {}
+
+  var visitorId = null;
+  var userId = null;
+  var session = null; // { id, lastActivity, isNew }
+
+  try {
+    var storedUser = window.localStorage.getItem(USER_KEY);
+    if (storedUser) userId = storedUser;
+  } catch {}
+
+  function ensureVisitorId() {
+    if (!consentGranted) return null;
+
+    var existing = readCookie(VISITOR_COOKIE);
+    if (existing) {
+      visitorId = existing;
+      return existing;
+    }
+
+    var fresh = uuid();
+    writeCookie(VISITOR_COOKIE, fresh, VISITOR_COOKIE_MAX_AGE);
+    visitorId = fresh;
+    return fresh;
+  }
+
+  function loadOrStartSession() {
+    var stored = readLocal(SESSION_KEY);
+    var now = Date.now();
+
+    if (stored && now - stored.lastActivity < SESSION_TIMEOUT_MS) {
+      stored.isNew = false;
+      session = stored;
+      return session;
+    }
+
+    // Thirty minutes of inactivity (or no prior session at all) starts a new
+    // one. This is also where a returning visitor's new session gets its own
+    // fresh source capture — see collect() below.
+    session = { id: uuid(), lastActivity: now, isNew: true };
+    return session;
+  }
+
+  function touchSession() {
+    if (!session) return;
+    session.lastActivity = Date.now();
+    session.isNew = false;
+    writeLocal(SESSION_KEY, session);
+  }
+
+  function sendCollect(payload) {
+    var body = JSON.stringify(payload);
+
+    try {
+      if (navigator.sendBeacon) {
+        var blob = new Blob([body], { type: "text/plain" });
+        if (navigator.sendBeacon(collectEndpoint, blob)) return;
+      }
+    } catch {
+      // Fall through to fetch.
+    }
+
+    try {
+      fetch(collectEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: body,
+        keepalive: true,
+        credentials: "omit",
+        mode: "cors",
+      }).catch(function () {});
+    } catch {
+      // Analytics must never throw into the host page.
+    }
+  }
+
+  /** type: "page" | "track" | "goal" | "identify". name: event/goal key, or
+   *  null. properties: a plain object of safe values, or null/undefined. */
+  function collect(type, name, properties) {
+    if (!consentGranted) return;
+
+    if (!visitorId) ensureVisitorId();
+    if (!visitorId) return; // Consent denied mid-call.
+
+    if (!session) loadOrStartSession();
+
+    var isNewSession = !!session.isNew;
+
+    var payload = {
+      s: siteId,
+      t: type,
+      v: visitorId,
+      ss: session.id,
+      e: uuid(),
+      ts: Date.now(),
+      url: window.location.href,
+      // Only meaningful — and only sent — on the first call of a session:
+      // "on the first page of every session, collect and normalize" the
+      // source. A later call in the same session must not re-derive it.
+      ref: isNewSession ? document.referrer || null : null,
+      "new": isNewSession,
+    };
+    if (name) payload.n = name;
+    if (properties) payload.p = properties;
+    if (userId) payload.u = userId;
+
+    touchSession();
+    sendCollect(payload);
+  }
+
+  function identityPage() {
+    collect("page", null, null);
+  }
+
+  function track(name, properties) {
+    if (!name) return;
+    collect("track", String(name), properties || null);
+  }
+
+  function goal(key, properties) {
+    if (!key) return;
+    collect("goal", String(key), properties || null);
+  }
+
+  function identify(id, traits) {
+    if (!id) return;
+    userId = String(id);
+    try {
+      window.localStorage.setItem(USER_KEY, userId);
+    } catch {}
+    collect("identify", null, traits || null);
+  }
+
+  /** Removes the current identified-user state. Also rotates the visitor
+   *  cookie and session: on a shared device, the point of reset() is that
+   *  whoever uses the browser next must not silently continue attaching to
+   *  the identity the previous, now logged-out person was using. Historical
+   *  rows already written keep whatever visitor_id/user_id they were
+   *  stamped with — reset() only changes what happens next. */
+  function reset() {
+    userId = null;
+    removeLocal(USER_KEY);
+
+    writeCookie(VISITOR_COOKIE, "", 0);
+    visitorId = null;
+
+    session = null;
+    removeLocal(SESSION_KEY);
+  }
+
+  /** setConsent(false) removes the durable visitor cookie and stops tracking
+   *  entirely — no identifiers are created and no requests are sent — until
+   *  setConsent(true) is called again. See docs/ANALYTICS_IDENTITY.md. */
+  function setConsent(granted) {
+    consentGranted = !!granted;
+    try {
+      window.localStorage.setItem(CONSENT_KEY, consentGranted ? "granted" : "denied");
+    } catch {}
+
+    if (!consentGranted) {
+      writeCookie(VISITOR_COOKIE, "", 0);
+      visitorId = null;
+      session = null;
+      removeLocal(SESSION_KEY);
+      return;
+    }
+
+    ensureVisitorId();
+    loadOrStartSession();
+  }
+
+  function getVisitorId() {
+    return visitorId;
+  }
+
+  function getSessionId() {
+    return session ? session.id : null;
+  }
+
   /* ---------------------------------------------------------------------
-   * Public API — window.saasname('event-name', { key: 'value' })
-   * Reserved for the custom-events phase; the server already accepts it.
+   * Public API. window.saasname('name', props) keeps its original meaning —
+   * the legacy custom event, unchanged. The new pipeline is reached through
+   * window.saasname.track/goal/identify/reset/setConsent/page/etc.
    * ------------------------------------------------------------------- */
 
-  window.saasname = function (name, data) {
-    var payload = base();
-    payload.t = "event";
-    payload.n = name;
-    if (data) payload.d = data;
-    send(payload);
+  var api = function (name, data) {
+    legacyEvent(name, data);
   };
+  api.page = identityPage;
+  api.track = track;
+  api.goal = goal;
+  api.identify = identify;
+  api.reset = reset;
+  api.setConsent = setConsent;
+  api.getVisitorId = getVisitorId;
+  api.getSessionId = getSessionId;
+
+  // Drain a pre-load queue. A customer who wants calls made before this
+  // script finishes loading to still be captured predefines, ahead of the
+  // script tag:
+  //   window.saasname = window.saasname || function () {
+  //     (window.saasname.q = window.saasname.q || []).push(arguments);
+  //   };
+  // and calls the new pipeline as saasname('track', name, props),
+  // saasname('goal', key), saasname('identify', id) — method name first,
+  // same convention this stub uses everywhere else. Anything queued that way
+  // is replayed here, in order, before the real API takes over. A queued
+  // call whose first argument is not one of those method names is treated as
+  // the legacy bare form, saasname('event-name', data), unchanged.
+  var queued = window.saasname && window.saasname.q;
+  window.saasname = api;
+
+  if (queued) {
+    for (var qi = 0; qi < queued.length; qi++) {
+      var call = queued[qi];
+      var methodName = call[0];
+      var isMethodCall = typeof methodName === "string" && typeof api[methodName] === "function";
+      var fn = isMethodCall ? api[methodName] : legacyEvent;
+      if (typeof fn === "function") {
+        fn.apply(null, Array.prototype.slice.call(call, isMethodCall ? 1 : 0));
+      }
+    }
+  }
+
+  if (consentGranted) {
+    ensureVisitorId();
+    loadOrStartSession();
+  }
 
   pageview();
 })();

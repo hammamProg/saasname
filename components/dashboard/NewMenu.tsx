@@ -57,7 +57,10 @@ export default function NewMenu({ canAddWebsite }: { canAddWebsite: boolean }) {
   useEffect(() => {
     if (!state.groupId) return;
 
-    setGroupDialogOpen(false);
+    // Deferred: this effect syncs to the create-group action's result, an
+    // external system, but the setState itself is queued rather than called
+    // inline in the effect body to avoid a cascading render.
+    queueMicrotask(() => setGroupDialogOpen(false));
     formRef.current?.reset();
     router.refresh();
   }, [state.groupId, router]);

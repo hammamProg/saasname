@@ -71,13 +71,17 @@ export default function GroupOptionsMenu({
   useEffect(() => {
     if (!renameState.done) return;
     router.refresh();
-    setPanel(null);
+    // Deferred a tick: this effect is syncing to the server action's result,
+    // an external system, which is a legitimate use of an effect — but
+    // setState synchronously inside the effect body still risks a cascading
+    // render, so the state update itself is queued instead of called inline.
+    queueMicrotask(() => setPanel(null));
   }, [renameState.done, router]);
 
   useEffect(() => {
     if (!deleteState.done) return;
     router.refresh();
-    setPanel(null);
+    queueMicrotask(() => setPanel(null));
   }, [deleteState.done, router]);
 
   function choose(next: Panel) {
@@ -178,8 +182,8 @@ export default function GroupOptionsMenu({
             <form action={deleteAction} className="space-y-4">
               <input type="hidden" name="groupId" value={groupId} />
               <p className="text-sm text-muted">
-                Removes the "{name}" group. Its websites are not deleted —
-                they move back to Ungrouped.
+                Removes the &quot;{name}&quot; group. Its websites are not
+                deleted — they move back to Ungrouped.
               </p>
               {deleteState.error ? (
                 <p

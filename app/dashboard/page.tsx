@@ -5,8 +5,11 @@ import { getSEOTags } from "@/libs/seo";
 import { requireUser } from "@/libs/supabase/require-user";
 import { listSites } from "@/libs/webstats/sites";
 import { listGroups } from "@/libs/webstats/groups";
+import { parseRange } from "@/libs/webstats/range";
+import { getPortfolioStats } from "@/libs/webstats/portfolio";
 import GroupedSites from "@/components/dashboard/GroupedSites";
 import NewMenu from "@/components/dashboard/NewMenu";
+import PortfolioStatsRow from "@/components/dashboard/PortfolioStatsRow";
 import { getSiteOverviews } from "@/libs/webstats/overview";
 
 export const dynamic = "force-dynamic";
@@ -17,10 +20,15 @@ export const metadata = getSEOTags({
   canonicalUrlRelative: "/dashboard",
 });
 
-export default async function SitesPage() {
+export default async function SitesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ range?: string }>;
+}) {
   const user = await requireUser();
   const access = await getProfileAccess(user.id);
   const limits = limitsForPlan(planForAccess(access?.has_access ?? false));
+  const range = parseRange((await searchParams).range);
 
   const [sites, overview, groups] = await Promise.all([
     listSites(),
@@ -29,6 +37,9 @@ export default async function SitesPage() {
   ]);
   const atLimit =
     limits.siteLimit !== null && sites.length >= limits.siteLimit;
+
+  const portfolio =
+    sites.length > 0 ? await getPortfolioStats(sites, overview, range) : null;
 
   return (
     <div className="space-y-8">
@@ -45,6 +56,8 @@ export default async function SitesPage() {
 
         {sites.length > 0 ? <NewMenu canAddWebsite={!atLimit} /> : null}
       </div>
+
+      {portfolio ? <PortfolioStatsRow range={range} stats={portfolio} /> : null}
 
       {sites.length === 0 ? (
         <div className="rounded-2xl border border-border bg-card p-8 text-center">

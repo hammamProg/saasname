@@ -5,7 +5,7 @@ import { siteUrl } from "@/libs/seo";
 export default function sitemap(): MetadataRoute.Sitemap {
   // The component showcase is a development reference, not a marketing page --
   // it is excluded here and noindexed at the page level.
-  const staticRoutes = ["", "/blog", "/tos", "/privacy-policy"];
+  const staticRoutes = ["", "/blog", "/tos", "/privacy-policy", "/vs/plausible"];
 
   const blogRoutes = articles.map((article) => `/blog/${article.slug}`);
 

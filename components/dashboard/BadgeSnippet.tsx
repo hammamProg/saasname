@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import LiveVisitorsCard from "@/components/webstats/LiveVisitorsCard";
+import EmbedDomainsManager from "@/components/dashboard/EmbedDomainsManager";
 
 function CopyBlock({ snippet }: { snippet: string }) {
   const [copied, setCopied] = useState(false);
@@ -78,8 +79,11 @@ export default function BadgeSnippet({
         <CopyBlock snippet={liveEmbedSnippet} />
         <p className="text-xs text-muted">
           Paste it anywhere on your site. It updates itself every 15 seconds.
+          Only {domain} can load it — allow other domains below.
         </p>
       </div>
+
+      <EmbedDomainsManager siteId={siteId} siteDomain={domain} />
 
       <div className="space-y-3 border-t border-border pt-6">
         <p className="text-sm text-muted">

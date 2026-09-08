@@ -11,17 +11,22 @@ type LiveVisitors = {
   countries: { code: string; name: string; count: number }[];
 };
 
-/** Live preview for the badge panel: the same shape of widget a "Powered by"
- *  badge is usually paired with elsewhere — count, a 30-minute activity
- *  shape, and where those visitors are. Polls while the panel is open;
- *  `active` lets the caller stop polling the moment the dialog closes rather
- *  than paying for a background timer nobody is looking at. */
-export default function LiveVisitorsWidget({
-  siteId,
-  active,
+/** Live "who's online" card: count, a 30-minute activity shape, and where
+ *  those visitors are. Two callers, two endpoints behind the same shape:
+ *
+ *  - The badge panel's preview, pointed at the owner-scoped
+ *    /api/webstats/sites/[id]/live — `active` lets it stop polling the
+ *    moment the dialog closes rather than paying for a background timer
+ *    nobody is looking at.
+ *  - The embeddable widget at app/embed/live/[id], pointed at the public
+ *    /api/webstats/embed/[id]/live — always active, since the whole page is
+ *    the widget. */
+export default function LiveVisitorsCard({
+  endpoint,
+  active = true,
 }: {
-  siteId: string;
-  active: boolean;
+  endpoint: string;
+  active?: boolean;
 }) {
   const [data, setData] = useState<LiveVisitors | null>(null);
 
@@ -34,9 +39,7 @@ export default function LiveVisitorsWidget({
       if (document.visibilityState !== "visible") return;
 
       try {
-        const response = await fetch(`/api/webstats/sites/${siteId}/live`, {
-          cache: "no-store",
-        });
+        const response = await fetch(endpoint, { cache: "no-store" });
         if (!response.ok || cancelled) return;
 
         const body = (await response.json()) as LiveVisitors;
@@ -55,7 +58,7 @@ export default function LiveVisitorsWidget({
       clearInterval(timer);
       document.removeEventListener("visibilitychange", refresh);
     };
-  }, [siteId, active]);
+  }, [endpoint, active]);
 
   const count = data?.count ?? 0;
   const series = data?.series ?? [];

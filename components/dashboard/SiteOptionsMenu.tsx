@@ -9,7 +9,12 @@ import DeleteSiteButton from "@/components/dashboard/DeleteSiteButton";
 import RenameSiteForm from "@/components/dashboard/RenameSiteForm";
 import GroupPicker from "@/components/dashboard/GroupPicker";
 import BadgeSnippet from "@/components/dashboard/BadgeSnippet";
-import { badgeHref, badgeIconUrl, badgeSnippet } from "@/libs/webstats/badge";
+import {
+  badgeHref,
+  badgeIconUrl,
+  badgeSnippet,
+  liveEmbedSnippet,
+} from "@/libs/webstats/badge";
 import config from "@/config";
 
 type Panel = "install" | "rename" | "group" | "badge" | "remove" | null;
@@ -243,6 +248,7 @@ export default function SiteOptionsMenu({
                 domain={domain}
                 href={badgeHref(domain)}
                 iconUrl={badgeIconUrl()}
+                liveEmbedSnippet={liveEmbedSnippet(siteId)}
                 appName={config.appName}
                 snippet={badgeSnippet(domain)}
               />

@@ -35,6 +35,20 @@ export function badgeHref(domain: string): string {
   return `${origin}/?${params.toString()}`;
 }
 
+/** The pasted-on-a-customer's-site version of the live widget: online count,
+ *  a 30-minute activity shape, country breakdown and the "Powered by" badge,
+ *  all as one embed. An iframe rather than a script tag, unlike
+ *  `badgeSnippet` above — this needs its own polling, real layout and the
+ *  app's own CSS, none of which a copy-pasted inline-styled snippet can carry
+ *  without either shipping a stylesheet onto the customer's page or fighting
+ *  whatever CSS is already there. Points at app/embed/live/[id], which reads
+ *  the public counterpart of the badge panel's live preview. */
+export function liveEmbedSnippet(siteId: string): string {
+  const origin = badgeOrigin();
+
+  return `<iframe src="${origin}/embed/live/${siteId}" width="320" height="440" style="border:0;border-radius:16px;display:block;" loading="lazy" title="Live visitors — powered by ${config.appName}"></iframe>`;
+}
+
 export function badgeSnippet(domain: string): string {
   const href = badgeHref(domain);
 

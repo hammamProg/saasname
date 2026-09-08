@@ -5,8 +5,9 @@ import config from "@/config";
 import { getSEOTags } from "@/libs/seo";
 
 export const metadata = getSEOTags({
-  title: `Blog`,
-  description: "Guides for shipping your startup faster.",
+  title: "Blog — Cookieless Analytics Guides",
+  description:
+    "Guides on privacy-friendly web analytics, GDPR-compliant tracking, and reading traffic data without a cookie banner.",
   canonicalUrlRelative: "/blog",
 });
 
@@ -29,7 +30,7 @@ export default function BlogPage() {
               className="card overflow-hidden transition hover:shadow-lg"
             >
               <div className="relative aspect-video bg-surface">
-                <Image src={article.image} alt="" fill className="object-cover" />
+                <Image src={article.image} alt={article.title} fill className="object-cover" />
               </div>
               <div className="p-6">
                 <h2 className="font-bold">{article.title}</h2>

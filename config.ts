@@ -1,7 +1,7 @@
 const config = {
   appName: "SaaSNa.me",
   appDescription:
-    "Cookieless website analytics: visitors, referrers, countries and who's online right now, from one script tag — no cookie banner, no consent prompt. Free while in beta.",
+    "Cookieless website analytics: visitors, referrers, countries and who's online right now, from one script tag — no cookie banner, no consent prompt.",
   domainName: "saasna.me",
   // The canonical origin, and it must match what the host actually serves.
   // Vercel serves www and 308-redirects the apex to it, so every absolute URL

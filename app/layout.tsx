@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   applicationName: config.appName,
   title: {
-    default: `${config.appName} — ${config.appDescription}`,
+    default: `${config.appName} — Cookieless Website Analytics`,
     template: `%s | ${config.appName}`,
   },
   description: config.appDescription,

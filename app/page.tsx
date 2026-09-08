@@ -13,7 +13,7 @@ import { renderSchemaTags } from "@/libs/seo-schema";
 import { LANDING_FAQS } from "@/libs/landing-faqs";
 
 export const metadata = getSEOTags({
-  title: "Website analytics without the cookie banner",
+  title: "Cookieless Website Analytics, No Cookie Banner | SaaSNa.me",
   description: config.appDescription,
   keywords: [
     "cookieless analytics",
@@ -22,6 +22,7 @@ export const metadata = getSEOTags({
     "no cookie banner",
     "GDPR analytics",
     "real time visitors",
+    "website analytics without cookies",
   ],
   canonicalUrlRelative: "/",
 });

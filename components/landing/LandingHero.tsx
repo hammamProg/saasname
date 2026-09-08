@@ -25,15 +25,16 @@ export default function LandingHero() {
               Beta — free for now
             </span>
 
-            <h1 className="section-heading max-w-[16ch] text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
-              Website analytics that{" "}
+            <h1 className="section-heading max-w-[18ch] text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
+              Cookieless website analytics that{" "}
               <span className="gradient-text">respect your visitors.</span>
             </h1>
 
             <p className="max-w-lg text-lg leading-relaxed text-muted">
               One script tag, no cookies, no consent banner. See who&apos;s on
               your site right now, where they came from, and which pages hold
-              them — without asking their browser for permission first.
+              them — without asking their browser for permission first. No
+              GDPR consent prompt to build, no cookie law to worry about.
             </p>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5">

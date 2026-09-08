@@ -35,7 +35,7 @@ export default async function ArticlePage({ params }: Props) {
       </header>
       <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
         <div className="relative mb-8 aspect-video overflow-hidden rounded-xl">
-          <Image src={article.image} alt="" fill className="object-cover" />
+          <Image src={article.image} alt={article.title} fill className="object-cover" />
         </div>
         <h1 className="section-heading text-3xl font-extrabold sm:text-4xl">
           {article.title}

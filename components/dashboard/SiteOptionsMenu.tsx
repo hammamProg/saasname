@@ -7,8 +7,11 @@ import InstallSnippet from "@/components/dashboard/InstallSnippet";
 import DeleteSiteButton from "@/components/dashboard/DeleteSiteButton";
 import RenameSiteForm from "@/components/dashboard/RenameSiteForm";
 import GroupPicker from "@/components/dashboard/GroupPicker";
+import BadgeSnippet from "@/components/dashboard/BadgeSnippet";
+import { badgeHref, badgeIconUrl, badgeSnippet } from "@/libs/webstats/badge";
+import config from "@/config";
 
-type Panel = "install" | "rename" | "group" | "remove" | null;
+type Panel = "install" | "rename" | "group" | "badge" | "remove" | null;
 
 /** Per-site actions, collapsed into one control beside the domain.
  *
@@ -135,6 +138,11 @@ export default function SiteOptionsMenu({
             Move to group
           </button>
 
+          <button type="button" role="menuitem" className={item}
+            onClick={() => choose("badge")}>
+            Get badge
+          </button>
+
           <a
             role="menuitem"
             href={`https://${domain}`}
@@ -178,7 +186,9 @@ export default function SiteOptionsMenu({
                 ? "Rename"
                 : panel === "group"
                   ? "Move to group"
-                  : "Install"}{" "}
+                  : panel === "badge"
+                    ? "Get badge"
+                    : "Install"}{" "}
             · {domain}
           </h2>
           <button
@@ -214,6 +224,15 @@ export default function SiteOptionsMenu({
               groups={groups}
               currentGroupId={groupId}
               onDone={() => setPanel(null)}
+            />
+          ) : null}
+          {panel === "badge" ? (
+            <BadgeSnippet
+              domain={domain}
+              href={badgeHref(domain)}
+              iconUrl={badgeIconUrl()}
+              appName={config.appName}
+              snippet={badgeSnippet(domain)}
             />
           ) : null}
           {panel === "remove" ? (

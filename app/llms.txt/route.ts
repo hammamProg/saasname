@@ -38,7 +38,7 @@ without asking the visitor's browser for consent first.
 
 - Unique visitors and pageviews over time, deduplicated by session rather
   than counted per pageview.
-- Who is on the site in roughly the last five minutes.
+- Who is on the site in roughly the last 30 minutes.
 - Referrers split into channel, direct traffic and campaign, plus top pages,
   countries, browsers and devices.
 - Bounce rate and session duration.

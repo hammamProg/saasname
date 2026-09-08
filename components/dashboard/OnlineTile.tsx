@@ -106,7 +106,7 @@ export default function OnlineTile({
         {online}
       </p>
 
-      <p className="mt-1 text-xs text-muted">Active in the last 5 minutes</p>
+      <p className="mt-1 text-xs text-muted">Active in the last 30 minutes</p>
     </div>
   );
 }

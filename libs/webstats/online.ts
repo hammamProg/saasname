@@ -12,11 +12,11 @@
 
 import { createSupabaseAdmin } from "@/libs/supabase";
 
-/** The window that counts as "now". Five minutes is the industry convention
- *  and matches what the tracker can support: a visitor reading one page sends
- *  nothing after the initial beacon until they leave, so a shorter window
- *  would drop people who are still reading. */
-export const ONLINE_WINDOW_MS = 5 * 60 * 1000;
+/** The window that counts as "now". Wider than the five-minute industry
+ *  convention: a visitor reading one page sends nothing after the initial
+ *  beacon until they leave, so a short window drops people who are still
+ *  reading a long article or slow page. */
+export const ONLINE_WINDOW_MS = 30 * 60 * 1000;
 
 export async function getOnlineVisitors(siteId: string): Promise<number> {
   const admin = createSupabaseAdmin();

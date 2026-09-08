@@ -56,27 +56,15 @@ export default async function LiveEmbedPage({
 
   return (
     <div className="flex min-h-full items-start justify-center bg-background p-3">
-      <div className="w-full max-w-sm space-y-3">
-        <LiveVisitorsCard endpoint={`/api/webstats/embed/${site.id}/live`} />
-
-        <a
-          href={badgeHref(site.domain)}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center rounded-2xl border border-dashed border-border bg-card p-4"
-        >
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#1A1A1A] px-3 py-1.5 font-sans text-[13px] font-semibold leading-none text-white no-underline">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={badgeIconUrl()}
-              alt=""
-              width={14}
-              height={14}
-              className="block rounded-[3px]"
-            />
-            Powered by {config.appName}
-          </span>
-        </a>
+      <div className="w-full max-w-sm">
+        <LiveVisitorsCard
+          endpoint={`/api/webstats/embed/${site.id}/live`}
+          badge={{
+            href: badgeHref(site.domain),
+            iconUrl: badgeIconUrl(),
+            appName: config.appName,
+          }}
+        />
       </div>
     </div>
   );

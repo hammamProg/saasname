@@ -46,7 +46,7 @@ export function badgeHref(domain: string): string {
 export function liveEmbedSnippet(siteId: string): string {
   const origin = badgeOrigin();
 
-  return `<iframe src="${origin}/embed/live/${siteId}" width="320" height="440" style="border:0;border-radius:16px;display:block;" loading="lazy" title="Live visitors — powered by ${config.appName}"></iframe>`;
+  return `<iframe src="${origin}/embed/live/${siteId}" width="320" height="360" style="border:0;border-radius:16px;display:block;" loading="lazy" title="Live visitors — powered by ${config.appName}"></iframe>`;
 }
 
 export function badgeSnippet(domain: string): string {

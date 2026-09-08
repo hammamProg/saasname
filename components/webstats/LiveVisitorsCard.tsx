@@ -21,12 +21,26 @@ type LiveVisitors = {
  *  - The embeddable widget at app/embed/live/[id], pointed at the public
  *    /api/webstats/embed/[id]/live — always active, since the whole page is
  *    the widget. */
+export type CardBadge = {
+  href: string;
+  iconUrl: string;
+  appName: string;
+};
+
 export default function LiveVisitorsCard({
   endpoint,
   active = true,
+  badge,
 }: {
   endpoint: string;
   active?: boolean;
+  /** A small "Powered by" credit tucked in the card's own corner, the way
+   *  comparable widgets do it — not a separate boxed-out badge below, which
+   *  reads as an ad bolted onto the thing it's meant to be a quiet credit
+   *  for. Optional because the dashboard's own preview of this card (in the
+   *  site page, unrelated to the badge panel) has no reason to credit
+   *  itself. */
+  badge?: CardBadge;
 }) {
   const [data, setData] = useState<LiveVisitors | null>(null);
 
@@ -123,6 +137,27 @@ export default function LiveVisitorsCard({
               </li>
             ))}
           </ul>
+        </div>
+      ) : null}
+
+      {badge ? (
+        <div className="mt-4 flex justify-end">
+          <a
+            href={badge.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-[11px] font-medium text-muted no-underline hover:text-foreground"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={badge.iconUrl}
+              alt=""
+              width={12}
+              height={12}
+              className="rounded-[2px]"
+            />
+            Powered by {badge.appName}
+          </a>
         </div>
       ) : null}
     </div>

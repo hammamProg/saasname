@@ -34,15 +34,16 @@ function CopyBlock({ snippet }: { snippet: string }) {
 
 /** Two paste-ready things, in order of what most people actually want:
  *
- *  1. The live widget — online count, 30-minute shape, country breakdown and
- *     the "Powered by" badge, all as one iframe. The preview above it is the
- *     dashboard-scoped version of the exact same component the iframe
- *     embeds (see components/webstats/LiveVisitorsCard and
- *     app/embed/live/[id]), so what's shown here is what gets pasted, not a
- *     mockup of it.
- *  2. Just the credit link, for anyone who wants the footer badge without a
- *     live widget taking up space. Clicks on either are UTM-tagged, so they
- *     show up as attributed traffic in your own Acquisition report. */
+ *  1. The live widget — online count, 30-minute shape and country breakdown,
+ *     with the "Powered by" credit tucked small in its own corner rather
+ *     than boxed out separately. The preview above it is the dashboard-
+ *     scoped version of the exact same component the iframe embeds (see
+ *     components/webstats/LiveVisitorsCard and app/embed/live/[id]), so
+ *     what's shown here is what gets pasted, not a mockup of it.
+ *  2. Just the credit link on its own, for a footer — this one is a
+ *     standalone badge rather than a corner credit, since there's no widget
+ *     for it to sit inside. Clicks on either are UTM-tagged, so they show up
+ *     as attributed traffic in your own Acquisition report. */
 export default function BadgeSnippet({
   siteId,
   domain,
@@ -69,20 +70,10 @@ export default function BadgeSnippet({
           visiting from. Paste it anywhere; it keeps polling on its own.
         </p>
 
-        <LiveVisitorsCard endpoint={`/api/webstats/sites/${siteId}/live`} />
-
-        <div className="flex items-center justify-center rounded-xl border border-dashed border-border bg-background p-6">
-          <a
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-full bg-[#1A1A1A] px-3 py-1.5 font-sans text-[13px] font-semibold leading-none text-white no-underline"
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={iconUrl} alt="" width={14} height={14} className="block rounded-[3px]" />
-            Powered by {appName}
-          </a>
-        </div>
+        <LiveVisitorsCard
+          endpoint={`/api/webstats/sites/${siteId}/live`}
+          badge={{ href, iconUrl, appName }}
+        />
 
         <CopyBlock snippet={liveEmbedSnippet} />
         <p className="text-xs text-muted">
@@ -94,6 +85,18 @@ export default function BadgeSnippet({
         <p className="text-sm text-muted">
           Or just the credit link, for your footer.
         </p>
+        <div className="flex justify-start">
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-full bg-[#1A1A1A] px-3 py-1.5 font-sans text-[13px] font-semibold leading-none text-white no-underline"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={iconUrl} alt="" width={14} height={14} className="block rounded-[3px]" />
+            Powered by {appName}
+          </a>
+        </div>
         <CopyBlock snippet={snippet} />
       </div>
     </div>

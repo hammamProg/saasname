@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import LiveVisitorsWidget from "@/components/dashboard/LiveVisitorsWidget";
 
 /** A "Powered by" footer badge, paste-ready.
  *
@@ -9,12 +10,14 @@ import { useState } from "react";
  *  provably what they get, without reaching for dangerouslySetInnerHTML for
  *  a value that never needs to be arbitrary HTML in the first place. */
 export default function BadgeSnippet({
+  siteId,
   domain,
   href,
   iconUrl,
   appName,
   snippet,
 }: {
+  siteId: string;
   domain: string;
   href: string;
   iconUrl: string;
@@ -39,6 +42,8 @@ export default function BadgeSnippet({
         A small credit link for {domain}&apos;s footer. Clicks are UTM-tagged,
         so they show up as attributed traffic in your own Acquisition report.
       </p>
+
+      <LiveVisitorsWidget siteId={siteId} active />
 
       <div className="flex items-center justify-center rounded-xl border border-dashed border-border bg-background p-6">
         <a

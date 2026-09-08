@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Link2 } from "lucide-react";
 import type { SnippetVariant } from "@/libs/webstats/snippet";
 import type { SiteGroup } from "@/libs/webstats/group-name";
 import InstallSnippet from "@/components/dashboard/InstallSnippet";
@@ -96,150 +97,162 @@ export default function SiteOptionsMenu({
     "block w-full px-4 py-2.5 text-left text-sm transition hover:bg-surface";
 
   return (
-    <div className="relative" ref={menuRef}>
+    <div className="flex items-center gap-2">
+      {/* Its own button rather than a dropdown entry: getting the badge is
+          the one action here someone comes back to repeatedly (to grab the
+          snippet again, or just check the live count), so it earns a
+          one-click spot beside Options instead of two clicks buried in it. */}
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-haspopup="menu"
-        aria-expanded={open}
-        aria-label={`Options for ${domain}`}
+        onClick={() => choose("badge")}
+        aria-label={`Get badge for ${domain}`}
+        title="Get badge"
         className="flex size-9 items-center justify-center rounded-xl border border-border text-muted transition hover:border-primary/40 hover:text-foreground"
       >
-        <svg viewBox="0 0 24 24" className="size-4" aria-hidden="true">
-          <circle cx="5" cy="12" r="1.8" fill="currentColor" />
-          <circle cx="12" cy="12" r="1.8" fill="currentColor" />
-          <circle cx="19" cy="12" r="1.8" fill="currentColor" />
-        </svg>
+        <Link2 className="size-4" aria-hidden="true" />
       </button>
 
-      {copied ? (
-        <span className="absolute right-0 top-11 z-20 whitespace-nowrap rounded-lg bg-brand-ink px-2.5 py-1 text-xs font-semibold text-white">
-          Site ID copied
-        </span>
-      ) : null}
-
-      {open ? (
-        <div
-          role="menu"
-          className="absolute right-0 top-11 z-20 w-56 overflow-hidden rounded-xl border border-border bg-card py-1 shadow-lg"
+      <div className="relative" ref={menuRef}>
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-haspopup="menu"
+          aria-expanded={open}
+          aria-label={`Options for ${domain}`}
+          className="flex size-9 items-center justify-center rounded-xl border border-border text-muted transition hover:border-primary/40 hover:text-foreground"
         >
-          <button type="button" role="menuitem" className={item}
-            onClick={() => choose("install")}>
-            Install snippet
-          </button>
+          <svg viewBox="0 0 24 24" className="size-4" aria-hidden="true">
+            <circle cx="5" cy="12" r="1.8" fill="currentColor" />
+            <circle cx="12" cy="12" r="1.8" fill="currentColor" />
+            <circle cx="19" cy="12" r="1.8" fill="currentColor" />
+          </svg>
+        </button>
 
-          <button type="button" role="menuitem" className={item}
-            onClick={() => choose("rename")}>
-            Rename
-          </button>
+        {copied ? (
+          <span className="absolute right-0 top-11 z-20 whitespace-nowrap rounded-lg bg-brand-ink px-2.5 py-1 text-xs font-semibold text-white">
+            Site ID copied
+          </span>
+        ) : null}
 
-          <button type="button" role="menuitem" className={item}
-            onClick={() => choose("group")}>
-            Move to group
-          </button>
-
-          <button type="button" role="menuitem" className={item}
-            onClick={() => choose("badge")}>
-            Get badge
-          </button>
-
-          <a
-            role="menuitem"
-            href={`https://${domain}`}
-            target="_blank"
-            rel="noreferrer noopener"
-            className={item}
-            onClick={() => setOpen(false)}
+        {open ? (
+          <div
+            role="menu"
+            className="absolute right-0 top-11 z-20 w-56 overflow-hidden rounded-xl border border-border bg-card py-1 shadow-lg"
           >
-            Open {domain}
-          </a>
+            <button type="button" role="menuitem" className={item}
+              onClick={() => choose("install")}>
+              Install snippet
+            </button>
 
-          <button type="button" role="menuitem" className={item} onClick={copySiteId}>
-            Copy site ID
-          </button>
+            <button type="button" role="menuitem" className={item}
+              onClick={() => choose("rename")}>
+              Rename
+            </button>
 
-          <div className="my-1 border-t border-border" />
+            <button type="button" role="menuitem" className={item}
+              onClick={() => choose("group")}>
+              Move to group
+            </button>
 
-          <button
-            type="button"
-            role="menuitem"
-            className={`${item} text-danger hover:bg-danger-soft`}
-            onClick={() => choose("remove")}
-          >
-            Stop tracking
-          </button>
-        </div>
-      ) : null}
+            <a
+              role="menuitem"
+              href={`https://${domain}`}
+              target="_blank"
+              rel="noreferrer noopener"
+              className={item}
+              onClick={() => setOpen(false)}
+            >
+              Open {domain}
+            </a>
 
-      <dialog
-        ref={dialogRef}
-        onClose={() => setPanel(null)}
-        // Native dialogs are centred by the UA and need explicit sizing; the
-        // backdrop is styled in globals.css.
-        className="w-[min(42rem,92vw)] rounded-2xl border border-border bg-card p-0 backdrop:bg-black/40"
-      >
-        <div className="flex items-center justify-between gap-4 border-b border-border px-5 py-3">
-          <h2 className="section-heading text-sm font-extrabold">
-            {panel === "remove"
-              ? "Stop tracking"
-              : panel === "rename"
-                ? "Rename"
-                : panel === "group"
-                  ? "Move to group"
-                  : panel === "badge"
-                    ? "Get badge"
-                    : "Install"}{" "}
-            · {domain}
-          </h2>
-          <button
-            type="button"
-            onClick={() => setPanel(null)}
-            className="rounded-lg px-2 py-1 text-sm text-muted transition hover:text-foreground"
-            aria-label="Close"
-          >
-            ✕
-          </button>
-        </div>
+            <button type="button" role="menuitem" className={item} onClick={copySiteId}>
+              Copy site ID
+            </button>
 
-        <div className="p-5">
-          {panel === "install" ? (
-            <InstallSnippet
-              siteId={siteId}
-              variants={variants}
-              initiallyInstalled={installed}
-              embedded
-            />
-          ) : null}
-          {panel === "rename" ? (
-            <RenameSiteForm
-              siteId={siteId}
-              domain={domain}
-              name={name}
-              onDone={() => setPanel(null)}
-            />
-          ) : null}
-          {panel === "group" ? (
-            <GroupPicker
-              siteId={siteId}
-              groups={groups}
-              currentGroupId={groupId}
-              onDone={() => setPanel(null)}
-            />
-          ) : null}
-          {panel === "badge" ? (
-            <BadgeSnippet
-              domain={domain}
-              href={badgeHref(domain)}
-              iconUrl={badgeIconUrl()}
-              appName={config.appName}
-              snippet={badgeSnippet(domain)}
-            />
-          ) : null}
-          {panel === "remove" ? (
-            <DeleteSiteButton siteId={siteId} domain={domain} />
-          ) : null}
-        </div>
-      </dialog>
+            <div className="my-1 border-t border-border" />
+
+            <button
+              type="button"
+              role="menuitem"
+              className={`${item} text-danger hover:bg-danger-soft`}
+              onClick={() => choose("remove")}
+            >
+              Stop tracking
+            </button>
+          </div>
+        ) : null}
+
+        <dialog
+          ref={dialogRef}
+          onClose={() => setPanel(null)}
+          // Native dialogs are centred by the UA and need explicit sizing; the
+          // backdrop is styled in globals.css.
+          className="w-[min(42rem,92vw)] rounded-2xl border border-border bg-card p-0 backdrop:bg-black/40"
+        >
+          <div className="flex items-center justify-between gap-4 border-b border-border px-5 py-3">
+            <h2 className="section-heading text-sm font-extrabold">
+              {panel === "remove"
+                ? "Stop tracking"
+                : panel === "rename"
+                  ? "Rename"
+                  : panel === "group"
+                    ? "Move to group"
+                    : panel === "badge"
+                      ? "Get badge"
+                      : "Install"}{" "}
+              · {domain}
+            </h2>
+            <button
+              type="button"
+              onClick={() => setPanel(null)}
+              className="rounded-lg px-2 py-1 text-sm text-muted transition hover:text-foreground"
+              aria-label="Close"
+            >
+              ✕
+            </button>
+          </div>
+
+          <div className="p-5">
+            {panel === "install" ? (
+              <InstallSnippet
+                siteId={siteId}
+                variants={variants}
+                initiallyInstalled={installed}
+                embedded
+              />
+            ) : null}
+            {panel === "rename" ? (
+              <RenameSiteForm
+                siteId={siteId}
+                domain={domain}
+                name={name}
+                onDone={() => setPanel(null)}
+              />
+            ) : null}
+            {panel === "group" ? (
+              <GroupPicker
+                siteId={siteId}
+                groups={groups}
+                currentGroupId={groupId}
+                onDone={() => setPanel(null)}
+              />
+            ) : null}
+            {panel === "badge" ? (
+              <BadgeSnippet
+                siteId={siteId}
+                domain={domain}
+                href={badgeHref(domain)}
+                iconUrl={badgeIconUrl()}
+                appName={config.appName}
+                snippet={badgeSnippet(domain)}
+              />
+            ) : null}
+            {panel === "remove" ? (
+              <DeleteSiteButton siteId={siteId} domain={domain} />
+            ) : null}
+          </div>
+        </dialog>
+      </div>
     </div>
   );
 }

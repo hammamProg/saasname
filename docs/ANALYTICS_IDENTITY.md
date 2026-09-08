@@ -1,7 +1,7 @@
-# Identity, sessions, attribution and goals
+# Identity, sessions and attribution
 
-Persistent visitor identity, session tracking, traffic-source attribution and
-custom conversion goals, layered on top of the existing analytics product.
+Persistent visitor identity, session tracking and traffic-source
+attribution, layered on top of the existing analytics product.
 
 **This is a second, independent pipeline.** The original cookieless pageview
 pipeline (`public/js/s.js`'s legacy beacon → `/api/webstats/event` →
@@ -21,11 +21,10 @@ cross-session identity impossible — a daily-rotating salted hash can't
 survive more than a day, by design.
 
 This feature requires real identity: `identify()` linking anonymous browsing
-to a signed-up user, first-touch attribution that survives weeks, goal
-completions with a durable attribution snapshot. That needs a real
-first-party cookie and is a different privacy trade-off — a site that turns
-this on is no longer "no cookie banner needed" and should disclose that to
-its own visitors accordingly (see **Cookies & privacy** below).
+to a signed-up user, first-touch attribution that survives weeks. That needs
+a real first-party cookie and is a different privacy trade-off — a site that
+turns this on is no longer "no cookie banner needed" and should disclose
+that to its own visitors accordingly (see **Cookies & privacy** below).
 
 ## Data model
 
@@ -35,8 +34,6 @@ its own visitors accordingly (see **Cookies & privacy** below).
 | `webstats_sessions` | One row per `(site_id, session_id)`. Source captured once, at session start, never updated after. |
 | `webstats_identity_events` | Page/track/identify event log for this pipeline — the "events and page views" table. Idempotent on `(site_id, event_id)`. |
 | `webstats_identity_links` | Append-only audit of which `visitor_id`s a `user_id` has used. Never used to rewrite history — see **Identity resolution**. |
-| `webstats_goals` | Configured goals: key, name, type, dedupe rule. Managed from the dashboard (`/dashboard/sites/[id]/goals`). |
-| `webstats_goal_completions` | One row per completion, idempotent per the goal's dedupe rule, carrying an immutable attribution snapshot. |
 
 `webstats_sites` gained two columns: `write_key` (server-side `identify()`
 auth, see below) and `ignored_referrer_domains` (per-site list of hostnames
@@ -49,11 +46,13 @@ same trust model as `webstats_events`.
 
 Migrations: `036_webstats_identity_attribution.sql`, `037_webstats_identity_events.sql`
 (corrects 036 — see its header for why the event log isn't on
-`webstats_events`), and `038_webstats_identity_links_index_fix.sql`
-(corrects 036's partial unique index on `webstats_identity_links`, which
-Postgres cannot use as a plain `ON CONFLICT` arbiter — every `identify()`
-link write failed silently until this fix; caught by live end-to-end
-testing against the real database, not by the mocked unit suite).
+`webstats_events`), `038_webstats_identity_links_index_fix.sql` (corrects
+036's partial unique index on `webstats_identity_links`, which Postgres
+cannot use as a plain `ON CONFLICT` arbiter — every `identify()` link write
+failed silently until this fix; caught by live end-to-end testing against
+the real database, not by the mocked unit suite), and
+`039_webstats_drop_goals.sql` (removes the goal/conversion-tracking tables
+— see **History** below).
 
 ## Attribution rules
 
@@ -91,11 +90,6 @@ site's own domain (bare, `www.` stripped) or one of its configured
 - **Last non-direct** (`webstats_visitors.last_non_direct`) — overwritten
   only when the new session's channel is not Direct. A later direct visit
   can never erase it.
-- **Goal/conversion attribution** (`webstats_goal_completions.attribution`)
-  — a full snapshot (first-touch, session source, last-touch, last
-  non-direct, landing page, visitor/session/user ids) taken at the moment of
-  completion. A visitor's later sessions never change what a past
-  conversion says brought them in.
 
 Write logic for all of this lives in `libs/webstats/collect.ts`.
 
@@ -154,7 +148,6 @@ analytics.getSessionId();
 
 analytics.page();                              // usually automatic
 analytics.track("button_clicked", { button: "start_free_trial" });
-analytics.goal("signup", { plan: "free" });
 analytics.identify("customer-user-id", { plan: "free" });
 analytics.reset();
 analytics.setConsent(true);
@@ -164,7 +157,7 @@ analytics.setConsent(true);
   custom-event call — it still posts to the legacy `/event` endpoint and
   still feeds the existing dashboard's bounce-rate calculation. It is not
   the same thing as `.track()`.
-- `window.saasname.page/track/goal/identify/reset/setConsent/getVisitorId/getSessionId`
+- `window.saasname.page/track/identify/reset/setConsent/getVisitorId/getSessionId`
   is the new pipeline.
 - A page view is captured automatically on load and on every SPA navigation
   (patched `pushState`/`replaceState`, `popstate`, `hashchange`, bfcache
@@ -190,9 +183,8 @@ a queueing stub ahead of the script tag:
 
 With the stub in place, pre-load calls use the method name as the first
 argument: `saasname('identify', 'user_123')`, `saasname('track', 'signup', {
-plan: 'pro' })`, `saasname('goal', 'signup')`. This is optional — most
-integrations don't need it, since `defer` already runs the tracker before
-the page finishes parsing.
+plan: 'pro' })`. This is optional — most integrations don't need it, since
+`defer` already runs the tracker before the page finishes parsing.
 
 ### Cookies
 
@@ -222,10 +214,10 @@ fully off or fully on.
 
 ## Collection endpoint
 
-`POST /api/webstats/collect` (Node runtime, `fra1`). Accepts `page`,
-`track`, `goal` and `identify` calls. Deliberately separate from
-`/api/webstats/event` — see `037_webstats_identity_events.sql`'s header for
-why sharing that table would have risked corrupting the existing dashboard.
+`POST /api/webstats/collect` (Node runtime, `fra1`). Accepts `page`, `track`
+and `identify` calls. Deliberately separate from `/api/webstats/event` — see
+`037_webstats_identity_events.sql`'s header for why sharing that table would
+have risked corrupting the existing dashboard.
 
 - CORS: open (`access-control-allow-origin: *`), same trust model as
   `/event` — the site id is public by design, sitting in a script tag.
@@ -236,8 +228,7 @@ why sharing that table would have risked corrupting the existing dashboard.
   wired to this pipeline — see **Known limitations**.
 - Payload cap: 16 KB.
 - Idempotency: every call carries a client-generated `event_id`
-  (`webstats_identity_events`) or is deduplicated via the goal's own
-  `dedupe_key` rule (`webstats_goal_completions`) — a retried/duplicated
+  (`webstats_identity_events`), unique per site — a retried/duplicated
   beacon is a no-op, not a double-count.
 - Sensitive query parameters are stripped from every stored URL
   (`libs/webstats/sanitize.ts`): `token`, `access_token`, `refresh_token`,
@@ -248,42 +239,17 @@ why sharing that table would have risked corrupting the existing dashboard.
   silently (still `202`, matching `/event`'s "a caller must never learn a
   beacon was rejected" policy) — see `libs/webstats/collect-payload.ts`.
 
-## Goals
-
-Configure from `/dashboard/sites/[id]/goals`. Each goal has:
-
-- **`key`** — what `analytics.goal(key, props)` sends. Lowercase,
-  `[a-z0-9_-]`, up to 60 characters.
-- **`type`** — `page`, `event`, `signup`, `click`, `form`, `download`, or
-  `outbound_link`. Currently informational/for your own organisation; goal
-  matching itself is driven by the `key` the SDK call sends, not by
-  automatically detecting a page destination or a form submission — see
-  **Known limitations**.
-- **Dedupe rule**:
-  - `every` — every occurrence is counted (deduplicated only against an
-    exact retry of the same call, via `event_id`).
-  - `once_per_session` — a second completion in the same session is a
-    no-op.
-  - `once_per_visitor` — a second completion, ever, from the same visitor,
-    is a no-op.
-
-A `goal()` call for a key that hasn't been configured yet is silently
-dropped — it doesn't break ingestion, there's just nothing to attribute it
-to.
-
 ## Dashboard
 
 - **Overview** (existing, unchanged) — the legacy cookieless pipeline.
 - **Acquisition** (`/dashboard/sites/[id]/acquisition`) — unique visitors,
-  sessions, pageviews, events, goal completions, conversion rate, new vs.
-  returning, identified vs. anonymous, and breakdowns by channel, source,
-  medium, campaign, referrer, landing page, country and browser. A "Recent
-  visitors" list links into each visitor's journey.
+  sessions, pageviews, events, new vs. returning, identified vs. anonymous,
+  and breakdowns by channel, source, medium, campaign, referrer, landing
+  page, country and browser. A "Recent visitors" list links into each
+  visitor's journey.
 - **Visitor journey** (`/dashboard/sites/[id]/visitors/[visitorId]`) — one
   visitor's timeline: session starts (with source), page views, track
-  events, identify calls and goal completions, in order.
-- **Goals** (`/dashboard/sites/[id]/goals`) — create/delete goal
-  configuration.
+  events and identify calls, in order.
 
 `libs/webstats/acquisition.ts` and `libs/webstats/journey.ts` are the read
 layer; both go through the user-scoped Supabase client, so RLS — not the
@@ -296,7 +262,6 @@ layer; both go through the user-scoped Supabase client, so RLS — not the
 - `libs/webstats/sanitize.test.ts` — sensitive query-param stripping.
 - `libs/webstats/collect-payload.test.ts` — payload validation, malformed
   and oversized input.
-- `libs/webstats/dedupe.test.ts` — goal dedupe key computation per rule.
 - `libs/webstats/session-window.test.ts` — the 30-minute session boundary.
 - `e2e/tracker.spec.ts` (Playwright, fully hermetic — no dev server, no
   network) — visitor cookie attributes, one `page()` call per SPA
@@ -306,6 +271,16 @@ layer; both go through the user-scoped Supabase client, so RLS — not the
   down.
 
 Run: `npm test` (vitest), `npm run test:e2e` (Playwright).
+
+## History
+
+Custom conversion goals (`analytics.goal(key, props)`, goal management UI,
+`webstats_goals`/`webstats_goal_completions`) shipped and were removed the
+same day: they required customers to manually instrument a `goal()` call
+for every conversion they cared about, which was more setup work than the
+feature was worth for this product. No goal data ever existed in
+production, so the removal (`039_webstats_drop_goals.sql`) is a clean drop.
+The rest of this pipeline — identity, sessions, attribution — is unaffected.
 
 ## Known limitations / deferred improvements
 
@@ -317,13 +292,6 @@ Run: `npm test` (vitest), `npm run test:e2e` (Playwright).
 - **`write_key` has no dashboard UI** yet for viewing/rotating it — read it
   directly from `webstats_sites.write_key` for now. Needs a "Server API"
   panel alongside the existing site options menu.
-- **Goal types beyond `key` matching are not auto-detected.** A `page`-type
-  goal doesn't yet fire automatically when a visitor reaches a configured
-  path, nor do `click`/`form`/`download`/`outbound_link` goals auto-attach
-  listeners — every goal today fires because the customer's own code calls
-  `analytics.goal(key, ...)`. Auto-detected goals are a real feature gap,
-  not just a nice-to-have, for customers who don't want to instrument their
-  own code.
 - **No merged cross-visitor "everything this user has ever done" view.**
   `listRecentVisitors`/`getVisitorJourney` operate per-`visitor_id`. A true
   per-`user_id` timeline spanning every linked visitor_id is possible via
@@ -336,6 +304,3 @@ Run: `npm test` (vitest), `npm run test:e2e` (Playwright).
   doesn't generate automatically yet (documented above, not wired into
   `libs/webstats/snippet.ts`'s generated variants) — most integrations
   don't need it, since the default tag is `defer`.
-- **Goal dropdowns in the dashboard use native `<select>`s** rather than the
-  themed dropdown pattern used elsewhere (`GroupPicker`, `NewMenu`) — a
-  lower-traffic admin surface, left as a known follow-up.

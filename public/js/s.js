@@ -18,10 +18,11 @@
  *     powers the existing dashboard, and nothing below touches it.
  *
  *  2. The identity pipeline: a real first-party visitor_id cookie, rolling
- *     30-minute sessions, identify()/reset()/setConsent(), custom events and
- *     goals, posted to /api/webstats/collect. Exposed as window.saasname(...)
- *     for the legacy one-arg shorthand, and as window.saasname.track/goal/
- *     identify/reset/setConsent/page/getVisitorId/getSessionId.
+ *     30-minute sessions, identify()/reset()/setConsent() and custom
+ *     events, posted to /api/webstats/collect. Exposed as
+ *     window.saasname(...) for the legacy one-arg shorthand, and as
+ *     window.saasname.track/identify/reset/setConsent/page/getVisitorId/
+ *     getSessionId.
  *
  *  Served static and unminified on purpose for now: it is small, it is read
  *  by the people installing it, and a build step is not yet worth its weight.
@@ -261,7 +262,7 @@
 
   /* =======================================================================
    * Identity pipeline: visitor_id, sessions, identify/reset/setConsent,
-   * custom events and goals.
+   * custom events.
    * ===================================================================== */
 
   var VISITOR_COOKIE = "_sn_vid";
@@ -426,8 +427,8 @@
     }
   }
 
-  /** type: "page" | "track" | "goal" | "identify". name: event/goal key, or
-   *  null. properties: a plain object of safe values, or null/undefined. */
+  /** type: "page" | "track" | "identify". name: event name, or null.
+   *  properties: a plain object of safe values, or null/undefined. */
   function collect(type, name, properties) {
     if (!consentGranted) return;
 
@@ -467,11 +468,6 @@
   function track(name, properties) {
     if (!name) return;
     collect("track", String(name), properties || null);
-  }
-
-  function goal(key, properties) {
-    if (!key) return;
-    collect("goal", String(key), properties || null);
   }
 
   function identify(id, traits) {
@@ -532,7 +528,7 @@
   /* ---------------------------------------------------------------------
    * Public API. window.saasname('name', props) keeps its original meaning —
    * the legacy custom event, unchanged. The new pipeline is reached through
-   * window.saasname.track/goal/identify/reset/setConsent/page/etc.
+   * window.saasname.track/identify/reset/setConsent/page/etc.
    * ------------------------------------------------------------------- */
 
   var api = function (name, data) {
@@ -540,7 +536,6 @@
   };
   api.page = identityPage;
   api.track = track;
-  api.goal = goal;
   api.identify = identify;
   api.reset = reset;
   api.setConsent = setConsent;
@@ -554,11 +549,11 @@
   //     (window.saasname.q = window.saasname.q || []).push(arguments);
   //   };
   // and calls the new pipeline as saasname('track', name, props),
-  // saasname('goal', key), saasname('identify', id) — method name first,
-  // same convention this stub uses everywhere else. Anything queued that way
-  // is replayed here, in order, before the real API takes over. A queued
-  // call whose first argument is not one of those method names is treated as
-  // the legacy bare form, saasname('event-name', data), unchanged.
+  // saasname('identify', id) — method name first, same convention this stub
+  // uses everywhere else. Anything queued that way is replayed here, in
+  // order, before the real API takes over. A queued call whose first
+  // argument is not one of those method names is treated as the legacy bare
+  // form, saasname('event-name', data), unchanged.
   var queued = window.saasname && window.saasname.q;
   window.saasname = api;
 

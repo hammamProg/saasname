@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { formatCount } from "@/libs/webstats/format";
-import { RANGES, type RangeKey, type Range } from "@/libs/webstats/range";
+import type { Range } from "@/libs/webstats/range";
 import type { PortfolioStats } from "@/libs/webstats/portfolio";
 import SiteFavicon from "@/components/dashboard/SiteFavicon";
+import RangeFilter from "@/components/dashboard/RangeFilter";
 
 function Tile({
   label,
@@ -34,28 +35,11 @@ export default function PortfolioStatsRow({
   const { topSite } = stats;
 
   return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="section-heading text-xl font-extrabold">Overview</h2>
-
-        <nav className="flex flex-wrap gap-1" aria-label="Date range">
-          {(Object.keys(RANGES) as RangeKey[]).map((key) => (
-            <Link
-              key={key}
-              href={`/dashboard?range=${key}`}
-              aria-current={key === range.key ? "page" : undefined}
-              className={
-                key === range.key
-                  ? "rounded-full bg-primary-soft px-3 py-1.5 text-xs font-semibold text-primary"
-                  : "rounded-full px-3 py-1.5 text-xs font-semibold text-muted transition hover:text-foreground"
-              }
-            >
-              {RANGES[key].label.replace("Last ", "")}
-            </Link>
-          ))}
-        </nav>
-      </div>
-
+    <RangeFilter
+      header={<h2 className="section-heading text-xl font-extrabold">Overview</h2>}
+      range={range}
+      buildHref={(key) => `/dashboard?range=${key}`}
+    >
       {stats.truncated ? (
         <p className="rounded-xl border border-warning-border bg-warning-soft px-4 py-3 text-sm text-warning">
           This range has more data than one report can read across all your
@@ -115,6 +99,6 @@ export default function PortfolioStatsRow({
           hint="Across all websites"
         />
       </div>
-    </div>
+    </RangeFilter>
   );
 }

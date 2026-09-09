@@ -1,14 +1,14 @@
-import Link from "next/link";
 import {
   formatCount,
   formatDuration,
   formatPercent,
 } from "@/libs/webstats/format";
-import { RANGES, type Range, type RangeKey } from "@/libs/webstats/range";
+import type { Range } from "@/libs/webstats/range";
 import type { SiteStats } from "@/libs/webstats/stats";
 import BreakdownCard from "@/components/dashboard/BreakdownCard";
 import TrafficChart from "@/components/dashboard/TrafficChart";
 import OnlineTile from "@/components/dashboard/OnlineTile";
+import RangeFilter from "@/components/dashboard/RangeFilter";
 
 function Tile({
   label,
@@ -44,28 +44,11 @@ export default function SiteStatsPanel({
   const { summary } = stats;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="section-heading text-xl font-extrabold">Traffic</h2>
-
-        <nav className="flex flex-wrap gap-1" aria-label="Date range">
-          {(Object.keys(RANGES) as RangeKey[]).map((key) => (
-            <Link
-              key={key}
-              href={`/dashboard/sites/${siteId}?range=${key}`}
-              aria-current={key === range.key ? "page" : undefined}
-              className={
-                key === range.key
-                  ? "rounded-full bg-primary-soft px-3 py-1.5 text-xs font-semibold text-primary"
-                  : "rounded-full px-3 py-1.5 text-xs font-semibold text-muted transition hover:text-foreground"
-              }
-            >
-              {RANGES[key].label.replace("Last ", "")}
-            </Link>
-          ))}
-        </nav>
-      </div>
-
+    <RangeFilter
+      header={<h2 className="section-heading text-xl font-extrabold">Traffic</h2>}
+      range={range}
+      buildHref={(key) => `/dashboard/sites/${siteId}?range=${key}`}
+    >
       {stats.truncated ? (
         <p className="rounded-xl border border-warning-border bg-warning-soft px-4 py-3 text-sm text-warning">
           This range has more data than one report can read. The figures below
@@ -154,6 +137,6 @@ export default function SiteStatsPanel({
         across hours without counting the same person twice, so the lists that
         can report visitors do, and the ones that cannot say so.
       </p>
-    </div>
+    </RangeFilter>
   );
 }

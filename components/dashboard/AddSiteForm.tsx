@@ -117,7 +117,16 @@ function GroupField({ groups }: { groups: SiteGroup[] }) {
   );
 }
 
-export default function AddSiteForm({ groups }: { groups: SiteGroup[] }) {
+export default function AddSiteForm({
+  groups,
+  domain,
+}: {
+  groups: SiteGroup[];
+  /** Pre-fill from the landing page's hero form (?domain=… carried through
+   *  sign-in as the `next` redirect target), so a visitor who already typed
+   *  their domain doesn't have to type it again after auth. */
+  domain?: string;
+}) {
   const [state, formAction, pending] = useActionState(createSiteAction, INITIAL);
 
   return (
@@ -131,6 +140,7 @@ export default function AddSiteForm({ groups }: { groups: SiteGroup[] }) {
           name="domain"
           required
           autoFocus
+          defaultValue={domain ?? ""}
           placeholder="example.com"
           autoComplete="off"
           autoCapitalize="none"

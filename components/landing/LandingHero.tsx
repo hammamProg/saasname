@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { ArrowRight, Check } from "lucide-react";
-import config from "@/config";
+import { Check } from "lucide-react";
 import MarketingBackdrop from "@/components/ui/MarketingBackdrop";
-import AnalyticsCardSample from "@/components/landing/AnalyticsCardSample";
+import HeroLiveDemo from "@/components/landing/HeroLiveDemo";
+import HeroDomainForm from "@/components/landing/HeroDomainForm";
 
 /** Three claims the product actually honours today, so none can age into a
  *  lie: no card required while in beta, no cookie banner needed, and the
@@ -25,32 +25,30 @@ export default function LandingHero() {
               Beta — free for now
             </span>
 
-            <h1 className="section-heading max-w-[18ch] text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
-              Cookieless website analytics that{" "}
-              <span className="gradient-text">respect your visitors.</span>
+            <h1 className="section-heading max-w-[19ch] text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
+              Know who&apos;s on your site,{" "}
+              <span className="gradient-text">right now.</span>
             </h1>
 
             <p className="max-w-lg text-lg leading-relaxed text-muted">
-              One script tag, no cookies, no consent banner. See who&apos;s on
-              your site right now, where they came from, and which pages hold
-              them — without asking their browser for permission first. No
-              GDPR consent prompt to build, no cookie law to worry about.
+              Cookieless analytics you can read in ten seconds — visitors,
+              sources, and countries, live. Drop in one script tag and skip
+              the cookie banner, the consent prompt, and the GDPR paperwork
+              entirely.
             </p>
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5">
-              <Link
-                href={config.auth.loginUrl}
-                className="btn-gradient px-8 py-3.5 text-sm"
-              >
-                Start tracking free
-                <ArrowRight size={16} />
-              </Link>
-              <Link
-                href="#how-it-works"
-                className="text-sm font-medium text-muted underline-offset-4 transition-colors hover:text-foreground hover:underline"
-              >
-                How it works
-              </Link>
+            <div className="max-w-lg space-y-2">
+              <HeroDomainForm />
+              <p className="text-xs text-muted">
+                No credit card. Try the live demo first, or{" "}
+                <Link
+                  href="#how-it-works"
+                  className="font-medium underline-offset-4 hover:text-foreground hover:underline"
+                >
+                  see how it works
+                </Link>
+                .
+              </p>
             </div>
 
             <ul className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted">
@@ -69,7 +67,7 @@ export default function LandingHero() {
               <span className="h-2.5 w-2.5 rounded-full bg-[#FEBC2E]" aria-hidden />
               <span className="h-2.5 w-2.5 rounded-full bg-[#28C840]" aria-hidden />
             </div>
-            <AnalyticsCardSample frameless />
+            <HeroLiveDemo />
           </div>
         </div>
       </div>

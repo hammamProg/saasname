@@ -12,9 +12,13 @@ export const metadata = getSEOTags({
   canonicalUrlRelative: "/dashboard/sites/new",
 });
 
-export default async function NewSitePage() {
+export default async function NewSitePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ domain?: string }>;
+}) {
   await requireUser();
-  const groups = await listGroups();
+  const [groups, { domain }] = await Promise.all([listGroups(), searchParams]);
 
   return (
     <div className="mx-auto max-w-lg space-y-8">
@@ -29,7 +33,7 @@ export default async function NewSitePage() {
       </div>
 
       <div className="rounded-2xl border border-border bg-card p-6">
-        <AddSiteForm groups={groups} />
+        <AddSiteForm groups={groups} domain={domain} />
       </div>
     </div>
   );

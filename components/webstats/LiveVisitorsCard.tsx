@@ -31,6 +31,7 @@ export default function LiveVisitorsCard({
   endpoint,
   active = true,
   badge,
+  frameless = false,
 }: {
   endpoint: string;
   active?: boolean;
@@ -41,6 +42,9 @@ export default function LiveVisitorsCard({
    *  site page, unrelated to the badge panel) has no reason to credit
    *  itself. */
   badge?: CardBadge;
+  /** Drop the card's own border/background when it's already nested inside
+   *  another frame (the landing hero's browser-chrome window). */
+  frameless?: boolean;
 }) {
   const [data, setData] = useState<LiveVisitors | null>(null);
 
@@ -79,7 +83,7 @@ export default function LiveVisitorsCard({
   const peak = Math.max(...series, 1);
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-5">
+    <div className={frameless ? "" : "rounded-2xl border border-border bg-card p-5"}>
       <p className="text-xs font-semibold uppercase tracking-wide text-muted">
         Users in last 30 minutes
       </p>

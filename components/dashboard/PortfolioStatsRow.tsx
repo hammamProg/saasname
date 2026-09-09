@@ -37,8 +37,8 @@ export default function PortfolioStatsRow({
   return (
     <RangeFilter
       header={<h2 className="section-heading text-xl font-extrabold">Overview</h2>}
-      range={range}
-      buildHref={(key) => `/dashboard?range=${key}`}
+      activeKey={range.key}
+      basePath="/dashboard"
     >
       {stats.truncated ? (
         <p className="rounded-xl border border-warning-border bg-warning-soft px-4 py-3 text-sm text-warning">

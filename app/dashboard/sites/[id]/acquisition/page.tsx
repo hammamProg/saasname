@@ -81,8 +81,8 @@ export default async function AcquisitionPage({
           </div>
         }
         align="start"
-        range={range}
-        buildHref={(key) => `/dashboard/sites/${id}/acquisition?range=${key}`}
+        activeKey={range.key}
+        basePath={`/dashboard/sites/${id}/acquisition`}
       >
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {stats.map((stat) => (

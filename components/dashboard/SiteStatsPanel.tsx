@@ -46,8 +46,8 @@ export default function SiteStatsPanel({
   return (
     <RangeFilter
       header={<h2 className="section-heading text-xl font-extrabold">Traffic</h2>}
-      range={range}
-      buildHref={(key) => `/dashboard/sites/${siteId}?range=${key}`}
+      activeKey={range.key}
+      basePath={`/dashboard/sites/${siteId}`}
     >
       {stats.truncated ? (
         <p className="rounded-xl border border-warning-border bg-warning-soft px-4 py-3 text-sm text-warning">

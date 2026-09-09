@@ -1,7 +1,7 @@
 import Link from "next/link";
-import Image from "next/image";
 import config from "@/config";
-import { articles } from "@/app/blog/_assets/content";
+import { articles, formatPublishedAt } from "@/app/blog/_assets/content";
+import BlogCover from "@/components/blog/BlogCover";
 
 export default function BlogPreview() {
   const featured = articles.slice(0, 2);
@@ -13,7 +13,8 @@ export default function BlogPreview() {
           The {config.appName} Blog
         </h2>
         <p className="mx-auto mt-4 max-w-2xl text-center text-muted">
-          Learn how to setup auth, prevent chargebacks, handle subscriptions, and more.
+          Guides on cookieless analytics, GDPR-compliant tracking, and reading
+          traffic without a consent banner.
         </p>
 
         <div className="mt-12 grid gap-8 md:grid-cols-2">
@@ -23,14 +24,10 @@ export default function BlogPreview() {
               href={`/blog/${article.slug}`}
               className="card group overflow-hidden transition hover:shadow-lg"
             >
-              <div className="relative aspect-video overflow-hidden bg-surface-dark">
-                <Image
-                  src={article.image}
-                  alt=""
-                  fill
-                  className="object-cover transition group-hover:scale-105"
-                />
-              </div>
+              <BlogCover
+                category={article.categories[0]}
+                className="aspect-video overflow-hidden transition group-hover:scale-105"
+              />
               <div className="p-6">
                 <div className="flex flex-wrap gap-2">
                   {article.categories.map((cat) => (
@@ -45,7 +42,7 @@ export default function BlogPreview() {
                 <h3 className="mt-3 font-bold group-hover:text-primary">{article.title}</h3>
                 <p className="mt-2 text-sm text-muted">{article.description}</p>
                 <p className="mt-4 text-xs text-muted">
-                  {article.author} · {article.publishedAt}
+                  {article.author} · {formatPublishedAt(article.publishedAt)}
                 </p>
               </div>
             </Link>

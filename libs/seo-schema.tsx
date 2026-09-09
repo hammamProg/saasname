@@ -36,21 +36,18 @@ export function renderSchemaTags(faqs: Array<{ question: string; answer: string 
       url: siteUrl,
       description: config.appDescription,
       featureList: [
-        "Daily trend signals from Hacker News, GitHub, npm and PyPI",
-        "Research and model traction from arXiv and Hugging Face",
-        "Developer adoption pain from Stack Overflow questions",
-        "Keyword search demand as a confirming signal",
-        "Related signals clustered into named topics automatically",
-        "Momentum, confidence and lifecycle stage scored nightly",
-        "Personalised Discover feed with follow and hide controls",
-        "An unfiltered Rising Fast column to counter filter bubbles",
-        "Every trend linked to the source signals behind its score",
+        "One script tag install, no configuration",
+        "Cookieless visitor tracking with no consent banner required",
+        "Live visitor count updated in real time",
+        "Referrer and traffic source breakdown",
+        "Country-level visitor location",
+        "Embeddable live-visitors badge for any site",
       ],
       offers: {
         "@type": "Offer",
         price: "0",
         priceCurrency: "USD",
-        description: "Discover feed, free for any signed-in account while in beta.",
+        description: "Free while in beta.",
         url: siteUrl,
       },
     },
@@ -73,6 +70,39 @@ export function renderSchemaTags(faqs: Array<{ question: string; answer: string 
       type="application/ld+json"
       dangerouslySetInnerHTML={{
         __html: JSON.stringify({ "@context": "https://schema.org", "@graph": graph }),
+      }}
+    />
+  );
+}
+
+/** JSON-LD for a single blog post — the machine-readable version of the
+ *  title/author/date already on the page, so a post can surface as a rich
+ *  result instead of a bare blue link. */
+export function renderBlogPostSchema(article: {
+  slug: string;
+  title: string;
+  description: string;
+  author: string;
+  publishedAt: string;
+}) {
+  const url = `${siteUrl}/blog/${article.slug}`;
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BlogPosting",
+          "@id": `${url}/#article`,
+          headline: article.title,
+          description: article.description,
+          image: `${siteUrl}${config.brand.logo}`,
+          datePublished: article.publishedAt,
+          author: { "@type": "Organization", name: article.author, url: siteUrl },
+          publisher: { "@id": `${siteUrl}/#organization` },
+          mainEntityOfPage: { "@type": "WebPage", "@id": url },
+        }),
       }}
     />
   );

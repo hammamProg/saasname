@@ -25,7 +25,7 @@ export function getSEOTags({
   openGraph,
   robots,
 }: SEOTags = {}): import("next").Metadata {
-  const defaultTitle = `${config.appName} — catch the trend before it's crowded`;
+  const defaultTitle = `${config.appName} — cookieless website analytics`;
   const resolvedTitle = title ?? defaultTitle;
   const resolvedDescription = description ?? config.appDescription;
   const canonicalPath = canonicalUrlRelative ?? "/";
@@ -35,9 +35,11 @@ export function getSEOTags({
     description: resolvedDescription,
     keywords: keywords ?? [
       config.appName,
-      "trend discovery",
-      "emerging tech trends",
-      "what to build next",
+      "cookieless analytics",
+      "website analytics without cookies",
+      "GDPR analytics",
+      "no cookie banner analytics",
+      "live visitor tracking",
     ],
     metadataBase: new URL(siteUrl),
     alternates: {

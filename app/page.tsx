@@ -7,6 +7,7 @@ import LandingFeatures from "@/components/landing/LandingFeatures";
 import LandingSourcesStrip from "@/components/landing/LandingSourcesStrip";
 import LandingFAQ from "@/components/landing/LandingFAQ";
 import LandingFinalCTA from "@/components/landing/LandingFinalCTA";
+import BlogPreview from "@/components/BlogPreview";
 import config from "@/config";
 import { getSEOTags } from "@/libs/seo";
 import { renderSchemaTags } from "@/libs/seo-schema";
@@ -40,6 +41,7 @@ export default function Home() {
         <LandingFeatures />
         <LandingSourcesStrip />
         <LandingFAQ />
+        <BlogPreview />
         <LandingFinalCTA />
       </main>
       <Footer variant="landing" />

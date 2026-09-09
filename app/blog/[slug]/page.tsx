@@ -1,8 +1,10 @@
 import Link from "next/link";
-import Image from "next/image";
 import { notFound } from "next/navigation";
-import { getArticle, articles } from "@/app/blog/_assets/content";
+import { formatPublishedAt, getArticle, articles } from "@/app/blog/_assets/content";
 import { getSEOTags } from "@/libs/seo";
+import { renderBlogPostSchema } from "@/libs/seo-schema";
+import BlogCover from "@/components/blog/BlogCover";
+import ArticleBody from "@/components/blog/ArticleBody";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -28,23 +30,25 @@ export default async function ArticlePage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-background">
+      {renderBlogPostSchema(article)}
       <header className="border-b border-border px-4 py-4 sm:px-6">
         <Link href="/blog" className="font-bold">
           ← Blog
         </Link>
       </header>
       <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
-        <div className="relative mb-8 aspect-video overflow-hidden rounded-xl">
-          <Image src={article.image} alt={article.title} fill className="object-cover" />
-        </div>
+        <BlogCover
+          category={article.categories[0]}
+          className="mb-8 aspect-video overflow-hidden rounded-xl"
+        />
         <h1 className="section-heading text-3xl font-extrabold sm:text-4xl">
           {article.title}
         </h1>
         <p className="mt-2 text-sm text-muted">
-          {article.author} · {article.publishedAt}
+          {article.author} · {formatPublishedAt(article.publishedAt)}
         </p>
-        <div className="prose prose-slate mt-8 max-w-none whitespace-pre-wrap leading-relaxed text-muted">
-          {article.content}
+        <div className="prose prose-slate mt-8 max-w-none space-y-4 leading-relaxed text-muted">
+          <ArticleBody content={article.content} />
         </div>
       </article>
     </div>
